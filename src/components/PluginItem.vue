@@ -18,7 +18,7 @@ function openMisskeyInstall() {
 <template>
   <div class="vsx-card">
     <div class="vsx-body">
-      <div class="vsx-icon">{{ initial }}</div>
+      <div class="vsx-icon-plain">🍮</div>
       <div class="vsx-details">
         <div class="vsx-name">{{ plugin.name }}</div>
         <div class="vsx-version">v{{ plugin.version }}</div>

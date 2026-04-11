@@ -383,142 +383,7 @@ body {
   gap: 16px;
 }
 
-/* ===== Card — glass morphism ===== */
-.store-card {
-  display: flex;
-  flex-direction: column;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 20px;
-  backdrop-filter: blur(var(--blur));
-  -webkit-backdrop-filter: blur(var(--blur));
-  transition: all 0.25s var(--ease-decel);
-  cursor: default;
-}
-
-.store-card:hover {
-  background: var(--surface-hover);
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--border-hover);
-}
-
-.card-header {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-
-.card-icon {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-xs);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-size: 20px;
-  font-weight: 800;
-  color: #fff;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  box-shadow: var(--shadow-sm);
-}
-
-/* ===== Theme Preview ===== */
-.theme-preview-wrap {
-  margin: -20px -20px 14px;
-  border-bottom: 1px solid var(--border);
-  overflow: hidden;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-}
-
-.theme-preview-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.card-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.card-name {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text);
-  line-height: 1.3;
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-}
-
-.card-version {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-
-.card-author {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin-top: 2px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.card-desc {
-  font-size: 13px;
-  color: var(--text-sub);
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  margin-bottom: 14px;
-  flex: 1;
-}
-
-.card-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.card-category {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent);
-  background: var(--accent-soft);
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-}
-
-.card-tag {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-muted);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-}
-
-
-.card-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-/* ===== VS Code Marketplace–style Plugin Card ===== */
+/* ===== VS Code Marketplace–style Card ===== */
 .vsx-card {
   display: flex;
   flex-direction: column;
@@ -537,25 +402,32 @@ body {
 
 .vsx-body {
   display: flex;
-  gap: 14px;
-  padding: 16px 16px 14px;
   flex: 1;
   min-height: 0;
 }
 
-.vsx-icon {
+.vsx-icon-plain {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 6px;
+  width: 96px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  font-size: 48px;
+  line-height: 1;
+}
+
+.vsx-theme-preview {
+  flex-shrink: 0;
+  width: 96px;
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+}
+
+.vsx-theme-preview .theme-preview-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .vsx-details {
@@ -563,6 +435,7 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  padding: 14px 14px 12px;
 }
 
 .vsx-name {
@@ -578,14 +451,15 @@ body {
 .vsx-version {
   font-size: 11px;
   color: var(--text-muted);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .vsx-desc {
   font-size: 12px;
   color: var(--text-sub);
   line-height: 1.45;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -671,33 +545,6 @@ body {
   cursor: not-allowed;
 }
 
-/* ===== Install Button — NoteDeck gradient style ===== */
-.install-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 18px;
-  border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  color: #fff;
-  border: none;
-  font-size: 12px;
-  font-weight: 700;
-  font-family: var(--font-body);
-  cursor: pointer;
-  transition: all 0.25s var(--ease-decel);
-  box-shadow: var(--shadow-accent);
-  white-space: nowrap;
-}
-
-.install-btn:hover {
-  filter: brightness(1.12);
-  box-shadow: 0 6px 20px rgba(134, 179, 0, 0.35);
-  transform: translateY(-1px);
-}
-.install-btn:active { transform: scale(0.97); }
-.install-btn.copied { background: var(--accent-dark); }
-
 /* ===== Empty State ===== */
 .store-empty {
   text-align: center;
@@ -752,22 +599,6 @@ body {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-glow);
-}
-
-/* ===== Misskey install button ===== */
-.misskey-install-btn {
-  background: var(--accent) !important;
-  color: #fff !important;
-  border-color: var(--accent) !important;
-}
-
-.misskey-install-btn:hover:not(:disabled) {
-  filter: brightness(1.1);
-}
-
-.misskey-install-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
 }
 
 /* ===== Responsive ===== */
