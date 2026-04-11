@@ -7,24 +7,29 @@ export interface PluginEntry {
   category: PluginCategory
   tags: string[]
   sourceUrl: string
+  apiUrl: string
+  sha512: string
   createdAt: string
+  updatedAt: string
 }
 
 export type PluginCategory =
-  | 'post-form'
-  | 'note-action'
-  | 'user-action'
-  | 'note-filter'
-  | 'post-filter'
+  | 'posting'
+  | 'timeline'
+  | 'moderation'
   | 'utility'
+  | 'integration'
+  | 'appearance'
+  | 'other'
 
 export const PLUGIN_CATEGORY_LABELS: Record<PluginCategory, string> = {
-  'post-form': 'Post Form',
-  'note-action': 'Note Action',
-  'user-action': 'User Action',
-  'note-filter': 'Note Filter',
-  'post-filter': 'Post Filter',
-  'utility': 'Utility',
+  posting: 'Posting',
+  timeline: 'Timeline',
+  moderation: 'Moderation',
+  utility: 'Utility',
+  integration: 'Integration',
+  appearance: 'Appearance',
+  other: 'Other',
 }
 
 export interface ThemeEntry {
@@ -36,13 +41,16 @@ export interface ThemeEntry {
   base: 'dark' | 'light'
   tags: string[]
   sourceUrl: string
+  apiUrl: string
+  sha512: string
+  createdAt: string
+  updatedAt: string
   previewColors: {
     bg: string
     fg: string
     panel: string
     accent: string
   }
-  createdAt: string
 }
 
 export interface RegistryIndex<T> {

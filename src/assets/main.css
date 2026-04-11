@@ -557,6 +557,64 @@ body {
 .empty-text { font-size: 16px; font-weight: 600; color: var(--text-sub); }
 .empty-sub { font-size: 13px; margin-top: 6px; opacity: 0.7; }
 
+/* ===== Server bar ===== */
+.server-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 24px 0;
+}
+
+.server-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.server-input {
+  flex: 1;
+  max-width: 300px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.server-input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.server-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ===== Misskey install button ===== */
+.misskey-install-btn {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+}
+
+.misskey-install-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.misskey-install-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 800px) {
   .store-filters { padding: 12px 16px 0; }

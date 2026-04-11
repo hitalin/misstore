@@ -1,3 +1,10 @@
 /registry/*
   Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET, OPTIONS
   Cache-Control: public, max-age=300
+
+/registry/plugins/*/plugin.is
+  Content-Type: text/plain; charset=utf-8
+
+/registry/themes/*/theme.json5
+  Content-Type: text/plain; charset=utf-8

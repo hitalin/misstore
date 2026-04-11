@@ -7,7 +7,7 @@ import { PLUGIN_CATEGORY_LABELS } from '@/types'
 import { useStore } from '@/composables/useStore'
 
 const {
-  activeTab, category, sort,
+  activeTab, category, sort, misskeyHost,
   filteredPlugins, filteredThemes,
   loaded, pluginCategories, resultCount,
 } = useStore()
@@ -15,6 +15,20 @@ const {
 
 <template>
   <StoreHeader />
+
+  <div class="server-bar">
+    <label class="server-label" for="misskey-host">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><circle cx="6" cy="6" r="1"/><circle cx="6" cy="18" r="1"/></svg>
+      Server
+    </label>
+    <input
+      id="misskey-host"
+      v-model="misskeyHost"
+      type="text"
+      class="server-input"
+      placeholder="example.com"
+    />
+  </div>
 
   <div class="store-filters">
     <div class="filter-pills">

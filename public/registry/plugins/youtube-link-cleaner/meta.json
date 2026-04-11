@@ -7,7 +7,7 @@
   "description": "投稿時に YouTube URL の追跡クエリを自動削除",
   "license": "MIT",
   "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",
-  "category": "post-form",
+  "category": "posting",
   "tags": ["youtube", "url", "cleanup"],
   "permissions": [],
   "minNoteDeckVersion": "0.10.0"
