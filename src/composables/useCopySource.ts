@@ -5,7 +5,12 @@ export function useCopySource() {
 
   async function copy(sourceUrl: string, id: string) {
     try {
-      const res = await fetch(`/${sourceUrl}`)
+      const url = sourceUrl.startsWith('http')
+        ? new URL(sourceUrl).pathname
+        : sourceUrl.startsWith('/')
+          ? sourceUrl
+          : `/${sourceUrl}`
+      const res = await fetch(url)
       const text = await res.text()
       await navigator.clipboard.writeText(text)
       copiedId.value = id
