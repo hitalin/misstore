@@ -70,6 +70,7 @@ body {
   color: var(--text);
   line-height: 1.5;
   font-size: 14px;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -317,7 +318,7 @@ body {
   background: var(--surface);
   color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--duration-fast);
+  transition: all 0.2s var(--ease-decel);
   flex-shrink: 0;
 }
 
@@ -392,14 +393,13 @@ body {
   padding: 20px;
   backdrop-filter: blur(var(--blur));
   -webkit-backdrop-filter: blur(var(--blur));
-  transition: transform var(--duration-slow) var(--ease-decel),
-              box-shadow var(--duration-slow) var(--ease-decel),
-              border-color var(--duration-base);
+  transition: all 0.25s var(--ease-decel);
   cursor: default;
 }
 
 .store-card:hover {
-  transform: translateY(-2px);
+  background: var(--surface-hover);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-md);
   border-color: var(--border-hover);
 }
@@ -538,12 +538,16 @@ body {
   font-weight: 700;
   font-family: var(--font-body);
   cursor: pointer;
-  transition: filter var(--duration-fast), transform var(--duration-fast), box-shadow var(--duration-fast);
+  transition: all 0.25s var(--ease-decel);
   box-shadow: var(--shadow-accent);
   white-space: nowrap;
 }
 
-.install-btn:hover { filter: brightness(1.12); }
+.install-btn:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 20px rgba(134, 179, 0, 0.35);
+  transform: translateY(-1px);
+}
 .install-btn:active { transform: scale(0.97); }
 .install-btn.copied { background: var(--accent-dark); }
 
