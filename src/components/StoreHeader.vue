@@ -15,7 +15,7 @@ const { activeTab, query, category, sort, pluginCategories, resultCount } = useS
           width="24"
           height="24"
         />
-        <span class="brand-text">Mis<b>Store</b></span>
+        <span class="brand-text">mis<b>store</b></span>
       </a>
 
       <div class="header-tabs">

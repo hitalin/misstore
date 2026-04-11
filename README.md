@@ -1,4 +1,4 @@
-# MisStore
+# misstore
 
 Misskey / NoteDeck 向けのプラグイン・テーマストア。
 
