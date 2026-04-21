@@ -4,6 +4,7 @@ import { PLUGIN_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
+import CodeBlock from '@/components/CodeBlock.vue'
 
 const route = useRoute()
 const { loaded, findPlugin, buildInstallUrl, misskeyHost } = useStore()
@@ -77,6 +78,15 @@ function openMisskeyInstall() {
               </div>
             </div>
           </div>
+
+          <section class="detail-section">
+            <h2 class="detail-section-title">Source</h2>
+            <CodeBlock
+              :source="plugin.sourceUrl"
+              lang="js"
+              :filename="`${plugin.id}.is`"
+            />
+          </section>
         </div>
 
         <aside class="detail-sidebar">

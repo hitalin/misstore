@@ -962,6 +962,24 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   box-shadow: 0 0 0 3px var(--accent-glow);
 }
 
+.detail-section {
+  margin-top: 32px;
+}
+
+.detail-section-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-section .code-block {
+  margin-top: 12px;
+}
+
 .detail-sidebar {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1021,6 +1039,121 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
 .detail-tag:hover {
   color: var(--text);
   border-color: var(--border-hover);
+}
+
+/* ===== Code Block (Shiki) ===== */
+.code-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+  margin-top: 24px;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Roboto Mono', monospace;
+  box-shadow: var(--shadow-sm);
+}
+
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.code-block-filename {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+
+.code-block-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-sub);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color var(--duration-base), border-color var(--duration-base), background var(--duration-base);
+}
+
+.code-block-copy:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
+}
+
+.code-block-copy.copied {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.code-block-copy:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.code-block-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+}
+
+.code-block-error { color: #e06c75; }
+
+.code-block-body { font-size: 13px; line-height: 1.6; }
+
+.code-block-body pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  max-height: 480px;
+  background: transparent !important;
+}
+
+.code-block-body pre code {
+  font-family: inherit;
+  font-size: inherit;
+  display: block;
+  min-width: fit-content;
+}
+
+/* Shiki dual-theme: default = light, dark overrides via color-scheme */
+html[style*="color-scheme: dark"] .shiki,
+html[style*="color-scheme: dark"] .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([style*="color-scheme: light"]) .shiki,
+  html:not([style*="color-scheme: light"]) .shiki span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+    font-style: var(--shiki-dark-font-style) !important;
+    font-weight: var(--shiki-dark-font-weight) !important;
+    text-decoration: var(--shiki-dark-text-decoration) !important;
+  }
 }
 
 /* ===== Skeleton ===== */

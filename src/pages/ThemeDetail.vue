@@ -5,6 +5,7 @@ import { useCopySource } from '@/composables/useCopySource'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import ThemePreview from '@/components/ThemePreview.vue'
+import CodeBlock from '@/components/CodeBlock.vue'
 
 const route = useRoute()
 const { loaded, findTheme, buildInstallUrl, misskeyHost } = useStore()
@@ -90,6 +91,15 @@ function openMisskeyInstall() {
               </div>
             </div>
           </div>
+
+          <section class="detail-section">
+            <h2 class="detail-section-title">Source</h2>
+            <CodeBlock
+              :source="theme.sourceUrl"
+              lang="json"
+              :filename="`${theme.id}.json5`"
+            />
+          </section>
         </div>
 
         <aside class="detail-sidebar">
