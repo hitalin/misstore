@@ -825,6 +825,10 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   animation: fade-in-up var(--duration-slow) var(--ease-decel) both;
 }
 
+.detail-main {
+  min-width: 0;
+}
+
 .detail-breadcrumb {
   display: flex;
   align-items: center;
@@ -907,6 +911,7 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   line-height: 1.2;
   letter-spacing: -0.02em;
   color: var(--text);
+  overflow-wrap: anywhere;
 }
 
 .detail-meta-row {
