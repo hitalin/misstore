@@ -60,6 +60,7 @@ export interface WidgetEntry {
   description: string
   icon: string
   autoRun: boolean
+  category: WidgetCategory
   tags: string[]
   sourceUrl: string
   apiUrl: string
@@ -69,6 +70,14 @@ export interface WidgetEntry {
   authorUrl?: string
   license?: string
   repository?: string
+}
+
+export type WidgetCategory = 'display' | 'input' | 'stats'
+
+export const WIDGET_CATEGORY_LABELS: Record<WidgetCategory, string> = {
+  display: 'Display',
+  input: 'Input',
+  stats: 'Stats',
 }
 
 export interface RegistryIndex<T> {

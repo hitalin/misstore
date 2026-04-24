@@ -94,11 +94,17 @@ const filteredWidgets = computed(() => {
         w.tags.some((tag) => tag.toLowerCase().includes(q)),
     )
   }
+  if (category.value) {
+    items = items.filter((w) => w.category === category.value)
+  }
   return sortItems(items)
 })
 
 const pluginCategories = computed(() => [
   ...new Set(plugins.value.map((p) => p.category)),
+])
+const widgetCategories = computed(() => [
+  ...new Set(widgets.value.map((w) => w.category)),
 ])
 const resultCount = computed(() => {
   if (activeTab.value === 'plugins') return filteredPlugins.value.length
@@ -148,6 +154,7 @@ export function useStore() {
     filteredThemes,
     filteredWidgets,
     pluginCategories,
+    widgetCategories,
     resultCount,
     buildInstallUrl,
     findPlugin,

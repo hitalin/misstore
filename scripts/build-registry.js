@@ -186,7 +186,14 @@ function buildWidgets() {
     }
 
     const meta = readJson(metaPath)
-    validateRequired(meta, id, ['name', 'version', 'author', 'description', 'icon'])
+    validateRequired(meta, id, [
+      'name',
+      'version',
+      'author',
+      'description',
+      'icon',
+      'category',
+    ])
 
     const source = readFileSync(srcPath, 'utf-8')
     const normalized = normalizeLF(source)
@@ -209,6 +216,7 @@ function buildWidgets() {
         description: meta.description,
         icon: meta.icon,
         autoRun: meta.autoRun ?? true,
+        category: meta.category,
         tags: meta.tags || [],
         sourceUrl: `${SITE_URL}/registry/widgets/${id}/widget.is`,
         apiUrl: `${SITE_URL}/registry/widgets/${id}/api.json`,

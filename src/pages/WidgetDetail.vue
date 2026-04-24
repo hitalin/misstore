@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
+import { WIDGET_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
@@ -39,7 +40,7 @@ const widget = findWidget(route.params.id as string)
               <h1 class="detail-title">{{ widget.name }}</h1>
               <div class="detail-meta-row">
                 <span class="detail-version">v{{ widget.version }}</span>
-                <span class="detail-category">Widget</span>
+                <span class="detail-category">{{ WIDGET_CATEGORY_LABELS[widget.category] || widget.category }}</span>
               </div>
               <p class="detail-description">{{ widget.description }}</p>
               <div class="detail-actions">

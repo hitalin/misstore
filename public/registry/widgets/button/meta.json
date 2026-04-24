@@ -7,6 +7,7 @@
   "description": "カスタムアクションボタン",
   "icon": "ti-square-rounded",
   "autoRun": true,
+  "category": "input",
   "license": "MIT",
   "tags": ["button", "action"]
 }

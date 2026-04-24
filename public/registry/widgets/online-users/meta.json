@@ -7,6 +7,7 @@
   "description": "サーバーのオンラインユーザー数を表示",
   "icon": "ti-users",
   "autoRun": true,
+  "category": "stats",
   "license": "MIT",
   "tags": ["online", "users", "stats"]
 }

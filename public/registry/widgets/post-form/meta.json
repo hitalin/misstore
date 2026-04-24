@@ -7,6 +7,7 @@
   "description": "定型文をすばやく投稿",
   "icon": "ti-pencil",
   "autoRun": true,
+  "category": "input",
   "license": "MIT",
   "tags": ["post", "form", "template"]
 }

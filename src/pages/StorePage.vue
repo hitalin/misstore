@@ -5,13 +5,13 @@ import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
 import StoreEmpty from '@/components/StoreEmpty.vue'
 import StoreSkeleton from '@/components/StoreSkeleton.vue'
-import { PLUGIN_CATEGORY_LABELS } from '@/types'
+import { PLUGIN_CATEGORY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
 import { useStore } from '@/composables/useStore'
 
 const {
   activeTab, category, sort, misskeyHost,
   filteredPlugins, filteredThemes, filteredWidgets,
-  loaded, pluginCategories, resultCount,
+  loaded, pluginCategories, widgetCategories, resultCount,
 } = useStore()
 </script>
 
@@ -49,6 +49,17 @@ const {
       <template v-else-if="activeTab === 'themes'">
         <button class="pill" :class="{ active: category === 'dark' }" @click="category = 'dark'">Dark</button>
         <button class="pill" :class="{ active: category === 'light' }" @click="category = 'light'">Light</button>
+      </template>
+      <template v-else>
+        <button
+          v-for="c in widgetCategories"
+          :key="c"
+          class="pill"
+          :class="{ active: category === c }"
+          @click="category = c"
+        >
+          {{ WIDGET_CATEGORY_LABELS[c] || c }}
+        </button>
       </template>
     </div>
     <div class="filter-right">

@@ -7,6 +7,7 @@
   "description": "今月のカレンダーを表示",
   "icon": "ti-calendar",
   "autoRun": true,
+  "category": "display",
   "license": "MIT",
   "tags": ["calendar", "date", "month"]
 }
