@@ -1,0 +1,12 @@
+{
+  "id": "digital-clock",
+  "name": "デジタル時計",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "現在の日時をリアルタイム表示",
+  "icon": "ti-clock",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["clock", "time", "date"]
+}

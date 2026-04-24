@@ -1,0 +1,12 @@
+{
+  "id": "profile",
+  "name": "プロフィール",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "自分のプロフィール情報を表示",
+  "icon": "ti-user",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["profile", "user"]
+}

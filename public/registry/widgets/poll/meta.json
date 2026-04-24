@@ -1,0 +1,12 @@
+{
+  "id": "poll",
+  "name": "簡易アンケート",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ローカル保存の簡易投票",
+  "icon": "ti-chart-bar",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["poll", "vote", "survey"]
+}

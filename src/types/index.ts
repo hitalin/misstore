@@ -52,11 +52,31 @@ export interface ThemeEntry {
   themeProps: Record<string, string>
 }
 
+export interface WidgetEntry {
+  id: string
+  name: string
+  version: string
+  author: string
+  description: string
+  icon: string
+  autoRun: boolean
+  tags: string[]
+  sourceUrl: string
+  apiUrl: string
+  sha512: string
+  createdAt: string
+  updatedAt: string
+  authorUrl?: string
+  license?: string
+  repository?: string
+}
+
 export interface RegistryIndex<T> {
   version: number
   updatedAt: string
   plugins?: T[]
   themes?: T[]
+  widgets?: T[]
 }
 
-export type StoreTab = 'plugins' | 'themes'
+export type StoreTab = 'plugins' | 'themes' | 'widgets'

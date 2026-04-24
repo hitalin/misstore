@@ -1,0 +1,12 @@
+{
+  "id": "calendar",
+  "name": "カレンダー",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "今月のカレンダーを表示",
+  "icon": "ti-calendar",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["calendar", "date", "month"]
+}

@@ -168,11 +168,67 @@ function buildThemes() {
   })
 }
 
+// --- Widgets ---
+
+function buildWidgets() {
+  const dir = join(REGISTRY_DIR, 'widgets')
+  return scanDirs(dir).flatMap((id) => {
+    const metaPath = join(dir, id, 'meta.json')
+    const srcPath = join(dir, id, 'widget.is')
+
+    if (!existsSync(metaPath)) {
+      errors.push(`[${id}] missing meta.json`)
+      return []
+    }
+    if (!existsSync(srcPath)) {
+      errors.push(`[${id}] missing widget.is`)
+      return []
+    }
+
+    const meta = readJson(metaPath)
+    validateRequired(meta, id, ['name', 'version', 'author', 'description', 'icon'])
+
+    const source = readFileSync(srcPath, 'utf-8')
+    const normalized = normalizeLF(source)
+    const sha512 = computeSha512(source)
+
+    const apiJson = { type: 'widget', data: normalized }
+    writeFileSync(
+      join(dir, id, 'api.json'),
+      JSON.stringify(apiJson) + '\n',
+    )
+
+    const now = new Date().toISOString()
+
+    return [
+      {
+        id: meta.id || id,
+        name: meta.name,
+        version: meta.version,
+        author: meta.author,
+        description: meta.description,
+        icon: meta.icon,
+        autoRun: meta.autoRun ?? true,
+        tags: meta.tags || [],
+        sourceUrl: `${SITE_URL}/registry/widgets/${id}/widget.is`,
+        apiUrl: `${SITE_URL}/registry/widgets/${id}/api.json`,
+        sha512,
+        createdAt: meta.createdAt || now,
+        updatedAt: meta.updatedAt || meta.createdAt || now,
+        ...(meta.authorUrl && { authorUrl: meta.authorUrl }),
+        ...(meta.license && { license: meta.license }),
+        ...(meta.repository && { repository: meta.repository }),
+      },
+    ]
+  })
+}
+
 // --- Build ---
 
 const now = new Date().toISOString()
 const plugins = buildPlugins().sort((a, b) => a.name.localeCompare(b.name))
 const themes = buildThemes().sort((a, b) => a.name.localeCompare(b.name))
+const widgets = buildWidgets().sort((a, b) => a.name.localeCompare(b.name))
 
 // Write indexes
 writeFileSync(
@@ -185,6 +241,11 @@ writeFileSync(
   JSON.stringify({ version: 1, updatedAt: now, themes }, null, 2) + '\n',
 )
 
+writeFileSync(
+  join(REGISTRY_DIR, 'widgets.json'),
+  JSON.stringify({ version: 1, updatedAt: now, widgets }, null, 2) + '\n',
+)
+
 // Write master index
 writeFileSync(
   join(REGISTRY_DIR, 'index.json'),
@@ -194,6 +255,7 @@ writeFileSync(
       updatedAt: now,
       plugins: { count: plugins.length, updatedAt: now },
       themes: { count: themes.length, updatedAt: now },
+      widgets: { count: widgets.length, updatedAt: now },
     },
     null,
     2,
@@ -202,7 +264,7 @@ writeFileSync(
 
 // Report
 console.log(
-  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s)`,
+  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s)`,
 )
 
 if (errors.length > 0) {

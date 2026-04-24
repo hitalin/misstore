@@ -1,0 +1,12 @@
+{
+  "id": "server-info",
+  "name": "サーバー情報",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "サーバーのメタ情報を表示",
+  "icon": "ti-server",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["server", "meta", "info"]
+}

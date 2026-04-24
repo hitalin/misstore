@@ -1,0 +1,12 @@
+{
+  "id": "memo",
+  "name": "メモ帳",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "テキストを保存できるメモ帳",
+  "icon": "ti-note",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["memo", "text", "note"]
+}

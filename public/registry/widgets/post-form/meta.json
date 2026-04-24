@@ -1,0 +1,12 @@
+{
+  "id": "post-form",
+  "name": "投稿ボタン",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "定型文をすばやく投稿",
+  "icon": "ti-pencil",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["post", "form", "template"]
+}

@@ -13,6 +13,10 @@ const router = createRouter({
       path: '/themes/:id',
       component: () => import('@/pages/ThemeDetail.vue'),
     },
+    {
+      path: '/widgets/:id',
+      component: () => import('@/pages/WidgetDetail.vue'),
+    },
   ],
 })
 

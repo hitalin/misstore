@@ -9,7 +9,7 @@ const { mode: colorMode, cycle: cycleColorMode } = useColorMode()
 const router = useRouter()
 const mobileOpen = ref(false)
 
-function switchTab(tab: 'plugins' | 'themes') {
+function switchTab(tab: 'plugins' | 'themes' | 'widgets') {
   activeTab.value = tab
   mobileOpen.value = false
   if (router.currentRoute.value.path !== '/') {
@@ -54,6 +54,13 @@ const colorModeLabels: Record<string, string> = {
             @click.prevent="switchTab('themes')"
           >
             Themes
+          </a>
+          <a
+            href="#widgets"
+            :class="{ active: activeTab === 'widgets' }"
+            @click.prevent="switchTab('widgets')"
+          >
+            Widgets
           </a>
           <a href="https://notedeck.hital.in" target="_blank" rel="noopener">NoteDeck</a>
         </div>
@@ -104,6 +111,13 @@ const colorModeLabels: Record<string, string> = {
         @click="switchTab('themes')"
       >
         Themes
+      </button>
+      <button
+        class="nav-mobile-item"
+        :class="{ active: activeTab === 'widgets' }"
+        @click="switchTab('widgets')"
+      >
+        Widgets
       </button>
       <a
         href="https://notedeck.hital.in"

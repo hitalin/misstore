@@ -1,12 +1,16 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-11T15:24:48.738Z",
+  "updatedAt": "2026-04-24T02:24:36.810Z",
   "plugins": {
     "count": 1,
-    "updatedAt": "2026-04-11T15:24:48.738Z"
+    "updatedAt": "2026-04-24T02:24:36.810Z"
   },
   "themes": {
     "count": 1,
-    "updatedAt": "2026-04-11T15:24:48.738Z"
+    "updatedAt": "2026-04-24T02:24:36.810Z"
+  },
+  "widgets": {
+    "count": 9,
+    "updatedAt": "2026-04-24T02:24:36.810Z"
   }
 }

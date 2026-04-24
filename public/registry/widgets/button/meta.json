@@ -1,0 +1,12 @@
+{
+  "id": "button",
+  "name": "ボタン",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "カスタムアクションボタン",
+  "icon": "ti-square-rounded",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["button", "action"]
+}

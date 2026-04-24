@@ -1,0 +1,12 @@
+{
+  "id": "online-users",
+  "name": "オンラインユーザー数",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "サーバーのオンラインユーザー数を表示",
+  "icon": "ti-users",
+  "autoRun": true,
+  "license": "MIT",
+  "tags": ["online", "users", "stats"]
+}

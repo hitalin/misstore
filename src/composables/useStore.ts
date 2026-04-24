@@ -1,8 +1,9 @@
 import { computed, ref, watch } from 'vue'
-import type { PluginEntry, StoreTab, ThemeEntry } from '@/types'
+import type { PluginEntry, StoreTab, ThemeEntry, WidgetEntry } from '@/types'
 
 const plugins = ref<PluginEntry[]>([])
 const themes = ref<ThemeEntry[]>([])
+const widgets = ref<WidgetEntry[]>([])
 const loaded = ref(false)
 const error = ref(false)
 const activeTab = ref<StoreTab>('plugins')
@@ -19,14 +20,17 @@ watch(misskeyHost, (v) => {
 
 async function load() {
   try {
-    const [pRes, tRes] = await Promise.all([
+    const [pRes, tRes, wRes] = await Promise.all([
       fetch('/registry/plugins.json'),
       fetch('/registry/themes.json'),
+      fetch('/registry/widgets.json'),
     ])
     const pData = await pRes.json()
     const tData = await tRes.json()
+    const wData = await wRes.json()
     plugins.value = pData.plugins ?? []
     themes.value = tData.themes ?? []
+    widgets.value = wData.widgets ?? []
     loaded.value = true
   } catch {
     error.value = true
@@ -78,14 +82,29 @@ function sortItems<T extends { name: string; createdAt: string }>(
   return items.sort((a, b) => a.name.localeCompare(b.name))
 }
 
+const filteredWidgets = computed(() => {
+  let items = [...widgets.value]
+  const q = query.value.toLowerCase().trim()
+  if (q) {
+    items = items.filter(
+      (w) =>
+        w.name.toLowerCase().includes(q) ||
+        w.description.toLowerCase().includes(q) ||
+        w.author.toLowerCase().includes(q) ||
+        w.tags.some((tag) => tag.toLowerCase().includes(q)),
+    )
+  }
+  return sortItems(items)
+})
+
 const pluginCategories = computed(() => [
   ...new Set(plugins.value.map((p) => p.category)),
 ])
-const resultCount = computed(() =>
-  activeTab.value === 'plugins'
-    ? filteredPlugins.value.length
-    : filteredThemes.value.length,
-)
+const resultCount = computed(() => {
+  if (activeTab.value === 'plugins') return filteredPlugins.value.length
+  if (activeTab.value === 'themes') return filteredThemes.value.length
+  return filteredWidgets.value.length
+})
 
 function buildInstallUrl(apiUrl: string, sha512: string): string | null {
   const host = misskeyHost.value.trim()
@@ -108,11 +127,16 @@ function findTheme(id: string) {
   return computed(() => themes.value.find((t) => t.id === id) ?? null)
 }
 
+function findWidget(id: string) {
+  return computed(() => widgets.value.find((w) => w.id === id) ?? null)
+}
+
 export function useStore() {
   if (!loaded.value && !error.value) load()
   return {
     plugins,
     themes,
+    widgets,
     loaded,
     error,
     activeTab,
@@ -122,10 +146,12 @@ export function useStore() {
     misskeyHost,
     filteredPlugins,
     filteredThemes,
+    filteredWidgets,
     pluginCategories,
     resultCount,
     buildInstallUrl,
     findPlugin,
     findTheme,
+    findWidget,
   }
 }
