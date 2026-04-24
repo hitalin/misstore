@@ -1,9 +1,19 @@
 /// カレンダーウィジェット
-/// 今月のカレンダーを表示します。今日の日付をハイライト。
+/// 月表示のカレンダー。今日を黄色でハイライト、日曜は赤、土曜は青。
+/// 前後の月へ移動可能。
 
-@days_in_month(y, m) {
-  let days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-  var d = days[m - 1]
+let weekdays = ["日", "月", "火", "水", "木", "金", "土"]
+let today = Date:now()
+let todayY = Date:year(today)
+let todayM = Date:month(today)
+let todayD = Date:day(today)
+
+var viewY = todayY
+var viewM = todayM
+
+@daysInMonth(y, m) {
+  let ds = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  var d = ds[m - 1]
   if (m == 2) {
     if ((y % 4 == 0 && y % 100 != 0) || y % 400 == 0) {
       d = 29
@@ -12,61 +22,108 @@
   d
 }
 
-@first_day_of_week(y, m) {
-  // Zeller's formula for day 1 of month
+@firstDow(y, m) {
   var yy = y
   var mm = m
   if (mm < 3) {
     mm = mm + 12
     yy = yy - 1
   }
-  let q = 1
   let k = yy % 100
   let j = Math:trunc(yy / 100)
-  let h = (q + Math:trunc(13 * (mm + 1) / 5) + k + Math:trunc(k / 4) + Math:trunc(j / 4) - 2 * j) % 7
+  let h = (1 + Math:trunc(13 * (mm + 1) / 5) + k + Math:trunc(k / 4) + Math:trunc(j / 4) - 2 * j) % 7
   var dow = h - 1
   if (dow < 0) { dow = dow + 7 }
   dow
 }
 
+@pad2(n) {
+  if (n < 10) { ` {n}` } else { `{n}` }
+}
+
+@prevMonth() {
+  viewM = viewM - 1
+  if (viewM < 1) {
+    viewM = 12
+    viewY = viewY - 1
+  }
+  render()
+}
+
+@nextMonth() {
+  viewM = viewM + 1
+  if (viewM > 12) {
+    viewM = 1
+    viewY = viewY + 1
+  }
+  render()
+}
+
+@goToday() {
+  viewY = todayY
+  viewM = todayM
+  render()
+}
+
+@dowColor(dow) {
+  if (dow == 0) { "ff5252" }
+  elif (dow == 6) { "42a5f5" }
+  else { "e0e0e0" }
+}
+
 @render() {
-  let now = Date:now()
-  let y = Date:year(now)
-  let m = Date:month(now)
-  let today = Date:day(now)
-  let total = days_in_month(y, m)
-  let start = first_day_of_week(y, m)
+  let total = daysInMonth(viewY, viewM)
+  let start = firstDow(viewY, viewM)
+  let isCurrent = viewY == todayY && viewM == todayM
 
-  var cal = " 日  月  火  水  木  金  土
-"
-
-  // Leading blanks
-  for (let i, start) {
-    cal = `{cal}    `
+  // ヘッダー行（曜日）
+  var header = ""
+  for (let i, 7) {
+    header = `{header}$[fg.color={dowColor(i)} {weekdays[i]}] `
   }
 
+  // 日付グリッド
+  var grid = ""
+  for (let i, start) { grid = `{grid} · ` }
+
   for (let day = 1, total + 1) {
-    var dd = if (day < 10) { ` {day}` } else { `{day}` }
-    if (day == today) {
-      dd = `[{dd}]`
+    let dow = (start + day - 1) % 7
+    var cell = pad2(day)
+    if (isCurrent && day == todayD) {
+      cell = `$[fg.color=ffeb3b **{cell}**]`
     } else {
-      dd = ` {dd} `
+      cell = `$[fg.color={dowColor(dow)} {cell}]`
     }
-    cal = `{cal}{dd}`
+    grid = `{grid}{cell} `
     if ((start + day) % 7 == 0) {
-      cal = `{cal}
+      grid = `{grid}
 `
     }
   }
 
+  let titleIcon = if (isCurrent) { "📅" } else { "🗓" }
+
   Ui:render([
     Ui:C:container({
       align: "center"
+      padding: 8
       children: [
-        Ui:C:mfm({ text: `$[x2 **{y}年{m}月**]` })
-        Ui:C:mfm({ text: `\`\`\`
-{cal}
-\`\`\`` })
+        Ui:C:mfm({ text: `{titleIcon} $[x2 **{viewY}年 {viewM}月**]` })
+        Ui:C:mfm({
+          text: header
+          font: "monospace"
+        })
+        Ui:C:mfm({
+          text: grid
+          font: "monospace"
+        })
+        Ui:C:buttons({
+          buttons: [
+            { text: "◀ 前月", onClick: prevMonth }
+            { text: "今月", onClick: goToday, primary: (isCurrent == false) }
+            { text: "翌月 ▶", onClick: nextMonth }
+          ]
+        })
       ]
     })
   ])

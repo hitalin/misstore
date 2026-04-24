@@ -1,36 +1,73 @@
 /// ボタンウィジェット
-/// ボタンを押すとアクションを実行します。
-/// Mk:dialog や Mk:toast を使ったデモです。
+/// カスタムアクションボタン。クリック数を記録し、称号とベスト記録を表示。
 
 var count = 0
+var best = 0
+let saved = Mk:load("btn_state")
+if (saved != null) {
+  count = saved.count
+  best = saved.best
+}
+
+@persist() {
+  Mk:save("btn_state", { count: count, best: best })
+}
+
+@tap() {
+  count = count + 1
+  if (count > best) { best = count }
+  persist()
+  render()
+}
+
+@reset() {
+  let ok = Mk:confirm("リセット", "カウントを0に戻しますか？ベスト記録は保持されます。", "warning")
+  if (ok) {
+    count = 0
+    persist()
+    Mk:toast("リセットしました")
+    render()
+  }
+}
+
+@rank(n) {
+  if (n == 0) { "タップしてみよう" }
+  elif (n < 10) { "good 🙂" }
+  elif (n < 50) { "nice ✨" }
+  elif (n < 100) { "great 🎉" }
+  elif (n < 500) { "awesome 🔥" }
+  else { "legendary 🚀" }
+}
 
 @render() {
+  let label = rank(count)
+  let accent = if (count == 0) { "9e9e9e" } else { "42a5f5" }
+
   Ui:render([
     Ui:C:container({
+      align: "center"
+      padding: 12
       children: [
-        Ui:C:mfm({ text: "<center>**カスタムボタン**</center>" })
+        Ui:C:mfm({ text: "$[fg.color=9e9e9e カスタムボタン]" })
+        Ui:C:mfm({
+          text: `$[x4 **{count}**]`
+          font: "monospace"
+        })
+        Ui:C:mfm({ text: `$[fg.color={accent} {label}]` })
         Ui:C:button({
-          text: `クリック！ ({count})`
+          text: "タップ"
           primary: true
           rounded: true
-          onClick: @() {
-            count = count + 1
-            Mk:toast(`{count} 回クリックされました`, "info")
-            render()
-          }
+          onClick: tap
         })
         Ui:C:button({
           text: "リセット"
-          onClick: @() {
-            let ok = Mk:confirm("リセット", "カウントを0に戻しますか？")
-            if (ok) {
-              count = 0
-              Mk:toast("リセットしました", "success")
-              render()
-            }
-          }
+          rounded: true
+          onClick: reset
         })
-        Ui:C:mfm({ text: `<center>$[fg.color=888888 クリック回数: **{count}**]</center>` })
+        Ui:C:mfm({
+          text: `<small>$[fg.color=888888 🏆 ベスト {best}]</small>`
+        })
       ]
     })
   ])

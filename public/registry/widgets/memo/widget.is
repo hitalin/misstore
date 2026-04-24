@@ -1,30 +1,69 @@
 /// メモ帳ウィジェット
-/// テキストを入力すると自動保存されます。
-/// 自由に改造してください！
+/// 入力内容を自動保存。文字数と最終保存時刻を表示、消去ボタン付き。
 
 var memo = ""
+var savedAt = 0
+var charCount = 0
+let stored = Mk:load("memo_v2")
+if (stored != null) {
+  memo = stored.text
+  savedAt = stored.savedAt
+  charCount = memo.len
+}
 
-@onSave(text) {
+@pad2(n) {
+  if (n < 10) { `0{n}` } else { `{n}` }
+}
+
+@fmtTime(ts) {
+  if (ts == 0) {
+    "—"
+  } else {
+    `{pad2(Date:hour(ts))}:{pad2(Date:minute(ts))}`
+  }
+}
+
+@onInput(text) {
   memo = text
-  Mk:save("memo", memo)
+  charCount = text.len
+  savedAt = Date:now()
+  Mk:save("memo_v2", { text: memo, savedAt: savedAt })
 }
 
-// 保存済みのメモを読み込み
-let saved = Mk:load("memo")
-if (saved != null) {
-  memo = saved
+@clear() {
+  let ok = Mk:confirm("メモを消去", "本当に削除しますか？", "warning")
+  if (ok) {
+    memo = ""
+    charCount = 0
+    savedAt = Date:now()
+    Mk:save("memo_v2", { text: memo, savedAt: savedAt })
+    Mk:toast("メモを削除しました", "success")
+    render()
+  }
 }
 
-Ui:render([
-  Ui:C:container({
-    children: [
-      Ui:C:mfm({ text: "<center>**メモ帳**</center>" })
-      Ui:C:textarea({
-        default: memo
-        placeholder: "ここにメモを入力..."
-        onInput: onSave
-      })
-      Ui:C:mfm({ text: "<small>$[fg.color=888888 入力すると自動保存されます]</small>" })
-    ]
-  })
-])
+@render() {
+  Ui:render([
+    Ui:C:container({
+      padding: 8
+      children: [
+        Ui:C:mfm({ text: "📝 **メモ帳**" })
+        Ui:C:textarea({
+          default: memo
+          onInput: onInput
+          caption: "入力すると自動保存されます"
+        })
+        Ui:C:mfm({
+          text: `<small>$[fg.color=888888 {charCount} 文字 · 💾 最終保存 {fmtTime(savedAt)}]</small>`
+        })
+        Ui:C:button({
+          text: "🗑 消去"
+          rounded: true
+          onClick: clear
+        })
+      ]
+    })
+  ])
+}
+
+render()

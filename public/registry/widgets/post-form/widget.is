@@ -1,25 +1,54 @@
-/// 投稿ボタンウィジェット
-/// 定型文テンプレートから素早く投稿できます。
-/// テキストやボタンを自由にカスタマイズしてください。
+/// 投稿フォームウィジェット
+/// 時間帯に応じたあいさつ文と、よく使う定型文をワンタップで投稿できます。
+
+let now = Date:now()
+let h = Date:hour(now)
+
+let greet = if (h < 5) {
+  { label: "夜更かし中 🌙", text: "こんな時間まで起きてる… 🌙" }
+} elif (h < 11) {
+  { label: "おはよう ☀️", text: "おはようございます ☀️" }
+} elif (h < 17) {
+  { label: "こんにちは 🍵", text: "こんにちは 🍵" }
+} elif (h < 22) {
+  { label: "こんばんは 🌆", text: "こんばんは 🌆" }
+} else {
+  { label: "おやすみ 🌙", text: "おやすみなさい 🌙" }
+}
 
 Ui:render([
   Ui:C:container({
+    padding: 8
     children: [
-      Ui:C:mfm({ text: "<center>**クイック投稿**</center>" })
+      Ui:C:mfm({ text: "<center>✍️ **クイック投稿**</center>" })
       Ui:C:postFormButton({
-        text: "おはよう！"
-        rounded: true
+        text: greet.label
         primary: true
-        form: {
-          text: "おはようございます！"
-        }
+        rounded: true
+        form: { text: greet.text }
       })
       Ui:C:postFormButton({
-        text: "おやすみ"
+        text: "コーヒータイム ☕"
         rounded: true
-        form: {
-          text: "おやすみなさい :zzz:"
-        }
+        form: { text: "コーヒー飲みながらひと息 ☕" }
+      })
+      Ui:C:postFormButton({
+        text: "作業中 💻"
+        rounded: true
+        form: { text: "集中して作業中… ちょっと邪魔しないでね 💻" }
+      })
+      Ui:C:postFormButton({
+        text: "ごはん 🍚"
+        rounded: true
+        form: { text: "ごはんなう 🍚" }
+      })
+      Ui:C:postFormButton({
+        text: "帰宅 🏠"
+        rounded: true
+        form: { text: "ただいま 🏠" }
+      })
+      Ui:C:mfm({
+        text: "<small>$[fg.color=888888 タップすると投稿フォームが開きます]</small>"
       })
     ]
   })

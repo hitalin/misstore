@@ -1,24 +1,59 @@
 /// オンラインユーザー数ウィジェット
-/// サーバーのオンラインユーザー数を表示します。
-/// 30秒ごとに自動更新します。
+/// サーバーのオンラインユーザー数を30秒ごとに更新。
+/// 手動更新ボタンと、次回更新までのカウントダウン表示。
+
+let REFRESH_SEC = 30
+
+var count = 0
+var remaining = REFRESH_SEC
+var loading = true
+
+@fetchCount() {
+  loading = true
+  render()
+  let res = Mk:api("get-online-users-count", {})
+  count = res.count
+  loading = false
+  remaining = REFRESH_SEC
+  render()
+}
 
 @render() {
-  let n = Mk:api("get-online-users-count", {}).count
+  let dotColor = if (loading) { "ffc107" } else { "4caf50" }
+  let statusText = if (loading) { "更新中…" } else { `次回 {remaining}s` }
 
   Ui:render([
     Ui:C:container({
       align: "center"
+      padding: 12
       children: [
-        Ui:C:mfm({ text: "**オンラインユーザー**" })
-        Ui:C:mfm({ text: `$[x4 **{n}**]` })
-        Ui:C:mfm({ text: "<small>$[fg.color=888888 30秒ごとに更新]</small>" })
+        Ui:C:mfm({
+          text: `$[fg.color={dotColor} ●] **オンライン**`
+        })
+        Ui:C:mfm({
+          text: `$[x4 **{count}**]`
+          font: "monospace"
+        })
+        Ui:C:mfm({
+          text: `<small>$[fg.color=888888 {statusText}]</small>`
+        })
+        Ui:C:button({
+          text: "今すぐ更新"
+          rounded: true
+          onClick: fetchCount
+        })
       ]
     })
   ])
 }
 
-render()
+fetchCount()
 loop {
-  Core:sleep(30000)
-  render()
+  Core:sleep(1000)
+  remaining = remaining - 1
+  if (remaining <= 0) {
+    fetchCount()
+  } else {
+    render()
+  }
 }
