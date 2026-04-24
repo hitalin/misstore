@@ -1,6 +1,5 @@
 /// オンラインユーザー数ウィジェット
-/// サーバーのオンラインユーザー数を30秒ごとに更新。
-/// 手動更新ボタンと、次回更新までのカウントダウン表示。
+/// 30秒ごとに自動更新。手動更新ボタンと次回更新までのカウントダウン表示。
 
 let REFRESH_SEC = 30
 
@@ -20,25 +19,17 @@ var loading = true
 
 @render() {
   let dotColor = if (loading) { "ffc107" } else { "4caf50" }
-  let statusText = if (loading) { "更新中…" } else { `次回 {remaining}s` }
+  let status = if (loading) { "更新中…" } else { `{remaining}s` }
 
   Ui:render([
     Ui:C:container({
       align: "center"
-      padding: 12
       children: [
         Ui:C:mfm({
-          text: `$[fg.color={dotColor} ●] **オンライン**`
-        })
-        Ui:C:mfm({
-          text: `$[x4 **{count}**]`
-          font: "monospace"
-        })
-        Ui:C:mfm({
-          text: `<small>$[fg.color=888888 {statusText}]</small>`
+          text: `$[fg.color={dotColor} ●] $[x2 **{count}**] $[fg.color=9e9e9e online · {status}]`
         })
         Ui:C:button({
-          text: "今すぐ更新"
+          text: "更新"
           rounded: true
           onClick: fetchCount
         })

@@ -1,5 +1,5 @@
 /// ボタンウィジェット
-/// カスタムアクションボタン。クリック数を記録し、称号とベスト記録を表示。
+/// カスタムアクションボタン。タップ数を記録、称号とベスト記録付き。
 
 var count = 0
 var best = 0
@@ -9,9 +9,7 @@ if (saved != null) {
   best = saved.best
 }
 
-@persist() {
-  Mk:save("btn_state", { count: count, best: best })
-}
+@persist() { Mk:save("btn_state", { count: count, best: best }) }
 
 @tap() {
   count = count + 1
@@ -21,17 +19,16 @@ if (saved != null) {
 }
 
 @reset() {
-  let ok = Mk:confirm("リセット", "カウントを0に戻しますか？ベスト記録は保持されます。", "warning")
+  let ok = Mk:confirm("リセット", "カウントを0に戻しますか？", "warning")
   if (ok) {
     count = 0
     persist()
-    Mk:toast("リセットしました")
     render()
   }
 }
 
 @rank(n) {
-  if (n == 0) { "タップしてみよう" }
+  if (n == 0) { "tap" }
   elif (n < 10) { "good 🙂" }
   elif (n < 50) { "nice ✨" }
   elif (n < 100) { "great 🎉" }
@@ -40,33 +37,18 @@ if (saved != null) {
 }
 
 @render() {
-  let label = rank(count)
-  let accent = if (count == 0) { "9e9e9e" } else { "42a5f5" }
-
   Ui:render([
     Ui:C:container({
       align: "center"
-      padding: 12
       children: [
-        Ui:C:mfm({ text: "$[fg.color=9e9e9e カスタムボタン]" })
         Ui:C:mfm({
-          text: `$[x4 **{count}**]`
-          font: "monospace"
+          text: `$[x2 **{count}**] $[fg.color=9e9e9e {rank(count)} · 🏆 {best}]`
         })
-        Ui:C:mfm({ text: `$[fg.color={accent} {label}]` })
-        Ui:C:button({
-          text: "タップ"
-          primary: true
-          rounded: true
-          onClick: tap
-        })
-        Ui:C:button({
-          text: "リセット"
-          rounded: true
-          onClick: reset
-        })
-        Ui:C:mfm({
-          text: `<small>$[fg.color=888888 🏆 ベスト {best}]</small>`
+        Ui:C:buttons({
+          buttons: [
+            { text: "タップ", primary: true, rounded: true, onClick: tap }
+            { text: "リセット", rounded: true, onClick: reset }
+          ]
         })
       ]
     })

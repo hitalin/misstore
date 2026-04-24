@@ -1,6 +1,5 @@
 /// カレンダーウィジェット
-/// 月表示のカレンダー。今日を黄色でハイライト、日曜は赤、土曜は青。
-/// 前後の月へ移動可能。
+/// 月表示。今日を黄色ハイライト、日曜赤・土曜青、前後の月へ移動可。
 
 let weekdays = ["日", "月", "火", "水", "木", "金", "土"]
 let today = Date:now()
@@ -15,9 +14,7 @@ var viewM = todayM
   let ds = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
   var d = ds[m - 1]
   if (m == 2) {
-    if ((y % 4 == 0 && y % 100 != 0) || y % 400 == 0) {
-      d = 29
-    }
+    if ((y % 4 == 0 && y % 100 != 0) || y % 400 == 0) { d = 29 }
   }
   d
 }
@@ -37,9 +34,7 @@ var viewM = todayM
   dow
 }
 
-@pad2(n) {
-  if (n < 10) { ` {n}` } else { `{n}` }
-}
+@pad2(n) { if (n < 10) { ` {n}` } else { `{n}` } }
 
 @prevMonth() {
   viewM = viewM - 1
@@ -76,16 +71,11 @@ var viewM = todayM
   let start = firstDow(viewY, viewM)
   let isCurrent = viewY == todayY && viewM == todayM
 
-  // ヘッダー行（曜日）
   var header = ""
-  for (let i, 7) {
-    header = `{header}$[fg.color={dowColor(i)} {weekdays[i]}] `
-  }
+  for (let i, 7) { header = `{header}$[fg.color={dowColor(i)} {weekdays[i]}] ` }
 
-  // 日付グリッド
   var grid = ""
   for (let i, start) { grid = `{grid} · ` }
-
   for (let day = 1, total + 1) {
     let dow = (start + day - 1) % 7
     var cell = pad2(day)
@@ -95,33 +85,22 @@ var viewM = todayM
       cell = `$[fg.color={dowColor(dow)} {cell}]`
     }
     grid = `{grid}{cell} `
-    if ((start + day) % 7 == 0) {
-      grid = `{grid}
-`
-    }
+    if ((start + day) % 7 == 0) { grid = `{grid}
+` }
   }
-
-  let titleIcon = if (isCurrent) { "📅" } else { "🗓" }
 
   Ui:render([
     Ui:C:container({
       align: "center"
-      padding: 8
       children: [
-        Ui:C:mfm({ text: `{titleIcon} $[x2 **{viewY}年 {viewM}月**]` })
-        Ui:C:mfm({
-          text: header
-          font: "monospace"
-        })
-        Ui:C:mfm({
-          text: grid
-          font: "monospace"
-        })
+        Ui:C:mfm({ text: `**{viewY}年 {viewM}月**` })
+        Ui:C:mfm({ text: header, font: "monospace" })
+        Ui:C:mfm({ text: grid, font: "monospace" })
         Ui:C:buttons({
           buttons: [
-            { text: "◀ 前月", onClick: prevMonth }
+            { text: "◀", onClick: prevMonth }
             { text: "今月", onClick: goToday, primary: (isCurrent == false) }
-            { text: "翌月 ▶", onClick: nextMonth }
+            { text: "▶", onClick: nextMonth }
           ]
         })
       ]

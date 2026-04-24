@@ -1,6 +1,5 @@
 /// デジタル時計ウィジェット
-/// 現在の日時をリアルタイム表示します。コロンが1秒ごとに点滅し、
-/// 日曜は赤、土曜は青で曜日を色分け。
+/// 現在時刻をリアルタイム表示します。コロンが点滅、日曜赤・土曜青。
 
 let weekdays = ["日", "月", "火", "水", "木", "金", "土"]
 let dowColors = ["ff5252", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "42a5f5"]
@@ -20,9 +19,7 @@ let dowColors = ["ff5252", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "42
   dow
 }
 
-@pad2(n) {
-  if (n < 10) { `0{n}` } else { `{n}` }
-}
+@pad2(n) { if (n < 10) { `0{n}` } else { `{n}` } }
 
 @render() {
   let now = Date:now()
@@ -40,23 +37,17 @@ let dowColors = ["ff5252", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "42
   let mm = pad2(mi)
   let ss = pad2(s)
   let sepColor = if (s % 2 == 0) { "ffffff" } else { "555555" }
-  let period = if (h < 12) { "AM" } else { "PM" }
 
   Ui:render([
     Ui:C:container({
       align: "center"
-      padding: 12
       children: [
         Ui:C:mfm({
-          text: `$[x4 **{hh}$[fg.color={sepColor} :]{mm}**]`
+          text: `$[x3 **{hh}$[fg.color={sepColor} :]{mm}**]`
           font: "monospace"
         })
         Ui:C:mfm({
-          text: `$[fg.color=9e9e9e {period} · {ss}]`
-          font: "monospace"
-        })
-        Ui:C:mfm({
-          text: `$[fg.color=bdbdbd {y}/{mo}/{d}] $[fg.color={wc} **({w})**]`
+          text: `$[fg.color=9e9e9e {y}/{mo}/{d} · {ss}] $[fg.color={wc} **{w}**]`
         })
       ]
     })

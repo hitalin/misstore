@@ -11,9 +11,7 @@ if (stored != null) {
   charCount = memo.len
 }
 
-@pad2(n) {
-  if (n < 10) { `0{n}` } else { `{n}` }
-}
+@pad2(n) { if (n < 10) { `0{n}` } else { `{n}` } }
 
 @fmtTime(ts) {
   if (ts == 0) {
@@ -31,13 +29,12 @@ if (stored != null) {
 }
 
 @clear() {
-  let ok = Mk:confirm("メモを消去", "本当に削除しますか？", "warning")
+  let ok = Mk:confirm("消去", "メモを削除しますか？", "warning")
   if (ok) {
     memo = ""
     charCount = 0
     savedAt = Date:now()
     Mk:save("memo_v2", { text: memo, savedAt: savedAt })
-    Mk:toast("メモを削除しました", "success")
     render()
   }
 }
@@ -45,19 +42,16 @@ if (stored != null) {
 @render() {
   Ui:render([
     Ui:C:container({
-      padding: 8
       children: [
-        Ui:C:mfm({ text: "📝 **メモ帳**" })
         Ui:C:textarea({
           default: memo
           onInput: onInput
-          caption: "入力すると自動保存されます"
         })
         Ui:C:mfm({
-          text: `<small>$[fg.color=888888 {charCount} 文字 · 💾 最終保存 {fmtTime(savedAt)}]</small>`
+          text: `<small>$[fg.color=888888 {charCount}字 · 💾 {fmtTime(savedAt)}]</small>`
         })
         Ui:C:button({
-          text: "🗑 消去"
+          text: "消去"
           rounded: true
           onClick: clear
         })

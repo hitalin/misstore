@@ -1,12 +1,11 @@
 /// サーバー情報ウィジェット
-/// サーバーのメタ情報と主要な統計を整形して表示します。
+/// サーバー名、version、主要統計を1画面にコンパクト表示。
 
 Ui:render([
   Ui:C:container({
     align: "center"
-    padding: 12
     children: [
-      Ui:C:mfm({ text: "$[fg.color=888888 🌐 サーバー情報を読み込み中…]" })
+      Ui:C:mfm({ text: "$[fg.color=888888 🌐 読み込み中…]" })
     ]
   })
 ])
@@ -15,43 +14,21 @@ let meta = Mk:api("meta", {})
 let stats = Mk:api("stats", {})
 
 let name = meta.name
-let desc = meta.description
 let version = meta.version
 let users = stats.originalUsersCount
 let notes = stats.originalNotesCount
 let instances = stats.instances
 
-@row(icon, label, value) {
-  Ui:C:mfm({
-    text: `{icon} $[fg.color=9e9e9e {label}] $[x2 **{value}**]`
-  })
-}
-
-var children = [
-  Ui:C:mfm({ text: `$[x2 **{name}**]` })
-]
-
-if (desc != null) {
-  children.push(Ui:C:mfm({
-    text: `<small>$[fg.color=9e9e9e {desc}]</small>`
-  }))
-}
-
-children.push(row("👥", "ユーザー", users))
-children.push(row("📝", "ノート", notes))
-
-if (instances != null) {
-  children.push(row("🌍", "連合インスタンス", instances))
-}
-
-children.push(Ui:C:mfm({
-  text: `$[bg.color=2196f3 $[fg.color=ffffff   v{version}  ]]`
-}))
-
 Ui:render([
   Ui:C:container({
     align: "center"
-    padding: 12
-    children: children
+    children: [
+      Ui:C:mfm({
+        text: `**{name}** $[bg.color=2196f3 $[fg.color=ffffff  v{version} ]]`
+      })
+      Ui:C:mfm({
+        text: `👥 **{users}**   📝 **{notes}**   🌍 **{instances}**`
+      })
+    ]
   })
 ])
