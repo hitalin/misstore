@@ -100,4 +100,4 @@ export interface RegistryIndex<T> {
   widgets?: T[]
 }
 
-export type StoreTab = 'plugins' | 'themes' | 'widgets'
+export type StoreTab = 'home' | 'plugins' | 'themes' | 'widgets'

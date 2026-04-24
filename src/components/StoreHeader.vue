@@ -9,7 +9,7 @@ const { mode: colorMode, cycle: cycleColorMode } = useColorMode()
 const router = useRouter()
 const mobileOpen = ref(false)
 
-function switchTab(tab: 'plugins' | 'themes' | 'widgets') {
+function switchTab(tab: 'home' | 'plugins' | 'themes' | 'widgets') {
   activeTab.value = tab
   mobileOpen.value = false
   if (router.currentRoute.value.path !== '/') {
@@ -33,7 +33,7 @@ const colorModeLabels: Record<string, string> = {
           <svg class="nav-icon-menu" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           <svg class="nav-icon-close" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
-        <a href="/" class="nav-brand">
+        <a href="/" class="nav-brand" @click.prevent="switchTab('home')">
           <img
             src="https://raw.githubusercontent.com/hitalin/notedeck/main/src-tauri/icons/32x32.png"
             alt=""
@@ -41,6 +41,13 @@ const colorModeLabels: Record<string, string> = {
           <b>mis<span>store</span></b>
         </a>
         <div class="nav-items">
+          <a
+            href="#home"
+            :class="{ active: activeTab === 'home' }"
+            @click.prevent="switchTab('home')"
+          >
+            Home
+          </a>
           <a
             href="#plugins"
             :class="{ active: activeTab === 'plugins' }"
@@ -98,6 +105,13 @@ const colorModeLabels: Record<string, string> = {
       </nav>
     </div>
     <div class="nav-mobile-drawer">
+      <button
+        class="nav-mobile-item"
+        :class="{ active: activeTab === 'home' }"
+        @click="switchTab('home')"
+      >
+        Home
+      </button>
       <button
         class="nav-mobile-item"
         :class="{ active: activeTab === 'plugins' }"

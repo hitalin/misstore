@@ -6,7 +6,7 @@ const themes = ref<ThemeEntry[]>([])
 const widgets = ref<WidgetEntry[]>([])
 const loaded = ref(false)
 const error = ref(false)
-const activeTab = ref<StoreTab>('plugins')
+const activeTab = ref<StoreTab>('home')
 const query = ref('')
 const category = ref('')
 const sort = ref<'name' | 'newest'>('name')
@@ -123,6 +123,11 @@ function buildInstallUrl(apiUrl: string, sha512: string): string | null {
 watch(activeTab, () => {
   category.value = ''
   query.value = ''
+})
+
+// Leave home tab automatically when the user starts searching
+watch(query, (v) => {
+  if (v.trim() && activeTab.value === 'home') activeTab.value = 'plugins'
 })
 
 function findPlugin(id: string) {
