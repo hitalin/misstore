@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { WIDGET_CATEGORY_LABELS } from '@/types'
+import { WIDGET_CAPABILITY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
@@ -87,6 +87,13 @@ const widget = findWidget(route.params.id as string)
             <div class="detail-info-item">
               <dt>Auto Run</dt>
               <dd>{{ widget.autoRun ? 'Yes' : 'No' }}</dd>
+            </div>
+            <div class="detail-info-item">
+              <dt>Requires</dt>
+              <dd v-if="widget.capabilities.length" class="detail-tags">
+                <span v-for="c in widget.capabilities" :key="c" class="detail-tag">{{ WIDGET_CAPABILITY_LABELS[c] || c }}</span>
+              </dd>
+              <dd v-else>Standalone</dd>
             </div>
             <div v-if="widget.tags.length" class="detail-info-item">
               <dt>Tags</dt>

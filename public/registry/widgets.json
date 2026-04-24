@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-04-24T02:41:27.709Z",
+  "updatedAt": "2026-04-24T02:56:08.763Z",
   "widgets": [
     {
       "id": "online-users",
@@ -11,6 +11,9 @@
       "icon": "ti-users",
       "autoRun": true,
       "category": "stats",
+      "capabilities": [
+        "misskey-api"
+      ],
       "tags": [
         "online",
         "users",
@@ -19,8 +22,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/online-users/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/online-users/api.json",
       "sha512": "2d9bf03ff2b2d1542d3db7f66f84cb3b890d07a9dd1db6f305adf2b245897a2ca9bb62cb007862a81f81ec4e5c781c52aa862e6176e26856d3394885952c030c",
-      "createdAt": "2026-04-24T02:41:27.719Z",
-      "updatedAt": "2026-04-24T02:41:27.719Z",
+      "createdAt": "2026-04-24T02:56:08.780Z",
+      "updatedAt": "2026-04-24T02:56:08.780Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -33,6 +36,7 @@
       "icon": "ti-calendar",
       "autoRun": true,
       "category": "display",
+      "capabilities": [],
       "tags": [
         "calendar",
         "date",
@@ -41,8 +45,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/calendar/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/calendar/api.json",
       "sha512": "56075c141e73883523f1ea4036a4227eb88500fd9858c634fcf4f212952e39690bfafb63abca087975a1454672318a55ca8c527f97cf0c345980aafa89306f98",
-      "createdAt": "2026-04-24T02:41:27.717Z",
-      "updatedAt": "2026-04-24T02:41:27.717Z",
+      "createdAt": "2026-04-24T02:56:08.779Z",
+      "updatedAt": "2026-04-24T02:56:08.779Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -55,6 +59,9 @@
       "icon": "ti-server",
       "autoRun": true,
       "category": "display",
+      "capabilities": [
+        "misskey-api"
+      ],
       "tags": [
         "server",
         "meta",
@@ -63,8 +70,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/server-info/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/server-info/api.json",
       "sha512": "549126cdbafb288d7a8cae17aafaabd7a02ffb32a4c4dd4a3e050c20f12630c7a90713eaa5e6ee924f5b8ccc99b6713c446354b104a56add4552b7f4deb526e4",
-      "createdAt": "2026-04-24T02:41:27.725Z",
-      "updatedAt": "2026-04-24T02:41:27.725Z",
+      "createdAt": "2026-04-24T02:56:08.781Z",
+      "updatedAt": "2026-04-24T02:56:08.781Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -77,6 +84,7 @@
       "icon": "ti-clock",
       "autoRun": true,
       "category": "display",
+      "capabilities": [],
       "tags": [
         "clock",
         "time",
@@ -85,8 +93,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/digital-clock/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/digital-clock/api.json",
       "sha512": "1843e6bb7167f44181e02754e49301eb7f4d9ee8c53c7ce5e6c6461e2f9e255224616f225abd7fec22375ee5ae9bba73eb1234c545a0975109c5c57b621d6467",
-      "createdAt": "2026-04-24T02:41:27.717Z",
-      "updatedAt": "2026-04-24T02:41:27.717Z",
+      "createdAt": "2026-04-24T02:56:08.780Z",
+      "updatedAt": "2026-04-24T02:56:08.780Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -99,6 +107,10 @@
       "icon": "ti-user",
       "autoRun": true,
       "category": "display",
+      "capabilities": [
+        "misskey-api",
+        "misskey-account"
+      ],
       "tags": [
         "profile",
         "user"
@@ -106,8 +118,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/profile/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/profile/api.json",
       "sha512": "7f4201e2e1a7f45692f162de90bccfa22b760558ebda4d24e74160d6626a89a910a342a3dedc42d3f36f44b6c89f6e1e0116c69a4a7ada524feea17d5f7a8a1e",
-      "createdAt": "2026-04-24T02:41:27.724Z",
-      "updatedAt": "2026-04-24T02:41:27.724Z",
+      "createdAt": "2026-04-24T02:56:08.781Z",
+      "updatedAt": "2026-04-24T02:56:08.781Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -120,6 +132,7 @@
       "icon": "ti-square-rounded",
       "autoRun": true,
       "category": "input",
+      "capabilities": [],
       "tags": [
         "button",
         "action"
@@ -127,8 +140,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/button/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/button/api.json",
       "sha512": "1f14f455072a38d27656cd3245e77dca9334f54c1c740dd1114a10498acba66b7539b34a4a69e85fcdafb1ac50b47db0aee5eb9eae468371012ccfe6d92543b6",
-      "createdAt": "2026-04-24T02:41:27.716Z",
-      "updatedAt": "2026-04-24T02:41:27.716Z",
+      "createdAt": "2026-04-24T02:56:08.779Z",
+      "updatedAt": "2026-04-24T02:56:08.779Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -141,6 +154,7 @@
       "icon": "ti-note",
       "autoRun": true,
       "category": "input",
+      "capabilities": [],
       "tags": [
         "memo",
         "text",
@@ -149,8 +163,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/memo/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/memo/api.json",
       "sha512": "24aeb4d5182addcfe19496a7879d1d3306043f762b025a37d28e88510dad9a3e0ba520333d8e408b5524086fe28005570da120cb78bd28d9f832c3ecf474b783",
-      "createdAt": "2026-04-24T02:41:27.718Z",
-      "updatedAt": "2026-04-24T02:41:27.718Z",
+      "createdAt": "2026-04-24T02:56:08.780Z",
+      "updatedAt": "2026-04-24T02:56:08.780Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -163,6 +177,9 @@
       "icon": "ti-pencil",
       "autoRun": true,
       "category": "input",
+      "capabilities": [
+        "misskey-account"
+      ],
       "tags": [
         "post",
         "form",
@@ -171,8 +188,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/post-form/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/post-form/api.json",
       "sha512": "2a077560644e94990d48e07acac8d4289602143b6c1909f9dcd7425b4537ec64665b67be17c1c28f49a91ce3408d3d64e829294303983aedf860305857814bc2",
-      "createdAt": "2026-04-24T02:41:27.724Z",
-      "updatedAt": "2026-04-24T02:41:27.724Z",
+      "createdAt": "2026-04-24T02:56:08.780Z",
+      "updatedAt": "2026-04-24T02:56:08.780Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     },
@@ -185,6 +202,7 @@
       "icon": "ti-chart-bar",
       "autoRun": true,
       "category": "input",
+      "capabilities": [],
       "tags": [
         "poll",
         "vote",
@@ -193,8 +211,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/widgets/poll/widget.is",
       "apiUrl": "https://misstore.hital.in/registry/widgets/poll/api.json",
       "sha512": "73ad96000dbc5b221032593f0d8f6154de2016b44f1befbed3b6197a2c0c97bc47ce1746254ac989cd6467430b077ea1edf0506d8819f3a520e617426a4c51f3",
-      "createdAt": "2026-04-24T02:41:27.723Z",
-      "updatedAt": "2026-04-24T02:41:27.723Z",
+      "createdAt": "2026-04-24T02:56:08.780Z",
+      "updatedAt": "2026-04-24T02:56:08.780Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT"
     }

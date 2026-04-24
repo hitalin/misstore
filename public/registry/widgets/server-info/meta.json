@@ -8,6 +8,7 @@
   "icon": "ti-server",
   "autoRun": true,
   "category": "display",
+  "capabilities": ["misskey-api"],
   "license": "MIT",
   "tags": ["server", "meta", "info"]
 }

@@ -8,6 +8,7 @@
   "icon": "ti-note",
   "autoRun": true,
   "category": "input",
+  "capabilities": [],
   "license": "MIT",
   "tags": ["memo", "text", "note"]
 }

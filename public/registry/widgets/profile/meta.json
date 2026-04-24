@@ -8,6 +8,7 @@
   "icon": "ti-user",
   "autoRun": true,
   "category": "display",
+  "capabilities": ["misskey-api", "misskey-account"],
   "license": "MIT",
   "tags": ["profile", "user"]
 }

@@ -8,6 +8,7 @@
   "icon": "ti-square-rounded",
   "autoRun": true,
   "category": "input",
+  "capabilities": [],
   "license": "MIT",
   "tags": ["button", "action"]
 }

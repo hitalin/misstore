@@ -8,6 +8,7 @@
   "icon": "ti-chart-bar",
   "autoRun": true,
   "category": "input",
+  "capabilities": [],
   "license": "MIT",
   "tags": ["poll", "vote", "survey"]
 }

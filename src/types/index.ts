@@ -61,6 +61,7 @@ export interface WidgetEntry {
   icon: string
   autoRun: boolean
   category: WidgetCategory
+  capabilities: WidgetCapability[]
   tags: string[]
   sourceUrl: string
   apiUrl: string
@@ -78,6 +79,17 @@ export const WIDGET_CATEGORY_LABELS: Record<WidgetCategory, string> = {
   display: 'Display',
   input: 'Input',
   stats: 'Stats',
+}
+
+export type WidgetCapability =
+  | 'misskey-api'
+  | 'misskey-account'
+  | 'notedeck-api'
+
+export const WIDGET_CAPABILITY_LABELS: Record<WidgetCapability, string> = {
+  'misskey-api': 'Misskey API',
+  'misskey-account': 'Account',
+  'notedeck-api': 'NoteDeck API',
 }
 
 export interface RegistryIndex<T> {

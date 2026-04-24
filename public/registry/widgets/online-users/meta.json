@@ -8,6 +8,7 @@
   "icon": "ti-users",
   "autoRun": true,
   "category": "stats",
+  "capabilities": ["misskey-api"],
   "license": "MIT",
   "tags": ["online", "users", "stats"]
 }

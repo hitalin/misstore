@@ -217,6 +217,7 @@ function buildWidgets() {
         icon: meta.icon,
         autoRun: meta.autoRun ?? true,
         category: meta.category,
+        capabilities: meta.capabilities || [],
         tags: meta.tags || [],
         sourceUrl: `${SITE_URL}/registry/widgets/${id}/widget.is`,
         apiUrl: `${SITE_URL}/registry/widgets/${id}/api.json`,

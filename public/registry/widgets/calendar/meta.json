@@ -8,6 +8,7 @@
   "icon": "ti-calendar",
   "autoRun": true,
   "category": "display",
+  "capabilities": [],
   "license": "MIT",
   "tags": ["calendar", "date", "month"]
 }

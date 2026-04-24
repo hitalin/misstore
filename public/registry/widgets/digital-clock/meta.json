@@ -8,6 +8,7 @@
   "icon": "ti-clock",
   "autoRun": true,
   "category": "display",
+  "capabilities": [],
   "license": "MIT",
   "tags": ["clock", "time", "date"]
 }

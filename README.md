@@ -126,6 +126,7 @@ public/registry/
   "icon": "ti-box",
   "autoRun": true,
   "category": "display",
+  "capabilities": ["misskey-api"],
   "tags": ["tag1", "tag2"]
 }
 ```
@@ -134,6 +135,14 @@ public/registry/
 4. `pnpm run registry:build` でインデックスを再生成
 
 **ウィジェットカテゴリ:** `display` / `input` / `stats`
+
+**ウィジェットケイパビリティ（`capabilities`）:** ウィジェットが動作するために必要な環境を宣言する配列。クライアント（NoteDeck 等）はこれを見て、現在の環境で動かせないウィジェットを非表示 / グレーアウトして扱う。
+
+- `misskey-api` — `Mk:api` で Misskey REST API を呼ぶ
+- `misskey-account` — ログイン済みアカウントを前提とする（自分の情報の取得や投稿など）
+- `notedeck-api` — NoteDeck 独自の `Nd:*` API を使う（他クライアントでは動作しない）
+
+空配列 `[]` は standalone（AiScript 標準機能のみ）を意味する。
 
 - `icon` は [Tabler Icons](https://tabler.io/icons) のクラス名（`ti-` プレフィックス付き）
 - `autoRun` はユーザーが NoteDeck 側でテンプレートを選択したときに自動実行するか
