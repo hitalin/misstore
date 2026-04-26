@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-// Scans public/registry/{plugins,themes}/*/meta.json and generates:
+// Scans public/registry/{plugins,themes,widgets,skills}/*/<source> and generates:
 // - api.json per item (Misskey-compatible distribution endpoint)
-// - plugins.json / themes.json (registry indexes)
+// - plugins.json / themes.json / widgets.json / skills.json (registry indexes)
 // - index.json (master index)
 
 import { createHash } from 'node:crypto'
@@ -46,6 +46,41 @@ function validateRequired(meta, id, fields) {
       errors.push(`[${id}] missing required field: ${field}`)
     }
   }
+}
+
+// Minimal YAML frontmatter parser for skill .md files.
+// Supports: scalars (string/number/boolean), inline arrays [a, b], and
+// double-quoted strings. Block strings (|, >) and nested objects are NOT
+// supported — keep skill frontmatter shallow.
+function parseFrontmatter(text) {
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/)
+  if (!m) return { meta: {}, body: text }
+  const [, head, body] = m
+  const meta = {}
+  for (const rawLine of head.split(/\r?\n/)) {
+    const line = rawLine.trimEnd()
+    if (!line || /^\s*#/.test(line)) continue
+    const kv = line.match(/^([A-Za-z_][\w-]*)\s*:\s*(.*)$/)
+    if (!kv) continue
+    const [, key, raw] = kv
+    meta[key] = parseScalar(raw)
+  }
+  return { meta, body }
+}
+
+function parseScalar(raw) {
+  const v = raw.trim()
+  if (v === '' || v === '~' || v === 'null') return null
+  if (v === 'true') return true
+  if (v === 'false') return false
+  if (/^-?\d+(\.\d+)?$/.test(v)) return Number(v)
+  if (/^\[.*\]$/.test(v)) {
+    const inner = v.slice(1, -1).trim()
+    if (!inner) return []
+    return inner.split(',').map((s) => parseScalar(s))
+  }
+  if (/^".*"$/.test(v) || /^'.*'$/.test(v)) return v.slice(1, -1)
+  return v
 }
 
 // --- Plugins ---
@@ -232,12 +267,80 @@ function buildWidgets() {
   })
 }
 
+// --- Skills ---
+
+function buildSkills() {
+  const dir = join(REGISTRY_DIR, 'skills')
+  return scanDirs(dir).flatMap((id) => {
+    const srcPath = join(dir, id, 'skill.md')
+
+    if (!existsSync(srcPath)) {
+      errors.push(`[${id}] missing skill.md`)
+      return []
+    }
+
+    const source = readFileSync(srcPath, 'utf-8')
+    const { meta } = parseFrontmatter(source)
+    validateRequired(meta, id, [
+      'id',
+      'name',
+      'version',
+      'author',
+      'description',
+      'mode',
+    ])
+
+    const validModes = ['always', 'manual', 'trigger']
+    if (meta.mode && !validModes.includes(meta.mode)) {
+      errors.push(
+        `[${id}] invalid mode: ${meta.mode} (expected one of ${validModes.join(', ')})`,
+      )
+    }
+
+    const normalized = normalizeLF(source)
+    const sha512 = computeSha512(source)
+
+    const apiJson = { type: 'skill', data: normalized }
+    writeFileSync(
+      join(dir, id, 'api.json'),
+      JSON.stringify(apiJson) + '\n',
+    )
+
+    const now = new Date().toISOString()
+
+    return [
+      {
+        id: meta.id || id,
+        name: meta.name,
+        version: meta.version,
+        author: meta.author,
+        description: meta.description,
+        category: meta.category || 'utility',
+        mode: meta.mode,
+        triggers: meta.triggers || [],
+        scope: meta.scope || 'global',
+        tags: meta.tags || [],
+        sourceUrl: `${SITE_URL}/registry/skills/${id}/skill.md`,
+        apiUrl: `${SITE_URL}/registry/skills/${id}/api.json`,
+        sha512,
+        createdAt: meta.createdAt || now,
+        updatedAt: meta.updatedAt || meta.createdAt || now,
+        ...(meta.authorUrl && { authorUrl: meta.authorUrl }),
+        ...(meta.license && { license: meta.license }),
+        ...(meta.repository && { repository: meta.repository }),
+        ...(meta.builtIn !== undefined && { builtIn: !!meta.builtIn }),
+      },
+    ]
+  })
+}
+
 // --- Build ---
 
 const now = new Date().toISOString()
 const plugins = buildPlugins().sort((a, b) => a.name.localeCompare(b.name))
 const themes = buildThemes().sort((a, b) => a.name.localeCompare(b.name))
 const widgets = buildWidgets().sort((a, b) => a.name.localeCompare(b.name))
+const skills = buildSkills().sort((a, b) => a.name.localeCompare(b.name))
 
 // Write indexes
 writeFileSync(
@@ -255,6 +358,11 @@ writeFileSync(
   JSON.stringify({ version: 1, updatedAt: now, widgets }, null, 2) + '\n',
 )
 
+writeFileSync(
+  join(REGISTRY_DIR, 'skills.json'),
+  JSON.stringify({ version: 1, updatedAt: now, skills }, null, 2) + '\n',
+)
+
 // Write master index
 writeFileSync(
   join(REGISTRY_DIR, 'index.json'),
@@ -265,6 +373,7 @@ writeFileSync(
       plugins: { count: plugins.length, updatedAt: now },
       themes: { count: themes.length, updatedAt: now },
       widgets: { count: widgets.length, updatedAt: now },
+      skills: { count: skills.length, updatedAt: now },
     },
     null,
     2,
@@ -273,7 +382,7 @@ writeFileSync(
 
 // Report
 console.log(
-  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s)`,
+  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s), skills.json: ${skills.length} skill(s)`,
 )
 
 if (errors.length > 0) {

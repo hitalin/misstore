@@ -16,15 +16,16 @@ function getHighlighter() {
   if (highlighter) return Promise.resolve(highlighter)
   if (!highlighterPromise) {
     highlighterPromise = (async () => {
-      const [js, json, dark, light] = await Promise.all([
+      const [js, json, md, dark, light] = await Promise.all([
         import('shiki/langs/javascript.mjs'),
         import('shiki/langs/json.mjs'),
+        import('shiki/langs/markdown.mjs'),
         import('shiki/themes/github-dark.mjs'),
         import('shiki/themes/github-light.mjs'),
       ])
       highlighter = await createHighlighterCore({
         themes: [light.default, dark.default],
-        langs: [js.default, json.default],
+        langs: [js.default, json.default, md.default],
         engine: createJavaScriptRegexEngine(),
       })
       return highlighter

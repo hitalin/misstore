@@ -17,6 +17,10 @@ const router = createRouter({
       path: '/widgets/:id',
       component: () => import('@/pages/WidgetDetail.vue'),
     },
+    {
+      path: '/skills/:id',
+      component: () => import('@/pages/SkillDetail.vue'),
+    },
   ],
 })
 

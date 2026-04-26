@@ -4,8 +4,9 @@ import { useStore } from '@/composables/useStore'
 import PluginItem from '@/components/PluginItem.vue'
 import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
+import SkillItem from '@/components/SkillItem.vue'
 
-const { plugins, themes, widgets, loaded, activeTab } = useStore()
+const { plugins, themes, widgets, skills, loaded, activeTab } = useStore()
 
 const RECENT_COUNT = 3
 
@@ -18,8 +19,9 @@ function pickRecent<T extends { createdAt: string }>(items: T[]): T[] {
 const recentPlugins = computed(() => pickRecent(plugins.value))
 const recentThemes = computed(() => pickRecent(themes.value))
 const recentWidgets = computed(() => pickRecent(widgets.value))
+const recentSkills = computed(() => pickRecent(skills.value))
 
-function go(tab: 'plugins' | 'themes' | 'widgets') {
+function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
   activeTab.value = tab
 }
 </script>
@@ -71,6 +73,18 @@ function go(tab: 'plugins' | 'themes' | 'widgets') {
       <p class="home-card-desc">NoteDeck のカラムに追加できるウィジェット。</p>
       <span class="home-card-cta">Browse →</span>
     </button>
+    <button class="home-card" type="button" @click="go('skills')">
+      <div class="home-card-icon" aria-hidden="true" style="color: var(--accent)">
+        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M5 16l.75 2.25L8 19l-2.25.75L5 22l-.75-2.25L2 19l2.25-.75z"/><path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75z"/></svg>
+      </div>
+      <div class="home-card-title">Skills</div>
+      <div class="home-card-count">
+        <template v-if="loaded">{{ skills.length }} items</template>
+        <template v-else><span class="home-card-count-skel"></span></template>
+      </div>
+      <p class="home-card-desc">NoteDeck の AI に持たせるシステムプロンプト。</p>
+      <span class="home-card-cta">Browse →</span>
+    </button>
   </section>
 
   <template v-if="loaded">
@@ -101,6 +115,16 @@ function go(tab: 'plugins' | 'themes' | 'widgets') {
       </header>
       <div class="store-grid">
         <WidgetItem v-for="w in recentWidgets" :key="w.id" :widget="w" />
+      </div>
+    </section>
+
+    <section v-if="recentSkills.length" class="home-section">
+      <header class="home-section-head">
+        <h2 class="home-section-title">New in Skills</h2>
+        <button class="home-section-more" type="button" @click="go('skills')">See all →</button>
+      </header>
+      <div class="store-grid">
+        <SkillItem v-for="s in recentSkills" :key="s.id" :skill="s" />
       </div>
     </section>
   </template>
@@ -144,7 +168,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets') {
   margin: 0 auto;
   padding: 20px 24px 8px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
 }
 

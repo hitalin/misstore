@@ -3,16 +3,21 @@ import StoreHeader from '@/components/StoreHeader.vue'
 import PluginItem from '@/components/PluginItem.vue'
 import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
+import SkillItem from '@/components/SkillItem.vue'
 import StoreEmpty from '@/components/StoreEmpty.vue'
 import StoreSkeleton from '@/components/StoreSkeleton.vue'
 import HomeEntrance from '@/components/HomeEntrance.vue'
-import { PLUGIN_CATEGORY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
+import {
+  PLUGIN_CATEGORY_LABELS,
+  SKILL_CATEGORY_LABELS,
+  WIDGET_CATEGORY_LABELS,
+} from '@/types'
 import { useStore } from '@/composables/useStore'
 
 const {
   activeTab, category, sort, misskeyHost,
-  filteredPlugins, filteredThemes, filteredWidgets,
-  loaded, pluginCategories, widgetCategories, resultCount,
+  filteredPlugins, filteredThemes, filteredWidgets, filteredSkills,
+  loaded, pluginCategories, widgetCategories, skillCategories, resultCount,
 } = useStore()
 </script>
 
@@ -54,6 +59,17 @@ const {
           <button class="pill" :class="{ active: category === 'dark' }" @click="category = 'dark'">Dark</button>
           <button class="pill" :class="{ active: category === 'light' }" @click="category = 'light'">Light</button>
         </template>
+        <template v-else-if="activeTab === 'skills'">
+          <button
+            v-for="c in skillCategories"
+            :key="c"
+            class="pill"
+            :class="{ active: category === c }"
+            @click="category = c"
+          >
+            {{ SKILL_CATEGORY_LABELS[c] || c }}
+          </button>
+        </template>
         <template v-else>
           <button
             v-for="c in widgetCategories"
@@ -86,6 +102,12 @@ const {
         <template v-else-if="activeTab === 'themes'">
           <div v-if="filteredThemes.length" class="store-grid">
             <ThemeItem v-for="t in filteredThemes" :key="t.id" :theme="t" />
+          </div>
+          <StoreEmpty v-else />
+        </template>
+        <template v-else-if="activeTab === 'skills'">
+          <div v-if="filteredSkills.length" class="store-grid">
+            <SkillItem v-for="s in filteredSkills" :key="s.id" :skill="s" />
           </div>
           <StoreEmpty v-else />
         </template>

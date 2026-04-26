@@ -92,12 +92,65 @@ export const WIDGET_CAPABILITY_LABELS: Record<WidgetCapability, string> = {
   'notedeck-api': 'NoteDeck API',
 }
 
+export interface SkillEntry {
+  id: string
+  name: string
+  version: string
+  author: string
+  description: string
+  category: SkillCategory
+  mode: SkillMode
+  triggers: string[]
+  scope: SkillScope
+  tags: string[]
+  sourceUrl: string
+  apiUrl: string
+  sha512: string
+  createdAt: string
+  updatedAt: string
+  authorUrl?: string
+  license?: string
+  repository?: string
+  builtIn?: boolean
+}
+
+export type SkillCategory =
+  | 'language'
+  | 'composing'
+  | 'analysis'
+  | 'persona'
+  | 'utility'
+
+export const SKILL_CATEGORY_LABELS: Record<SkillCategory, string> = {
+  language: 'Language',
+  composing: 'Composing',
+  analysis: 'Analysis',
+  persona: 'Persona',
+  utility: 'Utility',
+}
+
+export type SkillMode = 'always' | 'manual' | 'trigger'
+
+export const SKILL_MODE_LABELS: Record<SkillMode, string> = {
+  always: 'Always',
+  manual: 'Manual',
+  trigger: 'Trigger',
+}
+
+export type SkillScope = 'global' | 'per-account'
+
+export const SKILL_SCOPE_LABELS: Record<SkillScope, string> = {
+  global: 'Global',
+  'per-account': 'Per-account',
+}
+
 export interface RegistryIndex<T> {
   version: number
   updatedAt: string
   plugins?: T[]
   themes?: T[]
   widgets?: T[]
+  skills?: T[]
 }
 
-export type StoreTab = 'home' | 'plugins' | 'themes' | 'widgets'
+export type StoreTab = 'home' | 'plugins' | 'themes' | 'widgets' | 'skills'

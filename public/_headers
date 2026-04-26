@@ -8,3 +8,6 @@
 
 /registry/themes/*/theme.json5
   Content-Type: text/plain; charset=utf-8
+
+/registry/skills/*/skill.md
+  Content-Type: text/markdown; charset=utf-8

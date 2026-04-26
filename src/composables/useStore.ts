@@ -1,9 +1,16 @@
 import { computed, ref, watch } from 'vue'
-import type { PluginEntry, StoreTab, ThemeEntry, WidgetEntry } from '@/types'
+import type {
+  PluginEntry,
+  SkillEntry,
+  StoreTab,
+  ThemeEntry,
+  WidgetEntry,
+} from '@/types'
 
 const plugins = ref<PluginEntry[]>([])
 const themes = ref<ThemeEntry[]>([])
 const widgets = ref<WidgetEntry[]>([])
+const skills = ref<SkillEntry[]>([])
 const loaded = ref(false)
 const error = ref(false)
 const activeTab = ref<StoreTab>('home')
@@ -20,17 +27,20 @@ watch(misskeyHost, (v) => {
 
 async function load() {
   try {
-    const [pRes, tRes, wRes] = await Promise.all([
+    const [pRes, tRes, wRes, sRes] = await Promise.all([
       fetch('/registry/plugins.json'),
       fetch('/registry/themes.json'),
       fetch('/registry/widgets.json'),
+      fetch('/registry/skills.json'),
     ])
     const pData = await pRes.json()
     const tData = await tRes.json()
     const wData = await wRes.json()
+    const sData = sRes.ok ? await sRes.json() : { skills: [] }
     plugins.value = pData.plugins ?? []
     themes.value = tData.themes ?? []
     widgets.value = wData.widgets ?? []
+    skills.value = sData.skills ?? []
     loaded.value = true
   } catch {
     error.value = true
@@ -100,15 +110,37 @@ const filteredWidgets = computed(() => {
   return sortItems(items)
 })
 
+const filteredSkills = computed(() => {
+  let items = [...skills.value]
+  const q = query.value.toLowerCase().trim()
+  if (q) {
+    items = items.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q) ||
+        s.author.toLowerCase().includes(q) ||
+        s.tags.some((tag) => tag.toLowerCase().includes(q)),
+    )
+  }
+  if (category.value) {
+    items = items.filter((s) => s.category === category.value)
+  }
+  return sortItems(items)
+})
+
 const pluginCategories = computed(() => [
   ...new Set(plugins.value.map((p) => p.category)),
 ])
 const widgetCategories = computed(() => [
   ...new Set(widgets.value.map((w) => w.category)),
 ])
+const skillCategories = computed(() => [
+  ...new Set(skills.value.map((s) => s.category)),
+])
 const resultCount = computed(() => {
   if (activeTab.value === 'plugins') return filteredPlugins.value.length
   if (activeTab.value === 'themes') return filteredThemes.value.length
+  if (activeTab.value === 'skills') return filteredSkills.value.length
   return filteredWidgets.value.length
 })
 
@@ -142,12 +174,17 @@ function findWidget(id: string) {
   return computed(() => widgets.value.find((w) => w.id === id) ?? null)
 }
 
+function findSkill(id: string) {
+  return computed(() => skills.value.find((s) => s.id === id) ?? null)
+}
+
 export function useStore() {
   if (!loaded.value && !error.value) load()
   return {
     plugins,
     themes,
     widgets,
+    skills,
     loaded,
     error,
     activeTab,
@@ -158,12 +195,15 @@ export function useStore() {
     filteredPlugins,
     filteredThemes,
     filteredWidgets,
+    filteredSkills,
     pluginCategories,
     widgetCategories,
+    skillCategories,
     resultCount,
     buildInstallUrl,
     findPlugin,
     findTheme,
     findWidget,
+    findSkill,
   }
 }
