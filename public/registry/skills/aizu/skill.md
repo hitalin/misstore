@@ -2,7 +2,7 @@
 id: aizu
 name: 三須木藍
 version: 0.1.0
-description: NoteDeck 既定の Misskey 看板娘 AI ペルソナ
+description: Misskey 看板娘 AI ペルソナ
 author: NoteDeck
 mode: always
 scope: global
