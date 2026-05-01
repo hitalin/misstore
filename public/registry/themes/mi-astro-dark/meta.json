@@ -1,0 +1,11 @@
+{
+  "name": "Mi Astro Dark",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の宇宙をイメージした深い青のダークテーマ。",
+  "base": "dark",
+  "tags": ["misskey", "official", "builtin", "dark", "blue"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

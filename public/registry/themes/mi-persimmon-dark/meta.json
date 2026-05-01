@@ -1,0 +1,11 @@
+{
+  "name": "Mi Persimmon Dark",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の柿色アクセントを基調としたダークテーマ。",
+  "base": "dark",
+  "tags": ["misskey", "official", "builtin", "dark", "warm"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

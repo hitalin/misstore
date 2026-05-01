@@ -51,6 +51,9 @@ export interface ThemeEntry {
   createdAt: string
   updatedAt: string
   themeProps: Record<string, string>
+  authorUrl?: string
+  license?: string
+  repository?: string
 }
 
 export interface WidgetEntry {

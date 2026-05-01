@@ -1,0 +1,11 @@
+{
+  "name": "Mi Rainy Light",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の雨の日を思わせる落ち着いたライトテーマ。",
+  "base": "light",
+  "tags": ["misskey", "official", "builtin", "light", "blue", "rainy"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

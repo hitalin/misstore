@@ -1,0 +1,11 @@
+{
+  "name": "Mi Green+Lime Dark",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の深緑とライムを組み合わせたダークテーマ。",
+  "base": "dark",
+  "tags": ["misskey", "official", "builtin", "dark", "green", "lime"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

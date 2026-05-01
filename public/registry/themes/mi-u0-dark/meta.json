@@ -1,0 +1,10 @@
+{
+  "name": "Mi U0 Dark",
+  "version": "1.0.0",
+  "author": "Misskey contributors",
+  "description": "Misskey 標準の U0 ダークテーマ。",
+  "base": "dark",
+  "tags": ["misskey", "official", "builtin", "dark", "u0"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

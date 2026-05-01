@@ -1,0 +1,11 @@
+{
+  "name": "Mi Sushi Light",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の寿司をイメージした和風ライトテーマ。",
+  "base": "light",
+  "tags": ["misskey", "official", "builtin", "light", "sushi", "japanese"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

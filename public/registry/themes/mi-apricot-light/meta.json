@@ -1,0 +1,11 @@
+{
+  "name": "Mi Apricot Light",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準のあんず色をイメージした暖色系ライトテーマ。",
+  "base": "light",
+  "tags": ["misskey", "official", "builtin", "light", "orange", "warm"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

@@ -1,0 +1,1 @@
+{"type":"theme","data":"{\n\tid: '66e7e5a9-cd43-42cd-837d-12f47841fa34',\n\n\tname: 'Mi Ice Dark',\n\tauthor: 'syuilo',\n\n\tbase: 'dark',\n\n\tprops: {\n\t\taccent: '#47BFE8',\n\t\tfgOnWhite: '@accent',\n\t\tbg: '#212526',\n\t},\n}\n"}

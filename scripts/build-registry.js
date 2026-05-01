@@ -206,6 +206,9 @@ function buildThemes() {
         themeProps: themeData.props || {},
         createdAt: meta.createdAt || now,
         updatedAt: meta.updatedAt || meta.createdAt || now,
+        ...(meta.authorUrl && { authorUrl: meta.authorUrl }),
+        ...(meta.license && { license: meta.license }),
+        ...(meta.repository && { repository: meta.repository }),
       },
     ]
   })

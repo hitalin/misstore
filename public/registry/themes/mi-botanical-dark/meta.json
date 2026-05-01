@@ -1,0 +1,11 @@
+{
+  "name": "Mi Botanical Dark",
+  "version": "1.0.0",
+  "author": "syuilo",
+  "authorUrl": "https://github.com/syuilo",
+  "description": "Misskey 標準の植物をモチーフにしたグリーン基調のダークテーマ。",
+  "base": "dark",
+  "tags": ["misskey", "official", "builtin", "dark", "green", "botanical"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}

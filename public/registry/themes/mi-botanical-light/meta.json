@@ -1,0 +1,11 @@
+{
+  "name": "Mi Botanical Light",
+  "version": "1.0.0",
+  "author": "ThinaticSystem",
+  "authorUrl": "https://github.com/ThinaticSystem",
+  "description": "Misskey 標準の植物をモチーフにしたグリーン基調のライトテーマ。",
+  "base": "light",
+  "tags": ["misskey", "official", "builtin", "light", "green", "botanical"],
+  "license": "AGPL-3.0-only",
+  "repository": "https://github.com/misskey-dev/misskey"
+}
