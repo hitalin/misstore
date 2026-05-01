@@ -1,0 +1,88 @@
+/// TODOリストウィジェット (Todoist 風)
+/// タスクの追加と完了管理。ローカル保存。
+/// 元コード: ikakonbu (https://misskey.io/@ikakonbu/pages/1698770492177)
+
+var todolist = Mk:load("todolist")
+if (todolist == null) { todolist = [] }
+var draft = ""
+var adding = false
+
+@save() { Mk:save("todolist", todolist) }
+
+@startAdd() {
+  adding = true
+  render()
+}
+
+@cancelAdd() {
+  draft = ""
+  adding = false
+  render()
+}
+
+@addTask() {
+  if (draft != "") {
+    todolist.push(draft)
+    draft = ""
+    adding = false
+    save()
+    render()
+  }
+}
+
+@removeAt(idx) {
+  var next = []
+  for (let i, todolist.len) {
+    if (i != idx) { next.push(todolist[i]) }
+  }
+  todolist = next
+  save()
+  render()
+}
+
+@taskRow(todo, idx) {
+  Ui:C:button({
+    text: `◯  {todo}`
+    onClick: @() { removeAt(idx) }
+  })
+}
+
+@addArea() {
+  if (adding) {
+    Ui:C:container({
+      children: [
+        Ui:C:textInput({
+          default: draft
+          onInput: @(text) { draft = text }
+        })
+        Ui:C:buttons({
+          buttons: [
+            { text: "追加", primary: true, onClick: addTask }
+            { text: "キャンセル", onClick: cancelAdd }
+          ]
+        })
+      ]
+    })
+  } else {
+    Ui:C:button({
+      text: "＋  タスクを追加"
+      onClick: startAdd
+    })
+  }
+}
+
+@render() {
+  var rows = []
+  var i = 0
+  each (let todo, todolist) {
+    rows.push(taskRow(todo, i))
+    i = i + 1
+  }
+  rows.push(addArea())
+
+  Ui:render([
+    Ui:C:container({ children: rows })
+  ])
+}
+
+render()

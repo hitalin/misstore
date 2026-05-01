@@ -1,0 +1,14 @@
+{
+  "id": "todo-list",
+  "name": "TODOリスト",
+  "version": "1.0.0",
+  "author": "@ikakonbu",
+  "authorUrl": "https://misskey.io/@ikakonbu",
+  "description": "タスクの追加と完了管理（ローカル保存）",
+  "icon": "ti-list-check",
+  "autoRun": true,
+  "category": "input",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["todo", "task", "list"]
+}
