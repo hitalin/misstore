@@ -1,0 +1,14 @@
+{
+  "id": "trends",
+  "name": "トレンド",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "サーバーで話題のハッシュタグ一覧を表示",
+  "icon": "ti-hash",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": ["misskey-api"],
+  "license": "MIT",
+  "tags": ["trends", "hashtags", "discover"]
+}

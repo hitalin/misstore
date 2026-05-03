@@ -1,0 +1,59 @@
+/// トレンドハッシュタグウィジェット
+/// hashtags/trend API で取得したトレンドタグを 60 秒ごとに自動更新表示。
+/// タグをクリックするとサーバーのタグページが開く。
+
+let REFRESH_SEC = 60
+let MAX_ITEMS = 10
+
+var stats = []
+var loading = true
+var remaining = REFRESH_SEC
+
+let baseUrl = (Mk:api("meta", {})).uri
+
+@fetchTrends() {
+  loading = true
+  render()
+  let res = Mk:api("hashtags/trend", {})
+  stats = res.slice(0, MAX_ITEMS)
+  loading = false
+  remaining = REFRESH_SEC
+  render()
+}
+
+@render() {
+  let status = if (loading) { "更新中…" } else { `次回更新まで {remaining}s` }
+
+  let header = Ui:C:mfm({
+    text: `$[fg.color=888888 # トレンド · {status}]`
+  })
+
+  let items = if (stats.len == 0 && !loading) {
+    [Ui:C:mfm({ text: "$[fg.color=888888 トレンドなし]" })]
+  } else {
+    stats.map(@(stat) {
+      Ui:C:mfm({
+        text: `?[<plain>#{stat.tag}</plain>]({baseUrl}/tags/{stat.tag})  $[fg.color=9e9e9e {stat.usersCount}人が話題]`
+      })
+    })
+  }
+
+  let footer = Ui:C:button({
+    text: "更新"
+    rounded: true
+    onClick: fetchTrends
+  })
+
+  Ui:render([header].concat(items).concat([footer]))
+}
+
+fetchTrends()
+loop {
+  Core:sleep(1000)
+  remaining = remaining - 1
+  if (remaining <= 0) {
+    fetchTrends()
+  } else {
+    render()
+  }
+}
