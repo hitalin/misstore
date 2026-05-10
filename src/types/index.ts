@@ -117,6 +117,7 @@ export interface SkillEntry {
   license?: string
   repository?: string
   builtIn?: boolean
+  isPersona?: boolean
   iconUrl?: string
 }
 

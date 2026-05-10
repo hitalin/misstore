@@ -343,6 +343,7 @@ function buildSkills() {
         ...(meta.license && { license: meta.license }),
         ...(meta.repository && { repository: meta.repository }),
         ...(meta.builtIn !== undefined && { builtIn: !!meta.builtIn }),
+        ...(meta.isPersona !== undefined && { isPersona: !!meta.isPersona }),
         ...(iconUrl && { iconUrl }),
       },
     ]

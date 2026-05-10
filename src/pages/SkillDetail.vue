@@ -115,6 +115,10 @@ const skill = findSkill(route.params.id as string)
               <dt>Built-in</dt>
               <dd>Yes</dd>
             </div>
+            <div v-if="skill.isPersona" class="detail-info-item">
+              <dt>Persona</dt>
+              <dd>Yes</dd>
+            </div>
             <div v-if="skill.tags.length" class="detail-info-item">
               <dt>Tags</dt>
               <dd class="detail-tags">
