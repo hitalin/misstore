@@ -48,12 +48,11 @@ let baseUrl = (Mk:api("meta", {})).uri
 }
 
 fetchTrends()
-loop {
-  Core:sleep(1000)
+Async:interval(1000, @() {
   remaining = remaining - 1
   if (remaining <= 0) {
     fetchTrends()
   } else {
     render()
   }
-}
+}, false)

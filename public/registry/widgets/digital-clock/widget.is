@@ -55,7 +55,4 @@ let dowColors = ["ff5252", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "bdbdbd", "42
 }
 
 render()
-loop {
-  Core:sleep(1000)
-  render()
-}
+Async:interval(1000, render, false)
