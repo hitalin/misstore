@@ -1,0 +1,80 @@
+/// Plugin Smith — AiScript プラグインのソース生成
+///
+/// クリップボードに「こういうプラグインが欲しい」と書いておいて起動すると、
+/// 既存プラグインの作りを参考に AI が AiScript ソースを生成し、
+/// クリップボードに書き戻す。
+///
+/// 安全のため:
+/// - `plugins.create` capability は aiTool: false なので AI 自身は install しない
+/// - 生成されたソースをユーザーが目で見て、納得した上で「プラグイン → 新規」で
+///   貼り付けて install する手動フロー
+
+### {
+	name: "Plugin Smith"
+	version: "0.1.0"
+	author: "@hitalin"
+	description: "AI が AiScript プラグインのソースを生成 (install は手動)"
+}
+
+@generate() {
+	let clip = Nd:call('clipboard.read', {})
+	if (clip.text == '' || clip.text == null) {
+		Nd:call('ui.notify', {
+			title: 'Plugin Smith'
+			body: 'クリップボードに「こういうプラグインが欲しい」を書いてから起動してください'
+		})
+		return null
+	}
+
+	// 既存プラグインからフォーマット参考に
+	let installed = Nd:call('plugins.list', {})
+	var sampleNames = []
+	each (let p, installed) { sampleNames.push(p.name) }
+	let sampleHint = if (sampleNames.len > 0) {
+		`参考にできる既存プラグイン: ${sampleNames.join(', ')}`
+	} else {
+		'(まだ他のプラグインは入っていません)'
+	}
+
+	let prompt = `あなたは NoteDeck の AiScript プラグイン作者です。次のユーザー要望から
+AiScript ソースを生成してください。
+
+【NoteDeck の規約】
+- 冒頭に \`### { name, version, author, description }\` メタブロックを置く
+- コマンドを登録するときは \`Nd:register_command(id, label, icon, handler, options)\`
+- AI を呼ぶときは \`Nd:call('ai.chat', { prompt })\`
+- クリップボードは \`Nd:call('clipboard.read', {})\` / \`'clipboard.write', { text }\`
+- 通知は \`Nd:call('ui.notify', { title, body })\`
+
+【ユーザー要望】
+${clip.text}
+
+【ヒント】
+${sampleHint}
+
+ソースコードだけを返してください (説明は不要):`
+
+	let result = Nd:call('ai.chat', { prompt: prompt })
+	let src = result.response
+
+	Nd:call('clipboard.write', { text: src })
+
+	// 生成プレビュー: メタブロック + コマンド名くらいまでが見えるとレビューしやすい
+	let preview = if (src.len > 280) { src.slice(0, 280) + '...' } else { src }
+	let lineCount = src.split(Str:lf).len
+	Nd:call('ui.notify', {
+		title: `Plugin Smith — ${lineCount} 行生成`
+		body: `クリップボードに書き込みました。プラグインカラム → 新規 から貼り付けて install してください。
+
+--- preview ---
+${preview}`
+	})
+}
+
+Nd:register_command(
+	'plugin-smith:run'
+	'Plugin Smith — AiScript 生成'
+	'ti-tools'
+	@() { generate() }
+	{ permissions: ['ai.invoke', 'clipboard', 'notifications'] }
+)

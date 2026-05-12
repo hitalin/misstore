@@ -1,0 +1,13 @@
+{
+  "id": "plugin-smith",
+  "name": "Plugin Smith",
+  "version": "0.1.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成しクリップボードに書き戻す。AI 本体は install まではしない (= ユーザー確認フロー)。",
+  "license": "MIT",
+  "category": "developer",
+  "tags": ["plugin", "code-gen", "ai"],
+  "permissions": ["ai.invoke", "clipboard", "plugins.read"],
+  "minNoteDeckVersion": "0.23.0"
+}

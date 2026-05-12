@@ -1,7 +1,32 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-10T07:13:41.531Z",
+  "updatedAt": "2026-05-12T02:07:54.922Z",
   "plugins": [
+    {
+      "id": "plugin-smith",
+      "name": "Plugin Smith",
+      "version": "0.1.0",
+      "author": "@hitalin",
+      "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成しクリップボードに書き戻す。AI 本体は install まではしない (= ユーザー確認フロー)。",
+      "category": "developer",
+      "tags": [
+        "plugin",
+        "code-gen",
+        "ai"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/api.json",
+      "sha512": "fc22a53241e6857fa9e4a459269f57ed645f9aa31a970f5a8d9483e3bef050931e5613618ba94d3c6487070079c263a1d04d5ea939d17d46fb40083d868f122d",
+      "createdAt": "2026-05-12T02:07:54.932Z",
+      "updatedAt": "2026-05-12T02:07:54.932Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "ai.invoke",
+        "clipboard",
+        "plugins.read"
+      ]
+    },
     {
       "id": "youtube-link-cleaner",
       "name": "YouTube Link Cleaner",
@@ -17,8 +42,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/api.json",
       "sha512": "128cdc9b717019ddc4aec84cce788d7be84e480d78f5f5b6cfb70d0d43005195d138f16e20c640ac216466f772a43f49db5b3c6dfd4e2138d19585e404b54efd",
-      "createdAt": "2026-05-10T07:13:41.535Z",
-      "updatedAt": "2026-05-10T07:13:41.535Z",
+      "createdAt": "2026-05-12T02:07:54.934Z",
+      "updatedAt": "2026-05-12T02:07:54.934Z",
       "authorUrl": "https://github.com/jj1guj",
       "license": "MIT",
       "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",
