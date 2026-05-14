@@ -1,0 +1,116 @@
+/// ListenBrainz Now Playing ウィジェット
+/// ListenBrainz で今聴いている曲を表示し、ワンタップで #nowplaying 投稿。
+/// userId は ListenBrainz のユーザー名 (Misskey アカウントとは無関係)。
+/// 元ネタ: yamisskey WidgetListenBrainz.vue (lqvp) を AiScript で再実装。
+
+@dflt(v, d) {
+  if (Core:type(v) == "null") d else v
+}
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") {
+    d
+  } elif (Obj:has(o, k)) {
+    dflt(o[k], d)
+  } else {
+    d
+  }
+}
+
+let DEFAULT_FORMAT = "{artist_name} - {track_name} ({media_player}/{music_service_name}/{client}) {url} #nowplaying"
+
+var userId = dflt(Mk:load("userId"), "")
+var noteFormat = dflt(Mk:load("noteFormat"), DEFAULT_FORMAT)
+var firstRun = true
+
+@formatNote(track) {
+  let info = get(track, "additional_info", {})
+  var s = noteFormat
+  s = s.replace("{artist_name}", get(track, "artist_name", ""))
+  s = s.replace("{track_name}", get(track, "track_name", ""))
+  s = s.replace("{media_player}", get(info, "media_player", ""))
+  s = s.replace("{music_service_name}", get(info, "music_service_name", ""))
+  s = s.replace("{url}", get(info, "origin_url", ""))
+  s = s.replace("{client}", get(info, "submission_client", ""))
+  s
+}
+
+@configFolder() {
+  Ui:C:folder({
+    title: "設定"
+    opened: (userId == "")
+    children: [
+      Ui:C:text({ text: "ListenBrainz ユーザー名" })
+      Ui:C:textInput({
+        default: userId
+        onInput: @(v) {
+          userId = v
+          Mk:save("userId", v)
+        }
+      })
+      Ui:C:text({ text: "投稿フォーマット" })
+      Ui:C:textarea({
+        default: noteFormat
+        onInput: @(v) {
+          noteFormat = v
+          Mk:save("noteFormat", v)
+        }
+      })
+    ]
+  })
+}
+
+@render() {
+  if (userId == "") {
+    Ui:render([
+      Ui:C:container({
+        children: [
+          Ui:C:text({ text: "ListenBrainz のユーザー名を設定してください" })
+          configFolder()
+        ]
+      })
+    ])
+  } else {
+    if (firstRun) {
+      Ui:render([
+        Ui:C:container({
+          align: "center"
+          children: [ Ui:C:text({ text: "読み込み中…" }) ]
+        })
+      ])
+    }
+    firstRun = false
+
+    let url = `https://api.listenbrainz.org/1/user/{userId}/playing-now`
+    let res = Nd:http(url, { method: "GET" })
+    let data = Json:parse(res.body)
+    let payload = get(data, "payload", {})
+    let listens = get(payload, "listens", [])
+
+    var body = []
+    if (listens.len == 0) {
+      body = [ Ui:C:text({ text: "再生中の曲はありません" }) ]
+    } else {
+      let track = listens[0].track_metadata
+      let note = formatNote(track)
+      body = [
+        Ui:C:mfm({ text: note })
+        Ui:C:postFormButton({
+          text: "ノート"
+          primary: true
+          form: { text: note }
+        })
+      ]
+    }
+
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: body.concat([ configFolder() ])
+      })
+    ])
+  }
+}
+
+render()
+Async:interval(60000, render, false)

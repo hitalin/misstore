@@ -1,0 +1,14 @@
+{
+  "id": "listenbrainz",
+  "name": "ListenBrainz Now Playing",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ListenBrainz で今聴いている曲を表示し、ワンタップで #nowplaying 投稿",
+  "icon": "ti-music",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["listenbrainz", "music", "nowplaying"]
+}
