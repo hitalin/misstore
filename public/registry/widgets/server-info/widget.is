@@ -10,11 +10,11 @@ Ui:render([
   })
 ])
 
-let meta = Mk:api("meta", {})
+let serverMeta = Mk:api("meta", {})
 let stats = Mk:api("stats", {})
 
-let name = meta.name
-let version = meta.version
+let name = serverMeta.name
+let version = serverMeta.version
 let users = stats.originalUsersCount
 let notes = stats.originalNotesCount
 let instances = stats.instances
