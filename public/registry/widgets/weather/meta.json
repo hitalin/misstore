@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "@hitalin",
   "authorUrl": "https://github.com/hitalin",
-  "description": "Open-Meteo で現在の天気と2日分の予報を表示。都市名を入れるだけ、API キー不要",
+  "description": "Open-Meteo で現在の天気と2日分の予報を表示。API キー不要 (場所は widget.is で設定)",
   "icon": "ti-cloud",
   "autoRun": true,
   "category": "display",

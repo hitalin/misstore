@@ -3,6 +3,10 @@
 /// 都市名から geocoding で座標を引くため API キーは不要。
 /// 元ネタ: misskey-tempura WidgetWeather (lqvp) を Open-Meteo + AiScript で再実装。
 
+// 表示する場所はここを直接書き換える (ローマ字の検索クエリ)。
+// 例: 東京→Tokyo / 札幌→Sapporo / 金沢→Kanazawa
+let CITY = "Kawasaki"
+
 @dflt(v, d) {
   if (Core:type(v) == "null") d else v
 }
@@ -17,25 +21,6 @@
   }
 }
 
-// 国内主要都市プリセット: { label: 表示名(日本語), q: 検索クエリ(ローマ字) }
-// 地方をひと通りカバーし、タップだけで切り替えられるようにする。
-let PRESETS = [
-  { label: "札幌", q: "Sapporo" }
-  { label: "仙台", q: "Sendai" }
-  { label: "東京", q: "Tokyo" }
-  { label: "横浜", q: "Yokohama" }
-  { label: "名古屋", q: "Nagoya" }
-  { label: "京都", q: "Kyoto" }
-  { label: "大阪", q: "Osaka" }
-  { label: "神戸", q: "Kobe" }
-  { label: "広島", q: "Hiroshima" }
-  { label: "高松", q: "Takamatsu" }
-  { label: "福岡", q: "Fukuoka" }
-  { label: "那覇", q: "Naha" }
-]
-
-var city = dflt(Mk:load("city"), "Tokyo")
-var configOpen = false
 var firstRun = true
 
 /// WMO weather code を絵文字に変換
@@ -77,61 +62,6 @@ var firstRun = true
   else dateStr
 }
 
-@selectCity(q) {
-  city = q
-  Mk:save("city", q)
-  firstRun = true
-  render()
-}
-
-@configFolder() {
-  // プリセットを 4 個ずつの行 (Ui:C:buttons) に分割
-  var rows = []
-  var cur = []
-  for (let i, PRESETS.len) {
-    let p = PRESETS[i]
-    cur = cur.concat([{
-      text: p.label
-      primary: (city == p.q)
-      onClick: @() { selectCity(p.q) }
-    }])
-    if (cur.len == 4) {
-      rows = rows.concat([Ui:C:buttons({ buttons: cur })])
-      cur = []
-    }
-  }
-  if (cur.len > 0) {
-    rows = rows.concat([Ui:C:buttons({ buttons: cur })])
-  }
-
-  let head = [ Ui:C:text({ text: "都市をタップして選ぶ" }) ]
-  let tail = [
-    Ui:C:text({ text: "" })
-    Ui:C:text({ text: "一覧にない地域はローマ字で入力 (例: 金沢→Kanazawa)" })
-    Ui:C:textInput({
-      default: city
-      onInput: @(v) {
-        city = v
-        Mk:save("city", v)
-      }
-    })
-    Ui:C:button({
-      text: "この地域で表示"
-      primary: true
-      onClick: @() {
-        firstRun = true
-        render()
-      }
-    })
-  ]
-
-  Ui:C:folder({
-    title: "📍 場所を変更"
-    opened: configOpen
-    children: head.concat(rows).concat(tail)
-  })
-}
-
 @geocode(name) {
   let url = `https://geocoding-api.open-meteo.com/v1/search?name={name}&count=1&language=ja&format=json`
   let res = Nd:http(url, { method: "GET" })
@@ -147,20 +77,18 @@ var firstRun = true
 }
 
 @weatherView() {
-  let place = geocode(city)
+  let place = geocode(CITY)
   if (Core:type(place) == "null") {
-    configOpen = true
     [
-      Ui:C:mfm({ text: `$[fg.color=f74e52 ⚠️ 「{city}」が見つかりませんでした]` })
-      Ui:C:text({ text: "下の「場所を変更」から選び直してください。" })
+      Ui:C:mfm({ text: `$[fg.color=f74e52 ⚠️ 「{CITY}」が見つかりませんでした]` })
+      Ui:C:text({ text: "widget.is の CITY を見直してください。" })
     ]
   } else {
-    configOpen = false
     let data = fetchForecast(place.latitude, place.longitude)
     let cur = get(data, "current", {})
     let daily = get(data, "daily", {})
 
-    let placeName = get(place, "name", city)
+    let placeName = get(place, "name", CITY)
     let code = get(cur, "weather_code", -1)
 
     var body = [
@@ -187,35 +115,23 @@ var firstRun = true
 }
 
 @render() {
-  if (city == "") {
-    configOpen = true
-    Ui:render([
-      Ui:C:container({
-        children: [
-          Ui:C:text({ text: "場所を選んでください 👇" })
-          configFolder()
-        ]
-      })
-    ])
-  } else {
-    if (firstRun) {
-      Ui:render([
-        Ui:C:container({
-          align: "center"
-          children: [ Ui:C:text({ text: "天気を読み込み中… ⛅" }) ]
-        })
-      ])
-    }
-    firstRun = false
-
-    let body = weatherView()
+  if (firstRun) {
     Ui:render([
       Ui:C:container({
         align: "center"
-        children: body.concat([ configFolder() ])
+        children: [ Ui:C:text({ text: "天気を読み込み中… ⛅" }) ]
       })
     ])
   }
+  firstRun = false
+
+  let body = weatherView()
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      children: body
+    })
+  ])
 }
 
 render()
