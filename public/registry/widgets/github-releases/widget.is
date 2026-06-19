@@ -1,0 +1,148 @@
+/// リリースウィジェット
+/// GitHub Releases API から任意リポジトリの最新リリースと履歴を表示。API キー不要。
+/// デフォルトは misskey-dev/misskey。設定で任意の "owner/repo" に変更できる。
+/// 設計の元ネタ: earthquake ウィジェット (表示・更新ループ) + habitica-status (設定 UI)。
+
+// 表示する件数 (最新 1 件 + 履歴)。ここを書き換えると増減できる。
+let COUNT = 6
+
+@dflt(v, d) {
+  if (Core:type(v) == "null") d else v
+}
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") {
+    d
+  } elif (Obj:has(o, k)) {
+    dflt(o[k], d)
+  } else {
+    d
+  }
+}
+
+// 設定: 対象リポジトリ ("owner/repo")。Mk:save で永続化される。
+var repo = dflt(Mk:load("repo"), "misskey-dev/misskey")
+var firstRun = true
+
+/// ISO 8601 ("2026-06-10T12:34:56Z") から日付部分だけ取り出す
+@dateLabel(s) {
+  if (Core:type(s) == "str" && s.len >= 10) s.slice(0, 10) else "-"
+}
+
+/// 背景色付きラベルバッジ (MFM)
+@badge(text, color) {
+  `$[bg.color={color} $[fg.color=ffffff  {text} ]]`
+}
+
+@configFolder() {
+  Ui:C:folder({
+    title: "⚙️ 設定"
+    opened: false
+    children: [
+      Ui:C:textInput({
+        onInput: @(v) {
+          repo = v
+          Mk:save("repo", v)
+          firstRun = true
+          render()
+        }
+        default: repo
+        label: "リポジトリ"
+        text: "owner/repo (例: misskey-dev/misskey)"
+      })
+    ]
+  })
+}
+
+@fetchReleases() {
+  let url = `https://api.github.com/repos/{repo}/releases?per_page={COUNT}`
+  let res = Nd:http(url, {
+    method: "GET"
+    headers: {
+      "User-Agent": "notedeck-github-releases-widget"
+      "Accept": "application/vnd.github+json"
+    }
+  })
+  if (res.status != 200) {
+    { error: `取得失敗 (HTTP {res.status})` }
+  } else {
+    { releases: Json:parse(res.body) }
+  }
+}
+
+/// 1 件のリリースを 1 行のリスト項目にする
+@releaseRow(r) {
+  let tag = get(r, "tag_name", "?")
+  let url = get(r, "html_url", "")
+  let date = dateLabel(get(r, "published_at", ""))
+  Ui:C:mfm({
+    text: `$[fg.color=86b300 ●] [{tag}]({url})　$[fg.color=999999 {date}]`
+  })
+}
+
+@releasesView() {
+  let data = fetchReleases()
+
+  // 取得失敗
+  if (Core:type(get(data, "error", null)) != "null") {
+    return [
+      Ui:C:mfm({ text: `<center>🚀 $[fg.color=999999 {repo}]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color=f74e52 ⚠️ {data.error}]</center>` })
+      configFolder()
+    ]
+  }
+
+  let releases = get(data, "releases", [])
+  if (Core:type(releases) != "arr" || releases.len == 0) {
+    return [
+      Ui:C:mfm({ text: `<center>🚀 $[fg.color=999999 {repo}]</center>` })
+      Ui:C:mfm({ text: "<center>$[fg.color=999999 リリースがありません]</center>" })
+      configFolder()
+    ]
+  }
+
+  // 最新リリース (大きく表示)
+  let latest = releases[0]
+  let tag = get(latest, "tag_name", "?")
+  let url = get(latest, "html_url", "")
+  let pre = get(latest, "prerelease", false)
+  let stateBadge = if (pre) badge("Pre-release", "f59e0b") else badge("Stable", "43a047")
+
+  var body = [
+    Ui:C:mfm({ text: `<center>🚀 $[fg.color=999999 {repo}]</center>` })
+    Ui:C:mfm({ text: `<center>$[x2 [**{tag}**]({url})]</center>` })
+    Ui:C:mfm({ text: `<center>{stateBadge}</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color=999999 {dateLabel(get(latest, "published_at", ""))} 公開]</center>` })
+  ]
+
+  // 履歴 (2 件目以降)
+  for (let i, releases.len - 1) {
+    body = body.concat([ releaseRow(releases[i + 1]) ])
+  }
+
+  body.concat([ configFolder() ])
+}
+
+@render() {
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [ Ui:C:text({ text: "リリース情報を読み込み中… 🚀" }) ]
+      })
+    ])
+  }
+  firstRun = false
+
+  let body = releasesView()
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      children: body
+    })
+  ])
+}
+
+render()
+// リリースは頻繁に出ないので 5 分間隔で更新
+Async:interval(300000, render, false)

@@ -19,6 +19,7 @@ const ICON_MAP = {
   'widgets/button': { pack: 'lucide', name: 'mouse-pointer-click' },
   'widgets/calendar': { pack: 'lucide', name: 'calendar' },
   'widgets/digital-clock': { pack: 'lucide', name: 'clock' },
+  'widgets/github-releases': { pack: 'lucide', name: 'rocket' },
   'widgets/memo': { pack: 'lucide', name: 'notebook-pen' },
   'widgets/online-users': { pack: 'lucide', name: 'users' },
   'widgets/poll': { pack: 'lucide', name: 'vote' },

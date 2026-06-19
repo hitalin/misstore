@@ -1,0 +1,14 @@
+{
+  "id": "github-releases",
+  "name": "リリース",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "GitHub Releases API で任意リポジトリの最新リリースと履歴を表示。デフォルトは misskey-dev/misskey。設定で変更可。API キー不要",
+  "icon": "ti-rocket",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["github", "release", "changelog", "misskey"]
+}
