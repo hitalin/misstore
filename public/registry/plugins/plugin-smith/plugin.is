@@ -1,73 +1,137 @@
 /// Plugin Smith — AiScript プラグインのソース生成
 ///
-/// クリップボードに「こういうプラグインが欲しい」と書いておいて起動すると、
+/// クリップボードに「こういうプラグインが欲しい」と書いて起動すると、
 /// 既存プラグインの作りを参考に AI が AiScript ソースを生成し、
-/// クリップボードに書き戻す。
+/// `plugins.create` の確認ダイアログにソース全文を表示する。
 ///
-/// 安全のため:
-/// - `plugins.create` capability は aiTool: false なので AI 自身は install しない
-/// - 生成されたソースをユーザーが目で見て、納得した上で「プラグイン → 新規」で
-///   貼り付けて install する手動フロー
+/// v0.1 は生成結果をクリップボードに書き戻していたが、それだと元の
+/// クリップボードを上書きしてしまい中身を確認しづらい。そこで NoteDeck の
+/// インストール確認ダイアログ (コードプレビュー付き) でレビューする方式にした。
+///
+/// 安全性:
+/// - plugins.create は必ず active:false (無効) で作られ、handler は走らない
+/// - インストール前に確認ダイアログでソース全文が見える
+/// - 有効化はプラグインカラムから手動 (= 二重承認境界)
 
 ### {
 	name: "Plugin Smith"
-	version: "0.1.0"
+	version: "0.2.0"
 	author: "@hitalin"
-	description: "AI が AiScript プラグインのソースを生成 (install は手動)"
+	description: "AI が AiScript プラグインを生成し、確認ダイアログでレビュー (有効化は手動)"
+}
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+
+/// 生成テキストから 3 連バッククォートのコードフェンスを剥がす
+/// (AI が指示を無視してフェンスを付けてきた場合の保険)
+@stripFence(raw) {
+	var t = raw.trim()
+	if (!t.starts_with("```")) { return t }
+	let parts = t.split("```")
+	// parts[0] = "" / parts[1] = フェンス内本体 / parts[2] = 末尾
+	if (parts.len < 2) { return t }
+	var inner = parts[1]
+	// 先頭が言語タグ行 (aiscript / is 等) なら 1 行落とす
+	let nl = inner.index_of(Str:lf)
+	if (nl >= 0) {
+		let first = inner.slice(0, nl).trim()
+		if (first.len <= 12 && !first.incl(" ")) {
+			inner = inner.slice(nl + 1, inner.len)
+		}
+	}
+	inner.trim()
 }
 
 @generate() {
 	let clip = Nd:call('clipboard.read', {})
-	if (clip.text == '' || clip.text == null) {
+	if (clip.text == "" || clip.text == null) {
 		Nd:call('ui.notify', {
-			title: 'Plugin Smith'
-			body: 'クリップボードに「こういうプラグインが欲しい」を書いてから起動してください'
+			title: "Plugin Smith"
+			body: "クリップボードに「こういうプラグインが欲しい」を書いてから起動してください"
 		})
 		return null
 	}
 
-	// 既存プラグインからフォーマット参考に
+	// 既存プラグインをフォーマットの参考に
 	let installed = Nd:call('plugins.list', {})
 	var sampleNames = []
 	each (let p, installed) { sampleNames.push(p.name) }
 	let sampleHint = if (sampleNames.len > 0) {
-		`参考にできる既存プラグイン: ${sampleNames.join(', ')}`
+		`参考にできる既存プラグイン: {sampleNames.join(", ")}`
 	} else {
-		'(まだ他のプラグインは入っていません)'
+		"(まだ他のプラグインは入っていません)"
 	}
 
-	let prompt = `あなたは NoteDeck の AiScript プラグイン作者です。次のユーザー要望から
-AiScript ソースを生成してください。
+	// プロンプトは波括弧やバッククォートを含むため、テンプレートリテラルを使わず
+	// "..." (補間なし) の行配列を join で組み立てる。
+	let rules = [
+		"あなたは NoteDeck の AiScript プラグイン作者です。ユーザーの要望から AiScript ソースを生成してください。"
+		""
+		"【NoteDeck の規約】"
+		"- 冒頭に ### { name, version, author, description } メタブロックを置く"
+		"- コマンド登録は Nd:register_command(id, label, icon, handler, options)"
+		"- AI 呼び出しは Nd:call('ai.chat', { prompt })"
+		"- クリップボードは Nd:call('clipboard.read', {}) / Nd:call('clipboard.write', { text })"
+		"- 通知は Nd:call('ui.notify', { title, body })"
+		"- 文字列・配列はメソッド形式で操作する (s.split(',') / arr.push(v) / arr.len)。Str:split のような名前空間関数は無い"
+		""
+		"【出力形式 — 厳守】"
+		"- 1 行目に NAME: <プラグイン名> だけを書く"
+		"- 2 行目以降は AiScript ソース本体のみ (### メタブロックから開始)"
+		"- コードフェンスや説明文は一切付けない"
+	].join(Str:lf)
 
-【NoteDeck の規約】
-- 冒頭に \`### { name, version, author, description }\` メタブロックを置く
-- コマンドを登録するときは \`Nd:register_command(id, label, icon, handler, options)\`
-- AI を呼ぶときは \`Nd:call('ai.chat', { prompt })\`
-- クリップボードは \`Nd:call('clipboard.read', {})\` / \`'clipboard.write', { text }\`
-- 通知は \`Nd:call('ui.notify', { title, body })\`
-
-【ユーザー要望】
-${clip.text}
-
-【ヒント】
-${sampleHint}
-
-ソースコードだけを返してください (説明は不要):`
+	let prompt = [
+		rules
+		""
+		"【ユーザー要望】"
+		clip.text
+		""
+		"【参考】"
+		sampleHint
+	].join(Str:lf)
 
 	let result = Nd:call('ai.chat', { prompt: prompt })
-	let src = result.response
+	let cleaned = stripFence(result.response)
 
-	Nd:call('clipboard.write', { text: src })
+	// 1 行目の NAME: からプラグイン名を取り出し、本体と分離する
+	let lines = cleaned.split(Str:lf)
+	var name = "生成プラグイン"
+	var bodyStart = 0
+	if (lines.len > 0 && lines[0].trim().starts_with("NAME:")) {
+		let head = lines[0].trim()
+		name = head.slice(5, head.len).trim()
+		bodyStart = 1
+	}
+	if (name == "") { name = "生成プラグイン" }
+	let src = lines.slice(bodyStart, lines.len).join(Str:lf).trim()
 
-	// 生成プレビュー: メタブロック + コマンド名くらいまでが見えるとレビューしやすい
-	let preview = if (src.len > 280) { src.slice(0, 280) + '...' } else { src }
-	let lineCount = src.split(Str:lf).len
-	Nd:call('ui.notify', {
-		title: `Plugin Smith — ${lineCount} 行生成`
-		body: `クリップボードに書き込みました。プラグインカラム → 新規 から貼り付けて install してください。
+	// 確認ダイアログに出せるのは構文の通るソースだけなので、先に検証する
+	let check = Nd:call('aiscript.validate', { src: src, entryPoint: "plugin" })
+	if (!check.ok) {
+		// 壊れたソースはダイアログに出せない。失われないようクリップボードへ退避し、
+		// エラー内容を通知する (異常系でのみクリップボードを使う)。
+		Nd:call('clipboard.write', { text: src })
+		var diag = ""
+		each (let d, check.diagnostics) {
+			diag = `{diag}L{d.line}:{d.column} {d.message}{Str:lf}`
+		}
+		Nd:call('ui.notify', {
+			title: "Plugin Smith — 構文エラー"
+			body: `生成結果に構文エラーがありました。修正用にクリップボードへ退避しました。{Str:lf}{Str:lf}{diag}`
+		})
+		return null
+	}
 
---- preview ---
-${preview}`
+	// 確認ダイアログにソース全文 (is ハイライト) が表示される。
+	// active:false で作成され handler は走らない。有効化はユーザーが手動で。
+	Nd:call('plugins.create', {
+		name: name
+		src: src
+		author: "@plugin-smith"
+		description: "Plugin Smith が生成 (有効化前に内容を確認してください)"
 	})
 }
 
@@ -76,5 +140,5 @@ Nd:register_command(
 	'Plugin Smith — AiScript 生成'
 	'ti-tools'
 	@() { generate() }
-	{ permissions: ['ai.invoke', 'clipboard', 'notifications'] }
+	{ permissions: ['ai.invoke', 'clipboard', 'plugins.read', 'plugins.write', 'notifications'] }
 )

@@ -1,13 +1,13 @@
 {
   "id": "plugin-smith",
   "name": "Plugin Smith",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "@hitalin",
   "authorUrl": "https://github.com/hitalin",
-  "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成しクリップボードに書き戻す。AI 本体は install まではしない (= ユーザー確認フロー)。",
+  "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成し、plugins.create の確認ダイアログにソース全文を表示する。必ず無効状態 (active:false) で作られ、有効化はユーザーが手動で行う (= 二重承認)。",
   "license": "MIT",
   "category": "developer",
   "tags": ["plugin", "code-gen", "ai"],
-  "permissions": ["ai.invoke", "clipboard", "plugins.read"],
+  "permissions": ["ai.invoke", "clipboard", "plugins.read", "plugins.write", "notifications"],
   "minNoteDeckVersion": "0.23.0"
 }

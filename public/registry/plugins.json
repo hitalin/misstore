@@ -1,13 +1,13 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-23T03:59:07.400Z",
+  "updatedAt": "2026-06-23T04:17:13.817Z",
   "plugins": [
     {
       "id": "plugin-smith",
       "name": "Plugin Smith",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": "@hitalin",
-      "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成しクリップボードに書き戻す。AI 本体は install まではしない (= ユーザー確認フロー)。",
+      "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成し、plugins.create の確認ダイアログにソース全文を表示する。必ず無効状態 (active:false) で作られ、有効化はユーザーが手動で行う (= 二重承認)。",
       "category": "developer",
       "tags": [
         "plugin",
@@ -16,16 +16,19 @@
       ],
       "sourceUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/api.json",
-      "sha512": "fc22a53241e6857fa9e4a459269f57ed645f9aa31a970f5a8d9483e3bef050931e5613618ba94d3c6487070079c263a1d04d5ea939d17d46fb40083d868f122d",
+      "sha512": "faf48d19db3e836a619702f3b5f49be6212bb1bc58ce956dc0cfdf560c7787b25d202eae4cf2fdb69d816d704b9b15c2114b9a820c0652358a8553871b76ea64",
       "createdAt": "2026-06-23T03:59:07.401Z",
-      "updatedAt": "2026-06-23T03:59:07.401Z",
+      "updatedAt": "2026-06-23T04:17:13.818Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
         "ai.invoke",
         "clipboard",
-        "plugins.read"
-      ]
+        "plugins.read",
+        "plugins.write",
+        "notifications"
+      ],
+      "iconUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/icon.svg"
     },
     {
       "id": "youtube-link-cleaner",
