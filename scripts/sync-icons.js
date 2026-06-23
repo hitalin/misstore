@@ -18,6 +18,7 @@ const ICON_MAP = {
   'plugins/youtube-link-cleaner': { pack: 'simple', name: 'youtube' },
   'widgets/button': { pack: 'lucide', name: 'mouse-pointer-click' },
   'widgets/calendar': { pack: 'lucide', name: 'calendar' },
+  'widgets/crypto': { pack: 'lucide', name: 'bitcoin' },
   'widgets/digital-clock': { pack: 'lucide', name: 'clock' },
   'widgets/github-releases': { pack: 'lucide', name: 'rocket' },
   'widgets/memo': { pack: 'lucide', name: 'notebook-pen' },

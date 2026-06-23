@@ -1,0 +1,276 @@
+/// 暗号資産ウィジェット
+/// CoinGecko で暗号資産の価格・24時間変化率・7日トレンドを表示。API キー不要。
+/// coins/markets エンドポイントを使い、スパークライン(7日)も併せて取得する。
+/// 見た目は CoinMarketCap のランキング表を意識した monospace 整列レイアウト。
+/// 銘柄・通貨を変えるには下の DEFAULT_IDS / DEFAULT_VS を直接編集する。
+///   DEFAULT_IDS: CoinGecko ID をカンマ区切り (例: bitcoin,ethereum,solana)
+///   DEFAULT_VS : 表示通貨 (jpy / usd / eur)
+
+let DEFAULT_IDS = "bitcoin,ethereum,solana"
+let DEFAULT_VS = "jpy"
+let WIDTH = 24 // monospace 整列の桁幅 (半角換算)
+
+var lastStatus = 0 // 直近の HTTP ステータス (エラー表示用)
+
+// CoinMarketCap 風カラー
+let COL_UP = "16c784"
+let COL_DOWN = "ea3943"
+let COL_FLAT = "8a919e"
+let COL_DIM = "5b6470"
+let COL_NAME = "eff2f5"
+let COL_PRICE = "d0d5dd"
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+@round2(x) {
+  if (Core:type(x) == "null") { 0 }
+  else { Math:round(x * 100) / 100 }
+}
+
+@pad2(n) { if (n < 10) { `0{n}` } else { `{n}` } }
+
+/// 同じ文字を n 個並べた文字列
+@repeatStr(ch, n) {
+  var s = ""
+  if (n > 0) { for (let i, n) { s = `{s}{ch}` } }
+  s
+}
+
+/// 左セグメントと右セグメントを幅 w に揃える (間をスペース埋め)
+/// lPlain/rPlain は幅計算用の素テキスト、lShow/rShow は装飾込みの表示テキスト
+@justify(lPlain, lShow, rPlain, rShow, w) {
+  let gap = w - lPlain.len - rPlain.len
+  `{lShow}{repeatStr(" ", if (gap > 0) { gap } else { 1 })}{rShow}`
+}
+
+@vsSymbol(vs) {
+  if (vs == "jpy") { "¥" }
+  elif (vs == "usd") { "$" }
+  elif (vs == "eur") { "€" }
+  else { "" }
+}
+
+/// 非負整数に3桁区切りのカンマを挿入 (再帰)
+@addCommas(n) {
+  if (n < 1000) { `{n}` }
+  else {
+    let head = addCommas(Math:floor(n / 1000))
+    let tail = n % 1000
+    let t = if (tail < 10) { `00{tail}` } elif (tail < 100) { `0{tail}` } else { `{tail}` }
+    `{head},{t}`
+  }
+}
+
+/// 価格を通貨記号付きで整形 (価格帯に応じて桁数を調整)
+@fmtPrice(p, vs) {
+  let sym = vsSymbol(vs)
+  if (Core:type(p) == "null") { `{sym}-` }
+  elif (p >= 100) { `{sym}{addCommas(Math:round(p))}` }
+  elif (p >= 1) { `{sym}{round2(p)}` }
+  else { `{sym}{Math:round(p * 10000) / 10000}` }
+}
+
+/// CoinGecko ID → 通貨を表す絵文字 (おおむねブランドカラー)。
+/// 登録のある銘柄だけ表示し、未登録は記号なし。
+@symbolFor(id) {
+  if (id == "bitcoin") { "🟠" }
+  elif (id == "ethereum") { "🔷" }
+  elif (id == "tether") { "🟢" }
+  elif (id == "litecoin") { "⚪" }
+  elif (id == "dogecoin") { "🐕" }
+  elif (id == "cardano") { "🔵" }
+  elif (id == "solana") { "🟣" }
+  elif (id == "monero") { "🔶" }
+  elif (id == "binancecoin") { "🟡" }
+  elif (id == "ripple") { "⚫" }
+  elif (id == "polkadot") { "🔴" }
+  elif (id == "tron") { "🔻" }
+  else { "" }
+}
+
+@chgArrow(chg) {
+  if (Core:type(chg) == "null") { "■" }
+  elif (chg > 0) { "▲" }
+  elif (chg < 0) { "▼" }
+  else { "■" }
+}
+
+@chgColor(chg) {
+  if (Core:type(chg) == "null") { COL_FLAT }
+  elif (chg > 0) { COL_UP }
+  elif (chg < 0) { COL_DOWN }
+  else { COL_FLAT }
+}
+
+/// 7日価格配列をブロック文字のスパークラインに変換 (素テキスト)
+@sparkText(prices, points) {
+  if (Core:type(prices) != "arr") { return "" }
+  let plen = prices.len
+  if (plen < 2) { return "" }
+  let blocks = ["▁", "▂", "▃", "▄", "▅", "▆", "▇", "█"]
+  let m = if (plen > points) { points } else { plen }
+  let stride = plen / m
+  var sampled = []
+  for (let k, m) { sampled.push(prices[Math:floor(k * stride)]) }
+  var mn = sampled[0]
+  var mx = sampled[0]
+  for (let j, m) {
+    if (sampled[j] < mn) { mn = sampled[j] }
+    if (sampled[j] > mx) { mx = sampled[j] }
+  }
+  let span = mx - mn
+  var bars = ""
+  for (let j, m) {
+    let lvl = if (span == 0) { 0 } else { Math:round((sampled[j] - mn) / span * 7) }
+    bars = `{bars}{blocks[lvl]}`
+  }
+  bars
+}
+
+// ─────────────────────────────
+// データ取得
+// ─────────────────────────────
+@fetchMarkets(ids, vs) {
+  let url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency={vs}&ids={ids}&order=market_cap_desc&sparkline=true&price_change_percentage=24h`
+  let res = Nd:http(url, {
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+  lastStatus = res.status
+  if (res.status != 200) { return null }
+  Json:parse(res.body)
+}
+
+/// レスポンス配列から指定 ID の銘柄を探す (見つからなければ null)
+@findCoin(arr, id) {
+  if (Core:type(arr) != "arr") { return null }
+  var found = null
+  for (let i, arr.len) {
+    if (get(arr[i], "id", "") == id) { found = arr[i] }
+  }
+  found
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+/// 1 銘柄 = 2 行カード (CoinMarketCap 風)
+///   行1: 順位 名称 ……… 価格
+///   行2: ▲変化率 ……… 7日スパークライン
+@coinCard(coin, rank, vs) {
+  let nm = get(coin, "name", "?")
+  let nmShort = if (nm.len > 8) { nm.slice(0, 8) } else { nm }
+  let sym = symbolFor(get(coin, "id", ""))
+  let name = if (sym != "") { `{sym} {nmShort}` } else { nmShort }
+  let price = get(coin, "current_price", null)
+  let chg = get(coin, "price_change_percentage_24h", null)
+  let col = chgColor(chg)
+
+  // 行1: 順位 + 名称 ……… 価格
+  let l1Plain = `{rank} {name}`
+  let l1Show = `$[fg.color={COL_DIM} {rank}] $[fg.color={COL_NAME} **{name}**]`
+  let priceStr = fmtPrice(price, vs)
+  let r1Show = `$[fg.color={COL_PRICE} {priceStr}]`
+  let line1 = justify(l1Plain, l1Show, priceStr, r1Show, WIDTH)
+
+  // 行2: ▲変化率 ……… スパークライン
+  let chgV = if (Core:type(chg) == "null") { "-" } else { `{round2(chg)}` }
+  let l2Plain = `  {chgArrow(chg)} {chgV}%`
+  let l2Show = `  $[fg.color={col} {chgArrow(chg)} {chgV}%]`
+  let sp = sparkText(get(get(coin, "sparkline_in_7d", {}), "price", []), 12)
+  let r2Show = `$[fg.color={col} {sp}]`
+  let line2 = justify(l2Plain, l2Show, sp, r2Show, WIDTH)
+
+  [
+    Ui:C:mfm({ text: line1, font: "monospace" })
+    Ui:C:mfm({ text: line2, font: "monospace" })
+  ]
+}
+
+/// 取得できなかった銘柄の行
+@missCard(id, rank) {
+  [Ui:C:mfm({ text: `$[fg.color={COL_DIM} {rank}] $[fg.color={COL_FLAT} {id} — データなし]`, font: "monospace" })]
+}
+
+@cryptoView(data, ids, vs) {
+  let idList = ids.replace(" ", "").split(",")
+  var coins = []
+  for (let i, idList.len) {
+    let id = idList[i]
+    if (id != "") { coins.push({ id: id, coin: findCoin(data, id) }) }
+  }
+  if (coins.len == 0) {
+    return [Ui:C:mfm({ text: "<center>$[fg.color=8a919e 銘柄が設定されていません]</center>" })]
+  }
+
+  // タイトル行に更新時刻 (HH:MM) を統合
+  let now = Date:now()
+  var body = [
+    Ui:C:mfm({ text: `<center>**暗号資産**　$[fg.color={COL_DIM} 更新 {pad2(Date:hour(now))}:{pad2(Date:minute(now))}]</center>` })
+  ]
+
+  // 区切り線なし。銘柄カードを連続表示
+  for (let i, coins.len) {
+    let e = coins[i]
+    let rank = `{i + 1}`
+    if (Core:type(e.coin) != "null") {
+      body = body.concat(coinCard(e.coin, rank, vs))
+    } else {
+      body = body.concat(missCard(e.id, rank))
+    }
+  }
+  body
+}
+
+var firstRun = true
+var hasData = false // 一度でも価格表示に成功したか
+
+@render() {
+  let ids = DEFAULT_IDS
+  let vs = DEFAULT_VS
+
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [Ui:C:text({ text: "価格を読み込み中…" })]
+      })
+    ])
+  }
+  firstRun = false
+
+  let data = fetchMarkets(ids, vs)
+  if (Core:type(data) != "arr") {
+    // 取得失敗 (一時的なレート制限など)。既に表示があればそれを維持し、
+    // 画面のチラつきを防ぐ。初回失敗時のみエラーを表示する。
+    if (hasData) { return null }
+    let hint = if (lastStatus == 429) { "レート制限中。しばらく待つと回復します" } else { "通信エラー" }
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [
+          Ui:C:mfm({ text: `<center>$[fg.color=ea3943 ⚠️ 価格データを取得できません (HTTP {lastStatus})]</center>` })
+          Ui:C:mfm({ text: `<center>$[fg.color={COL_FLAT} {hint}]</center>` })
+        ]
+      })
+    ])
+    return null
+  }
+  hasData = true
+
+  let children = cryptoView(data, ids, vs)
+  Ui:render([Ui:C:container({ align: "center", children: children })])
+}
+
+// 自動更新は行わない (CoinGecko keyless のレート制限回避)。
+// 価格を更新したいときはウィジェットを再読み込みする。
+render()

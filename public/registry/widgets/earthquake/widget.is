@@ -53,7 +53,9 @@ var firstRun = true
 
 @fetchQuakes() {
   let url = "https://api.wolfx.jp/jma_eqlist.json"
-  let res = Nd:http(url, { method: "GET" })
+  let res = Nd:http(url, { method: "GET", headers: { "Accept": "application/json" } })
+  // 非 200 時に Json:parse が例外を投げてウィジェット全体が空白になるのを防ぐ
+  if (res.status != 200) { return null }
   Json:parse(res.body)
 }
 

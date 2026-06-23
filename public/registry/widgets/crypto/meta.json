@@ -1,0 +1,14 @@
+{
+  "id": "crypto",
+  "name": "暗号資産",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "CoinGecko で暗号資産の価格・24時間変化率・7日トレンドを表示。API キー不要 (銘柄は設定フォームで変更可)",
+  "icon": "ti-currency-bitcoin",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["crypto", "cryptocurrency", "bitcoin", "coingecko"]
+}
