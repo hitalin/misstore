@@ -1,0 +1,305 @@
+/// ClickUp タスクウィジェット
+/// ClickUp の「自分にアサインされたタスク」を期限順に表示する。
+/// API トークン必須サービスを NoteDeck の Secret Vault 経由で叩く。
+/// トークンは widget.is には一切書かず、Vault がサーバーサイドで Authorization を注入する。
+///
+/// ■ 事前準備
+/// 1. ClickUp の Personal API Token を取得 (pk_ で始まる):
+///      https://app.clickup.com/settings/apps の「API Token」
+/// 2. NoteDeck の Secret Vault で接続を作成:
+///      名前        : ClickUp
+///      baseURL     : https://api.clickup.com
+///      認証方式    : 「ヘッダー」を選ぶ (既定の Bearer だと "Bearer pk_..." になり 401)
+///                    ヘッダー名 = Authorization
+///      シークレット: ClickUp の Personal API Token (pk_...)
+///      "AI からのアクセスを許可" を ON にする
+/// 3. (任意) 複数ワークスペースがある場合は「設定」で Team ID を指定。
+///    空欄なら最初のワークスペースを自動で使う。
+///
+/// 取得フロー: /api/v2/user で自分のID → /api/v2/team でワークスペース →
+///            /api/v2/team/{team_id}/task?assignees[]={user_id} で担当タスク。
+
+// ─────────────────────────────
+// ヘルパー (var 宣言より前に定義が必要なものを含む)
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+@digitVal(c) {
+  if (c == "0") { 0 } elif (c == "1") { 1 } elif (c == "2") { 2 }
+  elif (c == "3") { 3 } elif (c == "4") { 4 } elif (c == "5") { 5 }
+  elif (c == "6") { 6 } elif (c == "7") { 7 } elif (c == "8") { 8 }
+  elif (c == "9") { 9 } else { -1 }
+}
+
+/// ClickUp の due_date は「ミリ秒の文字列」。数値に変換する。失敗時 null。
+@strToNum(s) {
+  if (Core:type(s) == "num") { return s }
+  if (Core:type(s) != "str" || s == "") { return null }
+  var n = 0
+  for (let i, s.len) {
+    let d = digitVal(s.slice(i, i + 1))
+    if (d < 0) { return null }
+    n = n * 10 + d
+  }
+  n
+}
+
+@sameDay(a, b) {
+  Date:year(a) == Date:year(b) && Date:month(a) == Date:month(b) && Date:day(a) == Date:day(b)
+}
+
+/// 期限の表示情報 { label, color, overdue, today } を返す
+@dueInfo(due, now) {
+  if (Core:type(due) == "null") {
+    { label: "期限なし", color: COL_NONE, overdue: false, today: false }
+  } elif (sameDay(due, now)) {
+    { label: "今日", color: COL_TODAY, overdue: false, today: true }
+  } elif (due < now) {
+    let days = Math:floor((now - due) / 86400000)
+    let lbl = if (days <= 0) { "期限切れ" } else { `{days}日前` }
+    { label: lbl, color: COL_OVERDUE, overdue: true, today: false }
+  } else {
+    { label: `{Date:month(due)}/{Date:day(due)}`, color: COL_SOON, overdue: false, today: false }
+  }
+}
+
+/// MFM 制御文字を除去してから 22 文字に切り詰める。
+/// タスク名は他人がアサイン時に設定できる外部入力なので、MFM/HTML への
+/// ブレイクアウトを防ぐためサニタイズする。
+@sanitizeText(s) {
+  if (Core:type(s) != "str") { return "(無題)" }
+  // MFM/HTML で意味を持つ文字を全角や空白へ無害化
+  var txt = s.replace("$[", "$ ")
+  txt = txt.replace("]", "］")
+  txt = txt.replace("[", "［")
+  txt = txt.replace("<", "＜")
+  txt = txt.replace(">", "＞")
+  txt = txt.replace("`", "｀")
+  txt = txt.replace("*", "＊")
+  txt = txt.replace("\\", "＼")
+  txt = txt.replace("://", ":／／") // bare URL の自動リンク化を防ぐ
+  txt
+}
+
+@truncName(s) {
+  let clean = sanitizeText(s)
+  if (clean.len > 22) { `{clean.slice(0, 22)}…` } else { clean }
+}
+
+/// ステータス色 "#rrggbb" → 16進6桁のみを許可。不正なら既定色。
+@statusColor(st) {
+  let c = get(st, "color", "")
+  if (Core:type(c) != "str" || c.len < 7) { return COL_DIM }
+  let hex = c.slice(1, 7)
+  if (isHex6(hex)) { hex } else { COL_DIM }
+}
+
+/// 6 桁の 16 進数 (0-9a-fA-F) か検証
+@isHex6(s) {
+  if (Core:type(s) != "str" || s.len != 6) { return false }
+  var ok = true
+  for (let i, 6) {
+    let c = s.slice(i, i + 1)
+    let isDigit = digitVal(c) >= 0
+    let isAf = c == "a" || c == "b" || c == "c" || c == "d" || c == "e" || c == "f"
+    let isAF = c == "A" || c == "B" || c == "C" || c == "D" || c == "E" || c == "F"
+    if (!(isDigit || isAf || isAF)) { ok = false }
+  }
+  ok
+}
+
+// ─────────────────────────────
+// 定数
+// ─────────────────────────────
+let CONNECTION = "ClickUp"
+let MAX_TASKS = 12 // 表示する最大件数
+
+let COL_OVERDUE = "ea3943" // 期限切れ
+let COL_TODAY   = "ffb445" // 今日
+let COL_SOON    = "d0d5dd" // 期限あり(未来)
+let COL_NONE    = "5b6470" // 期限なし
+let COL_DIM     = "8a919e"
+
+// ─────────────────────────────
+// 状態
+// ─────────────────────────────
+var teamId = dflt(Mk:load("teamId"), "") // 非機密の識別子のみローカル保存。トークンは保存しない
+var result = null
+var firstRun = true
+
+// ─────────────────────────────
+// データ取得 (トークンは Vault が注入。headers には Authorization を書かない)
+// ─────────────────────────────
+@vaultGet(path) {
+  Nd:call("vault.fetch", {
+    connectionRef: CONNECTION
+    path: path
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+}
+
+@errMsg(res, fallback) {
+  // API のエラーメッセージは MFM に流さない (外部文字列のため)。HTTP ステータスのみ表示。
+  `{fallback} (HTTP {res.status})`
+}
+
+/// teamId は数字のみ許可。URL パス/ホストへのブレイクアウト (SSRF・トークン送信先すり替え) を防ぐ。
+@safeTeamId(s) {
+  if (Core:type(s) != "str" || s == "") { return "" }
+  var ok = true
+  for (let i, s.len) { if (digitVal(s.slice(i, i + 1)) < 0) { ok = false } }
+  if (ok) { s } else { "" }
+}
+
+/// タスクの URL は https:// のみ許可 (MFM リンクの安全化)
+@safeHttp(u) {
+  if (Core:type(u) == "str" && u.slice(0, 8) == "https://") { u } else { "" }
+}
+
+@normalizeTasks(raw) {
+  if (Core:type(raw) != "arr") { return [] }
+  let now = Date:now()
+  var withDue = []
+  var noDue = []
+  for (let i, raw.len) {
+    let t = raw[i]
+    let due = strToNum(get(t, "due_date", null))
+    let item = {
+      name: get(t, "name", "(無題)")
+      due: due
+      info: dueInfo(due, now)
+      sc: statusColor(get(t, "status", {}))
+      url: safeHttp(get(t, "url", ""))
+    }
+    if (Core:type(due) == "null") { noDue.push(item) } else { withDue.push(item) }
+  }
+  // due あり (API が期限昇順) を先に、期限なしを末尾に
+  withDue.concat(noDue)
+}
+
+@fetchTasks() {
+  // 1. 自分のユーザーID
+  let uRes = vaultGet("/api/v2/user")
+  if (uRes.status != 200) {
+    result = { error: errMsg(uRes, "ユーザー情報の取得に失敗") }
+    render()
+    return null
+  }
+  let uid = get(get(Json:parse(uRes.body), "user", {}), "id", null)
+  if (Core:type(uid) != "num") {
+    result = { error: "ユーザーIDを取得できませんでした" }
+    render()
+    return null
+  }
+
+  // 2. Team ID (未設定なら最初のワークスペース)。数字のみ許可。
+  var tid = safeTeamId(teamId)
+  if (tid == "") {
+    let tRes = vaultGet("/api/v2/team")
+    if (tRes.status != 200) {
+      result = { error: errMsg(tRes, "ワークスペースの取得に失敗") }
+      render()
+      return null
+    }
+    let teams = get(Json:parse(tRes.body), "teams", [])
+    if (Core:type(teams) != "arr" || teams.len == 0) {
+      result = { error: "ワークスペースが見つかりません" }
+      render()
+      return null
+    }
+    tid = safeTeamId(`{get(teams[0], "id", "")}`)
+    if (tid == "") {
+      result = { error: "ワークスペースIDが不正です" }
+      render()
+      return null
+    }
+  }
+
+  // 3. 自分の担当タスク (期限昇順)。uid は数値、tid は数字のみ検証済み。
+  let path = `/api/v2/team/{tid}/task?assignees%5B%5D={uid}&order_by=due_date&include_closed=false&subtasks=true`
+  let res = vaultGet(path)
+  if (res.status != 200) {
+    result = { error: errMsg(res, "タスクの取得に失敗") }
+    render()
+    return null
+  }
+  let raw = get(Json:parse(res.body), "tasks", [])
+  result = { tasks: normalizeTasks(raw) }
+  render()
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+@summaryLine(tasks) {
+  var overCnt = 0
+  var todayCnt = 0
+  for (let i, tasks.len) {
+    if (tasks[i].info.overdue) { overCnt = overCnt + 1 }
+    if (tasks[i].info.today) { todayCnt = todayCnt + 1 }
+  }
+  `<center>$[fg.color={COL_OVERDUE} 期限切れ {overCnt}] · $[fg.color={COL_TODAY} 今日 {todayCnt}] · $[fg.color={COL_DIM} 全 {tasks.len}件]</center>`
+}
+
+@taskRow(t) {
+  // t.sc は 16進6桁検証済み、truncName はサニタイズ済み、t.url は https のみ
+  let nm = truncName(t.name)
+  let nameMfm = if (t.url != "") { `[{nm}]({t.url})` } else { nm }
+  Ui:C:mfm({
+    text: `$[fg.color={t.sc} ●] {nameMfm}　$[fg.color={t.info.color} {t.info.label}]`
+  })
+}
+
+@tasksView(tasks) {
+  if (tasks.len == 0) {
+    return [Ui:C:mfm({ text: "<center>$[fg.color=8a919e 🎉 担当タスクはありません]</center>" })]
+  }
+  var body = [
+    Ui:C:mfm({ text: "<center>**ClickUp タスク**</center>" })
+    Ui:C:mfm({ text: summaryLine(tasks) })
+  ]
+  let n = if (tasks.len > MAX_TASKS) { MAX_TASKS } else { tasks.len }
+  for (let i, n) { body.push(taskRow(tasks[i])) }
+  if (tasks.len > MAX_TASKS) {
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={COL_DIM} 他 {tasks.len - MAX_TASKS} 件]</center>` }))
+  }
+  body
+}
+
+@render() {
+  // 初回のみ自動取得 (Vault にトークンがあればワンタップ不要で表示)
+  if (firstRun && Core:type(result) == "null") {
+    Ui:render([
+      Ui:C:container({ align: "center", children: [Ui:C:text({ text: "ClickUp タスクを読み込み中…" })] })
+    ])
+    firstRun = false
+    fetchTasks()
+    return null
+  }
+
+  var children = []
+  if (Core:type(result) == "null") {
+    children = [
+      Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchTasks() } })
+    ]
+  } elif (Obj:has(result, "error")) {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color={COL_OVERDUE} ⚠️ {result.error}]</center>` })
+      Ui:C:text({ text: "Vault 接続 (認証方式: ヘッダー / Authorization) と Team ID を確認してください" })
+      Ui:C:button({ text: "再試行", primary: true, onClick: @() { fetchTasks() } })
+    ]
+  } else {
+    children = tasksView(result.tasks)
+    children.push(Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchTasks() } }))
+  }
+  Ui:render([Ui:C:container({ align: "left", padding: 10, children: children })])
+}
+
+render()

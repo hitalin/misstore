@@ -1,0 +1,14 @@
+{
+  "id": "clickup",
+  "name": "ClickUp タスク",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ClickUp の自分の担当タスクを期限順に表示。期限切れ・今日を色分け。Secret Vault で Personal API Token を認証",
+  "icon": "ti-checklist",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["clickup", "vault", "tasks", "todo", "productivity"]
+}
