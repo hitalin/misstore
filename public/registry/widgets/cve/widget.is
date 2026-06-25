@@ -1,0 +1,328 @@
+/// CVE 脆弱性ウィジェット
+/// NVD (NIST National Vulnerability Database) から直近の重大な脆弱性 (CVE) を
+/// CVSS スコア・重大度付きで一覧表示する。API キー不要 (公開 API を直接叩く)。
+///
+/// NVD のデフォルトの並びは古い CVE から (CVE-1999-... 等) なので、
+/// lastModStartDate/lastModEndDate で「直近 N 日に更新された CVE」に絞り込み、
+/// クライアント側で lastModified の新しい順にソートして上位を表示する。
+///
+/// 設定は下の定数を直接編集する:
+///   SEVERITIES : 取得する重大度 (カンマ区切り)。CRITICAL,HIGH,MEDIUM,LOW
+///   DAYS       : 何日前まで遡るか (NVD の制限上 最大 120)
+///   MAX_ITEMS  : 表示する最大件数
+///
+/// 認証なしのレート制限は 30 秒あたり 5 リクエスト。重大度の数だけ叩くので
+/// SEVERITIES は 1〜3 個程度に留めること。
+
+let SEVERITIES = "CRITICAL,HIGH" // 取得する重大度 (カンマ区切り)
+let DAYS = 7                     // 直近何日ぶんを対象にするか
+let MAX_ITEMS = 6              // 表示する最大件数
+let PER_SEV = 6               // 重大度ごとの取得件数 (NVD への 1 リクエスト分。大きいと応答が肥大化)
+let WIDTH = 34                 // monospace 整列の桁幅 (半角換算)
+let DESC_LEN = 60              // 説明文の最大表示文字数
+
+var lastStatus = 0 // 直近の HTTP ステータス (エラー表示用)
+
+// stocks/crypto ウィジェットと揃えたカラー
+let COL_DIM = "5b6470"
+let COL_FLAT = "8a919e"
+let COL_DESC = "b0b7c3"
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+@digitVal(c) {
+  if (c == "0") { 0 } elif (c == "1") { 1 } elif (c == "2") { 2 }
+  elif (c == "3") { 3 } elif (c == "4") { 4 } elif (c == "5") { 5 }
+  elif (c == "6") { 6 } elif (c == "7") { 7 } elif (c == "8") { 8 }
+  elif (c == "9") { 9 } else { -1 }
+}
+
+/// 数字のみの文字列を数値へ。失敗時 0。
+@strToNum(s) {
+  if (Core:type(s) != "str" || s == "") { return 0 }
+  var n = 0
+  for (let i, s.len) {
+    let d = digitVal(s.slice(i, i + 1))
+    if (d < 0) { return 0 }
+    n = n * 10 + d
+  }
+  n
+}
+
+@pad2(n) { if (n < 10) { `0{n}` } else { `{n}` } }
+
+/// 同じ文字を n 個並べた文字列
+@repeatStr(ch, n) {
+  var s = ""
+  if (n > 0) { for (let i, n) { s = `{s}{ch}` } }
+  s
+}
+
+/// 左セグメントと右セグメントを幅 w に揃える (間をスペース埋め)
+@justify(lPlain, lShow, rPlain, rShow, w) {
+  let gap = w - lPlain.len - rPlain.len
+  `{lShow}{repeatStr(" ", if (gap > 0) { gap } else { 1 })}{rShow}`
+}
+
+/// ISO 8601 タイムスタンプ ("2026-06-16T21:48:22.267") → 比較用の数値キー。失敗時 0。
+@tsKey(s) {
+  if (Core:type(s) != "str" || s.len < 16) { return 0 }
+  let y = strToNum(s.slice(0, 4))
+  let mo = strToNum(s.slice(5, 7))
+  let d = strToNum(s.slice(8, 10))
+  let h = strToNum(s.slice(11, 13))
+  let mi = strToNum(s.slice(14, 16))
+  (((y * 100 + mo) * 100 + d) * 100 + h) * 100 + mi
+}
+
+/// ISO 8601 文字列の MM/DD 部分
+@monthDay(s) {
+  if (Core:type(s) != "str" || s.len < 10) { "" }
+  else { `{s.slice(5, 7)}/{s.slice(8, 10)}` }
+}
+
+/// NVD 日付パラメータ用に timestamp を ISO 8601 (コロンは %3A エンコード) へ
+@isoParam(t) {
+  `{Date:year(t)}-{pad2(Date:month(t))}-{pad2(Date:day(t))}T{pad2(Date:hour(t))}%3A{pad2(Date:minute(t))}%3A00.000`
+}
+
+/// MFM の記号を無害化し改行を畳んだうえで切り詰める
+@cleanDesc(s) {
+  if (Core:type(s) != "str") { return "" }
+  var t = s
+  t = t.replace("[", "(")
+  t = t.replace("]", ")")
+  t = t.replace("`", "'")
+  t = t.replace("*", "・")
+  t = t.replace("@", "＠")
+  t = t.replace("#", "＃")
+  t = t.replace("$", "＄")
+  if (t.len > DESC_LEN) { `{t.slice(0, DESC_LEN)}…` } else { t }
+}
+
+@sevColor(sev) {
+  if (sev == "CRITICAL") { "ea3943" }
+  elif (sev == "HIGH") { "ff8c42" }
+  elif (sev == "MEDIUM") { "f5a623" }
+  elif (sev == "LOW") { "16c784" }
+  else { COL_FLAT }
+}
+
+@sevShort(sev) {
+  if (sev == "CRITICAL") { "CRIT" }
+  elif (sev == "HIGH") { "HIGH" }
+  elif (sev == "MEDIUM") { "MED" }
+  elif (sev == "LOW") { "LOW" }
+  else { "?" }
+}
+
+@scoreStr(score) {
+  if (Core:type(score) == "null") { "-" } else { `{score}` }
+}
+
+// ─────────────────────────────
+// データ取得・整形
+// ─────────────────────────────
+/// metrics から CVSS v3.1 → v3.0 の順で cvssData を取り出す
+@cvssData(m) {
+  let v31 = get(m, "cvssMetricV31", [])
+  if (Core:type(v31) == "arr" && v31.len > 0) { return get(v31[0], "cvssData", {}) }
+  let v30 = get(m, "cvssMetricV30", [])
+  if (Core:type(v30) == "arr" && v30.len > 0) { return get(v30[0], "cvssData", {}) }
+  {}
+}
+
+/// cve オブジェクトから英語の説明文を取り出す
+@descOf(cve) {
+  let ds = get(cve, "descriptions", [])
+  if (Core:type(ds) != "arr") { return "" }
+  for (let i, ds.len) {
+    if (get(ds[i], "lang", "") == "en") { return get(ds[i], "value", "") }
+  }
+  if (ds.len > 0) { get(ds[0], "value", "") } else { "" }
+}
+
+/// NVD の vulnerabilities 要素 → 表示用の正規化オブジェクト
+@normalize(item) {
+  let cve = get(item, "cve", {})
+  let cd = cvssData(get(cve, "metrics", {}))
+  let mod = get(cve, "lastModified", "")
+  {
+    id: get(cve, "id", "?")
+    score: get(cd, "baseScore", null)
+    sev: get(cd, "baseSeverity", "")
+    pub: get(cve, "published", "")
+    modKey: tsKey(mod)
+    desc: cleanDesc(descOf(cve))
+  }
+}
+
+/// 1 重大度ぶんを取得。vulnerabilities 配列を返す。失敗時 null。
+@fetchSeverity(sev, startEnc, endEnc) {
+  let url = `https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity={sev}&lastModStartDate={startEnc}&lastModEndDate={endEnc}&resultsPerPage={PER_SEV}`
+  // Accept-Encoding: identity で gzip を明示的に拒否する。
+  // NVD は gzip 応答を返すことがあり、ランタイムの自動展開に失敗して
+  // "error decoding response body" となるため、非圧縮で受け取る。
+  let res = Nd:http(url, {
+    method: "GET"
+    headers: {
+      "Accept": "application/json"
+      "Accept-Encoding": "identity"
+    }
+  })
+  lastStatus = res.status
+  if (res.status != 200) { return null }
+  let doc = Json:parse(res.body)
+  get(doc, "vulnerabilities", [])
+}
+
+/// 全重大度を取得し、正規化した行の配列を返す。{ rows, anyOk }
+@fetchAll() {
+  let now = Date:now()
+  let endEnc = isoParam(now)
+  let startEnc = isoParam(now - DAYS * 86400000)
+  let sevs = SEVERITIES.replace(" ", "").split(",")
+
+  var rows = []
+  var anyOk = false
+  for (let i, sevs.len) {
+    let sev = sevs[i]
+    if (sev != "") {
+      let vulns = fetchSeverity(sev, startEnc, endEnc)
+      if (Core:type(vulns) == "arr") {
+        anyOk = true
+        for (let j, vulns.len) { rows.push(normalize(vulns[j])) }
+      }
+    }
+  }
+  { rows: rows, anyOk: anyOk }
+}
+
+/// modKey の降順 (新しい順) に選択ソートし、上位 MAX_ITEMS を返す
+@topByRecent(rows) {
+  var a = []
+  for (let i, rows.len) { a.push(rows[i]) }
+  let n = a.len
+  for (let i, n) {
+    var maxIdx = i
+    for (let k, n) {
+      if (k > i && a[k].modKey > a[maxIdx].modKey) { maxIdx = k }
+    }
+    if (maxIdx != i) {
+      let t = a[i]
+      a[i] = a[maxIdx]
+      a[maxIdx] = t
+    }
+  }
+  let m = if (n > MAX_ITEMS) { MAX_ITEMS } else { n }
+  var picked = []
+  for (let i, m) { picked.push(a[i]) }
+  picked
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+/// 1 CVE = 2 行カード
+///   行1: ● CVE-ID …………… スコア 重大度
+///   行2:   MM/DD 説明文
+@cveCard(e) {
+  let col = sevColor(e.sev)
+
+  // CVE-ID は NVD の詳細ページへのリンクにする (MFM リンクは独自スタイルのため色/太字は付けない)
+  let l1Plain = `● {e.id}`
+  let l1Show = `$[fg.color={col} ●] [{e.id}](https://nvd.nist.gov/vuln/detail/{e.id})`
+  let rPlain = `{scoreStr(e.score)} {sevShort(e.sev)}`
+  let rShow = `$[fg.color={col} **{scoreStr(e.score)}** {sevShort(e.sev)}]`
+  let line1 = justify(l1Plain, l1Show, rPlain, rShow, WIDTH)
+
+  let md = monthDay(e.pub)
+  let line2 = if (md != "") {
+    `  $[fg.color={COL_DIM} {md}] $[fg.color={COL_DESC} {e.desc}]`
+  } else {
+    `  $[fg.color={COL_DESC} {e.desc}]`
+  }
+
+  [
+    Ui:C:mfm({ text: line1, font: "monospace" })
+    Ui:C:mfm({ text: line2, font: "monospace" })
+  ]
+}
+
+@cveView(rows) {
+  let now = Date:now()
+  var body = [
+    Ui:C:mfm({ text: `<center>**🛡 CVE 脆弱性**　$[fg.color={COL_DIM} 更新 {pad2(Date:hour(now))}:{pad2(Date:minute(now))}]</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color={COL_DIM} 直近 {DAYS} 日 / {SEVERITIES}]</center>` })
+  ]
+  for (let i, rows.len) {
+    body = body.concat(cveCard(rows[i]))
+  }
+  body
+}
+
+var firstRun = true
+var hasData = false // 一度でも一覧表示に成功したか
+
+@render() {
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [Ui:C:text({ text: "CVE を読み込み中…" })]
+      })
+    ])
+  }
+  firstRun = false
+
+  let res = fetchAll()
+
+  // 全リクエストが失敗した場合のみエラー扱い
+  if (!res.anyOk) {
+    if (hasData) { return null } // 既存表示を維持してチラつき防止
+    let hint = if (lastStatus == 403 || lastStatus == 429) {
+      "レート制限中。しばらく待つと回復します"
+    } else {
+      "通信エラー"
+    }
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [
+          Ui:C:mfm({ text: `<center>$[fg.color=ea3943 ⚠️ CVE データを取得できません (HTTP {lastStatus})]</center>` })
+          Ui:C:mfm({ text: `<center>$[fg.color={COL_FLAT} {hint}]</center>` })
+        ]
+      })
+    ])
+    return null
+  }
+
+  let rows = topByRecent(res.rows)
+  if (rows.len == 0) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [
+          Ui:C:mfm({ text: `<center>$[fg.color={COL_FLAT} 直近 {DAYS} 日に該当する CVE はありません]</center>` })
+        ]
+      })
+    ])
+    return null
+  }
+  hasData = true
+
+  Ui:render([Ui:C:container({ align: "center", children: cveView(rows) })])
+}
+
+// 自動更新は行わない (NVD keyless のレート制限回避)。
+// 最新化したいときはウィジェットを再読み込みする。
+render()

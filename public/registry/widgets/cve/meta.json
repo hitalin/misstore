@@ -1,0 +1,14 @@
+{
+  "id": "cve",
+  "name": "CVE 脆弱性",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "NVD (NIST) から直近の重大な脆弱性 (CVE) を CVSS スコア付きで一覧表示。API キー不要 (重大度・期間は widget.is で設定)",
+  "icon": "ti-shield-lock",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["cve", "security", "vulnerability", "nvd", "cvss"]
+}
