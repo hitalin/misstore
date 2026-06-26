@@ -22,6 +22,7 @@ let RANGE = "5d" // スパークライン用の取得期間
 let WIDTH = 24   // monospace 整列の桁幅 (半角換算)
 
 var lastStatus = 0 // 直近の HTTP ステータス (エラー表示用)
+var sawRateLimit = false // 今回の更新でいずれかの銘柄が 429 を返したか (バックオフ判定用)
 
 // crypto ウィジェットと揃えたカラー
 let COL_UP = "16c784"
@@ -180,6 +181,7 @@ let COL_PRICE = "d0d5dd"
     headers: { "Accept": "application/json" }
   })
   lastStatus = res.status
+  if (res.status == 429) { sawRateLimit = true }
   if (res.status != 200) { return null }
   let doc = Json:parse(res.body)
   let rs = get(get(doc, "chart", {}), "result", [])
@@ -281,6 +283,7 @@ var hasData = false // 一度でも価格表示に成功したか
 
 @render() {
   let symbols = DEFAULT_SYMBOLS
+  sawRateLimit = false // この更新分の 429 観測をリセット
 
   if (firstRun) {
     Ui:render([
@@ -318,6 +321,22 @@ var hasData = false // 一度でも価格表示に成功したか
   Ui:render([Ui:C:container({ align: "center", children: children })])
 }
 
-// 自動更新は行わない (Yahoo Finance keyless の負荷・レート制限回避)。
-// 価格を更新したいときはウィジェットを再読み込みする。
-render()
+// 自動更新: 通常 5 分間隔。Yahoo は 1 更新 = 銘柄数リクエストかつ制限が
+// 予測不能なため、429 を観測したら待機を倍々に延ばす (最大 30 分) バックオフを入れる。
+// 固定 1 分 tick + nextAt 判定にすることで interval の張り直し (再入) を避ける。
+let BASE_MS = 300000  // 通常 5 分
+let MAX_MS = 1800000  // 429 連発時の上限 30 分
+let TICK_MS = 60000   // 判定は 1 分ごと (実 fetch は nextAt で 5 分間隔に制御)
+var nextAt = 0
+var curWait = BASE_MS
+
+@tick() {
+  if (Date:now() < nextAt) { return null }
+  render()
+  curWait = if (sawRateLimit) { Math:min(curWait * 2, MAX_MS) } else { BASE_MS }
+  nextAt = Date:now() + curWait
+}
+
+render() // 初回即時
+nextAt = Date:now() + BASE_MS
+Async:interval(TICK_MS, tick, false)

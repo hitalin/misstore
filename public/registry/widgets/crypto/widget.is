@@ -271,6 +271,7 @@ var hasData = false // 一度でも価格表示に成功したか
   Ui:render([Ui:C:container({ align: "center", children: children })])
 }
 
-// 自動更新は行わない (CoinGecko keyless のレート制限回避)。
-// 価格を更新したいときはウィジェットを再読み込みする。
+// keyless でも 1 更新 = 1 リクエストなので 5 分間隔なら安全圏 (~0.2 req/min)。
+// 取得失敗時は render が前回表示を維持する (hasData によるチラ防止)。
 render()
+Async:interval(300000, render, false)
