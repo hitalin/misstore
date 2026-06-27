@@ -199,8 +199,16 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
 }
 
 .home-card-icon {
+  height: 34px;
+  display: flex;
+  align-items: center;
   font-size: 26px;
   line-height: 1;
+}
+
+.home-card-icon svg {
+  width: 30px;
+  height: 30px;
 }
 
 .home-card-title {
