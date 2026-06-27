@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import type { WidgetEntry } from '@/types'
-import { useCopySource } from '@/composables/useCopySource'
+import CopyButton from '@/components/CopyButton.vue'
 
 defineProps<{ widget: WidgetEntry }>()
-const { copiedId, copy } = useCopySource()
 </script>
 
 <template>
@@ -30,15 +29,7 @@ const { copiedId, copy } = useCopySource()
     </div>
     <div class="vsx-footer">
       <div class="vsx-actions">
-        <button
-          class="vsx-btn"
-          :class="{ copied: copiedId === widget.id }"
-          @click.stop="copy(widget.sourceUrl, widget.id)"
-        >
-          <svg v-if="copiedId !== widget.id" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          <svg v-else width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-          {{ copiedId === widget.id ? 'Copied!' : 'Copy' }}
-        </button>
+        <CopyButton :source-url="widget.sourceUrl" :id="widget.id" />
       </div>
     </div>
   </router-link>
