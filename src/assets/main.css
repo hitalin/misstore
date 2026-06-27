@@ -536,7 +536,7 @@ html[style*="color-scheme: dark"] .nav-right-button:hover { background: rgba(255
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 32px;
+  font-size: 48px;
   line-height: 1;
   background:
     radial-gradient(circle at 30% 25%, var(--accent-soft), transparent 70%),
