@@ -109,16 +109,18 @@ var firstRun = true
   })
 }
 
-/// 1 件の記事を 1 行のリスト項目にする (履歴用)
+/// 1 件の記事を 2 段 (2 要素) のリスト項目にする
+/// MFM は <br> を展開しないので、行ごとに別要素へ分ける
 @articleRow(a) {
   let emoji = get(a, "emoji", "📄")
   let title = get(a, "title", "(無題)")
   let url = `https://zenn.dev{get(a, "path", "")}`
   let likes = fmtNum(get(a, "liked_count", 0))
   let date = dateLabel(get(a, "published_at", ""))
-  Ui:C:mfm({
-    text: `{emoji} [{title}]({url})<br>　$[fg.color={LIKE} ♥{likes}] $[fg.color={MUTED} ・ {date}]`
-  })
+  [
+    Ui:C:mfm({ text: `{emoji} [{title}]({url})` })
+    Ui:C:mfm({ text: `　$[fg.color={LIKE} ♥{likes}] $[fg.color={MUTED} ・ {date}]` })
+  ]
 }
 
 @articlesView() {
@@ -168,14 +170,14 @@ var firstRun = true
       Ui:C:mfm({ text: `$[fg.color={MUTED} 📚 ほかの記事]` })
     ])
     for (let i, articles.len - 1) {
-      body = body.concat([ articleRow(articles[i + 1]) ])
+      body = body.concat(articleRow(articles[i + 1]))
     }
   }
 
   // フッター導線 + 設定
   body.concat([
     divider()
-    Ui:C:mfm({ text: `<center>[$[fg.color={ACCENT} Zenn でもっと見る →]](https://zenn.dev/{username})</center>` })
+    Ui:C:mfm({ text: `<center>[Zenn でもっと見る →](https://zenn.dev/{username})</center>` })
     configFolder()
   ])
 }
