@@ -1,0 +1,257 @@
+/// AtCoder ウィジェット
+/// AtCoder 公式の history/json から任意ユーザーのレーティングと
+/// 直近コンテスト結果をレート色付きで表示。API キー不要。
+/// デフォルトは chokudai (AtCoder 社長)。設定でユーザー名に変更できる。
+/// 設計の元ネタ: zenn / github-releases ウィジェット (表示・更新ループ + 設定 UI)。
+
+// 履歴に表示するコンテスト件数。ここを書き換えると増減できる。
+let COUNT = 5
+
+// アクセント・テキスト色
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let UP = "43a047"
+let DOWN = "f43f5e"
+
+@dflt(v, d) {
+  if (Core:type(v) == "null") d else v
+}
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") {
+    d
+  } elif (Obj:has(o, k)) {
+    dflt(o[k], d)
+  } else {
+    d
+  }
+}
+
+// 設定: 対象ユーザー名。Mk:save で永続化される。
+var username = dflt(Mk:load("username"), "chokudai")
+var firstRun = true
+
+/// ISO 8601 ("2024-08-19T00:00:00+09:00") を "2024/08/19" にする
+@dateLabel(s) {
+  if (Core:type(s) == "str" && s.len >= 10) s.slice(0, 10).replace("-", "/") else "-"
+}
+
+/// AtCoder 標準のレート色 (灰/茶/緑/水/青/黄/橙/赤)
+@ratingColor(r) {
+  if (Core:type(r) != "num") MUTED
+  elif (r < 400) "808080"
+  elif (r < 800) "804000"
+  elif (r < 1200) "008000"
+  elif (r < 1600) "00b8b8"
+  elif (r < 2000) "3b6cff"
+  elif (r < 2400) "c0c000"
+  elif (r < 2800) "ff8000"
+  else "ff0000"
+}
+
+/// レート帯の名前 (色の通称)
+@ratingName(r) {
+  if (Core:type(r) != "num") "—"
+  elif (r < 400) "灰"
+  elif (r < 800) "茶"
+  elif (r < 1200) "緑"
+  elif (r < 1600) "水"
+  elif (r < 2000) "青"
+  elif (r < 2400) "黄"
+  elif (r < 2800) "橙"
+  else "赤"
+}
+
+/// レート変動を符号付きで色分け
+@deltaLabel(oldR, newR) {
+  let d = newR - oldR
+  if (d > 0) `$[fg.color={UP} ▲{d}]`
+  elif (d < 0) `$[fg.color={DOWN} ▼{0 - d}]`
+  else `$[fg.color={MUTED} ±0]`
+}
+
+/// ContestScreenName ("agc067.contest.atcoder.jp") からコンテスト URL を作る
+@contestUrl(screenName) {
+  if (Core:type(screenName) == "str" && screenName != "") {
+    `https://atcoder.jp/contests/{screenName.split(".")[0]}`
+  } else {
+    `https://atcoder.jp/users/{username}`
+  }
+}
+
+/// レート色の小さな丸
+@dot(color) {
+  `$[fg.color={color} ●]`
+}
+
+/// 横区切り線
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+@configFolder() {
+  Ui:C:folder({
+    title: "⚙️ 設定"
+    opened: false
+    children: [
+      Ui:C:textInput({
+        onInput: @(v) {
+          username = v
+          Mk:save("username", v)
+          firstRun = true
+          render()
+        }
+        default: username
+        label: "ユーザー名"
+        text: "AtCoder のユーザー名 (例: chokudai)"
+      })
+    ]
+  })
+}
+
+@fetchHistory() {
+  let url = `https://atcoder.jp/users/{username}/history/json`
+  let res = Nd:http(url, {
+    method: "GET"
+    headers: {
+      "User-Agent": "notedeck-atcoder-widget"
+      "Accept": "application/json"
+    }
+  })
+  if (res.status != 200) {
+    { error: `取得失敗 (HTTP {res.status})` }
+  } else {
+    { history: Json:parse(res.body) }
+  }
+}
+
+/// rated な参加のみ抽出
+@ratedOnly(history) {
+  var picked = []
+  for (let i, history.len) {
+    let h = history[i]
+    if (get(h, "IsRated", false)) picked = picked.concat([ h ])
+  }
+  picked
+}
+
+/// 最高レート
+@maxRating(rated) {
+  var m = 0
+  for (let i, rated.len) {
+    let r = get(rated[i], "NewRating", 0)
+    if (r > m) m = r
+  }
+  m
+}
+
+/// 1 件のコンテスト結果を 2 段 (2 要素) のリスト項目にする
+/// MFM は <br> を展開しないので、行ごとに別要素へ分ける
+@contestRow(h) {
+  let cname = get(h, "ContestName", "(コンテスト)")
+  let curl = contestUrl(get(h, "ContestScreenName", ""))
+  let perf = get(h, "Performance", 0)
+  let place = get(h, "Place", "-")
+  let date = dateLabel(get(h, "EndTime", ""))
+  let rated = get(h, "IsRated", false)
+  let tail = if (rated) {
+    deltaLabel(get(h, "OldRating", 0), get(h, "NewRating", 0))
+  } else {
+    `$[fg.color={MUTED} (unrated)]`
+  }
+  [
+    Ui:C:mfm({ text: `{dot(ratingColor(perf))} [{cname}]({curl})` })
+    Ui:C:mfm({ text: `　$[fg.color={MUTED} {place}位 ・ perf {perf} ・ {date}] {tail}` })
+  ]
+}
+
+@historyView() {
+  let data = fetchHistory()
+
+  // 取得失敗
+  if (Core:type(get(data, "error", null)) != "null") {
+    return [
+      Ui:C:mfm({ text: `<center>🏆 $[fg.color={MUTED} @{username}]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color=f74e52 ⚠️ {data.error}]</center>` })
+      configFolder()
+    ]
+  }
+
+  let history = get(data, "history", [])
+  if (Core:type(history) != "arr" || history.len == 0) {
+    return [
+      Ui:C:mfm({ text: `<center>🏆 $[fg.color={MUTED} @{username}]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 コンテスト参加履歴がありません]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} ユーザー名を確認してください]</center>` })
+      configFolder()
+    ]
+  }
+
+  let rated = ratedOnly(history)
+  let hasRating = rated.len > 0
+  let current = if (hasRating) get(rated[rated.len - 1], "NewRating", 0) else 0
+  let best = maxRating(rated)
+  let curColor = ratingColor(current)
+
+  // ヘッダー + 現在レート (主役)
+  var body = [
+    Ui:C:mfm({ text: `<center>$[fg.color=ff8000 **AtCoder**] [@{username}](https://atcoder.jp/users/{username}) $[fg.color={MUTED} ・{history.len}回]</center>` })
+    divider()
+  ]
+
+  if (hasRating) {
+    body = body.concat([
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} Rating]</center>` })
+      Ui:C:mfm({ text: `<center>$[x3 $[fg.color={curColor} **{current}**]]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={curColor} ●{ratingName(current)}]　$[fg.color={MUTED} 最高] $[fg.color={ratingColor(best)} {best}]</center>` })
+    ])
+  } else {
+    body = body.concat([
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} レート未確定 (unrated のみ)]</center>` })
+    ])
+  }
+
+  // 直近コンテスト (新しい順)
+  body = body.concat([
+    divider()
+    Ui:C:mfm({ text: `$[fg.color={MUTED} 📊 直近のコンテスト]` })
+  ])
+  var shown = 0
+  var i = history.len - 1
+  loop {
+    if (i < 0 || shown >= COUNT) break
+    body = body.concat(contestRow(history[i]))
+    shown = shown + 1
+    i = i - 1
+  }
+
+  // フッター導線 + 設定
+  body.concat([
+    divider()
+    Ui:C:mfm({ text: `<center>[AtCoder で見る →](https://atcoder.jp/users/{username})</center>` })
+    configFolder()
+  ])
+}
+
+@render() {
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [ Ui:C:text({ text: "AtCoder の成績を読み込み中… 🏆" }) ]
+      })
+    ])
+  }
+  firstRun = false
+
+  let body = historyView()
+  Ui:render([
+    Ui:C:container({
+      children: body
+    })
+  ])
+}
+
+render()
+// レート更新はコンテスト後のみなので 10 分間隔で更新
+Async:interval(600000, render, false)

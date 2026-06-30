@@ -17,6 +17,7 @@ const SIMPLE_DIR = resolve(ROOT, 'node_modules/simple-icons/icons')
 const ICON_MAP = {
   'plugins/plugin-smith': { pack: 'lucide', name: 'hammer' },
   'plugins/youtube-link-cleaner': { pack: 'simple', name: 'youtube' },
+  'widgets/atcoder': { pack: 'lucide', name: 'trophy' },
   'widgets/button': { pack: 'lucide', name: 'mouse-pointer-click' },
   'widgets/calendar': { pack: 'lucide', name: 'calendar' },
   'widgets/clickup': { pack: 'simple', name: 'clickup' },

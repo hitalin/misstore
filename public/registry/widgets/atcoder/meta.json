@@ -1,0 +1,14 @@
+{
+  "id": "atcoder",
+  "name": "AtCoder",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "AtCoder の任意ユーザーのレーティングと直近コンテスト結果をレート色付きで表示。API キー不要。デフォルトは chokudai。設定でユーザー名を変更可",
+  "icon": "ti-trophy",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["atcoder", "competitive-programming", "rating", "contest", "developer"]
+}
