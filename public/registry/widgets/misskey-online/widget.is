@@ -5,12 +5,12 @@
 /// CORS/UA 制約を受けない。
 ///
 /// 対象ユーザーは下の DEFAULT_HOST / DEFAULT_USERNAME を書き換える。
-/// 例: @syuilo@misskey.io → HOST="misskey.io", USERNAME="syuilo"
+/// 例: @syuilo@misskey.io → HOST="misskey.io", USERNAME="hita1in"
 /// 注意: リモートユーザーや「オンライン状態を隠す」設定のユーザーは
 /// onlineStatus が "unknown" (非公開) になる。
 
 let DEFAULT_HOST = "misskey.io"
-let DEFAULT_USERNAME = "syuilo"
+let DEFAULT_USERNAME = "hita1in"
 
 var lastStatus = 0 // 直近の HTTP ステータス (エラー表示用)
 

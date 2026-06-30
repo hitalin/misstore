@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "@hitalin",
   "authorUrl": "https://github.com/hitalin",
-  "description": "任意の Misskey ユーザーのオンライン状態 (online/active/offline/非公開) と投稿数・フォロー/フォロワー数を表示。API キー不要。対象は DEFAULT_HOST / DEFAULT_USERNAME を編集。既定は @syuilo@misskey.io",
+  "description": "任意の Misskey ユーザーのオンライン状態 (online/active/offline/非公開) と投稿数・フォロー/フォロワー数を表示。API キー不要。対象は DEFAULT_HOST / DEFAULT_USERNAME を編集。既定は @hita1in@misskey.io",
   "icon": "ti-user-check",
   "autoRun": true,
   "category": "display",
