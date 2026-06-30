@@ -1,0 +1,14 @@
+{
+  "id": "misskey-online",
+  "name": "Misskey オンライン状態",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "任意の Misskey ユーザーのオンライン状態 (online/active/offline/非公開) と投稿数・フォロー/フォロワー数を表示。API キー不要。対象は DEFAULT_HOST / DEFAULT_USERNAME を編集。既定は @syuilo@misskey.io",
+  "icon": "ti-user-check",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["misskey", "online", "status", "presence", "user"]
+}
