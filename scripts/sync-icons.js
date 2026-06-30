@@ -24,6 +24,7 @@ const ICON_MAP = {
   'widgets/digital-clock': { pack: 'lucide', name: 'clock' },
   'widgets/github-releases': { pack: 'simple', name: 'github' },
   'widgets/memo': { pack: 'lucide', name: 'notebook-pen' },
+  'widgets/minecraft': { pack: 'lucide', name: 'box' },
   'widgets/online-users': { pack: 'lucide', name: 'users' },
   'widgets/poll': { pack: 'lucide', name: 'vote' },
   'widgets/post-form': { pack: 'lucide', name: 'square-pen' },

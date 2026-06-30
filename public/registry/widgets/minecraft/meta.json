@@ -1,0 +1,14 @@
+{
+  "id": "minecraft",
+  "name": "Minecraft サーバー",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "Minecraft Java サーバーの稼働状況・接続人数・MOTD を表示。API キー不要。デフォルトは Misskey.io 公式サーバー (mc.misskey.io)。別サーバーは DEFAULT_HOST を編集",
+  "icon": "ti-cube",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["minecraft", "game", "server", "status", "misskey-io"]
+}
