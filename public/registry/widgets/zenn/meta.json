@@ -1,0 +1,14 @@
+{
+  "id": "zenn",
+  "name": "Zenn",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "Zenn の任意ユーザーの最新記事をいいね数付きで表示。API キー不要。デフォルトは catnose99 (Zenn 作者)。設定でユーザー名を変更可",
+  "icon": "ti-article",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["zenn", "blog", "tech", "article", "developer"]
+}

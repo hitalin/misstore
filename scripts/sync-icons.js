@@ -35,6 +35,7 @@ const ICON_MAP = {
   'widgets/server-info': { pack: 'lucide', name: 'server' },
   'widgets/stocks': { pack: 'lucide', name: 'trending-up' },
   'widgets/todoist': { pack: 'simple', name: 'todoist' },
+  'widgets/zenn': { pack: 'simple', name: 'zenn' },
   'skills/post-helper': { pack: 'lucide', name: 'wand-sparkles' },
   'skills/summarizer': { pack: 'lucide', name: 'align-left' },
   'skills/translator': { pack: 'lucide', name: 'languages' },
