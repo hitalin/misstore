@@ -27,6 +27,7 @@ const ICON_MAP = {
   'widgets/discord-online': { pack: 'simple', name: 'discord' },
   'widgets/github-releases': { pack: 'simple', name: 'github' },
   'widgets/memo': { pack: 'lucide', name: 'notebook-pen' },
+  'widgets/mewk': { pack: 'lucide', name: 'message-circle-question' },
   'widgets/minecraft': { pack: 'lucide', name: 'box' },
   'widgets/misskey-online': { pack: 'simple', name: 'misskey' },
   'widgets/online-users': { pack: 'lucide', name: 'users' },

@@ -1,0 +1,243 @@
+/// mewk ウィジェット
+/// mewk (Misskey 向け質問箱) の「未回答の質問があるか」を把握する。
+/// 未回答数を主役に、受信/送信数と未回答質問の一覧・回答導線を表示。
+/// API キーは widget.is には一切書かず、Vault がサーバーサイドで Authorization を注入する。
+///
+/// ■ 事前準備
+/// 1. mewk の API キーを取得:
+///      /settings/developer で発行 (scope: profile:read, questions:read)
+/// 2. NoteDeck の Secret Vault で接続を作成:
+///      名前        : mewk
+///      baseURL     : https://mewk.app
+///      認証方式    : 既定の「Bearer」のまま (Authorization: Bearer <key> になる)
+///      シークレット: mewk の API キー (mewk_xxxx…)
+///      "AI からのアクセスを許可" を ON にする
+///
+/// 取得は /api/v1/users/me/stats。未回答があれば /api/v1/questions/inbox も 1 回。
+/// 設計の元ネタ: todoist ウィジェット (vault.fetch + サニタイズ + 更新ボタン)。
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+@pad(n) { if (n < 10) `0{n}` else `{n}` }
+
+/// ISO 8601 → "MM/DD HH:MM"。失敗時 "-"。
+@dateLabel(s) {
+  if (Core:type(s) != "str" || s.len < 10) { return "-" }
+  let t = Date:parse(s)
+  `{pad(Date:month(t))}/{pad(Date:day(t))} {pad(Date:hour(t))}:{pad(Date:minute(t))}`
+}
+
+/// エポック (Date:now) → "HH:MM"
+@timeLabel(t) {
+  `{pad(Date:hour(t))}:{pad(Date:minute(t))}`
+}
+
+/// MFM/HTML 制御文字を無害化する。質問本文・送信者名は外部入力なので
+/// MFM へのブレイクアウトを防ぐ (todoist 実証パターン)。
+@sanitizeText(s) {
+  if (Core:type(s) != "str") { return "" }
+  var txt = s.replace(Str:lf, " ")
+  txt = txt.replace("$[", "$ ")
+  txt = txt.replace("]", "］")
+  txt = txt.replace("[", "［")
+  txt = txt.replace("<", "＜")
+  txt = txt.replace(">", "＞")
+  txt = txt.replace("`", "｀")
+  txt = txt.replace("*", "＊")
+  txt = txt.replace("\\", "＼")
+  txt = txt.replace("://", ":／／") // bare URL の自動リンク化を防ぐ
+  txt
+}
+
+@truncate(s, n) {
+  let clean = sanitizeText(s)
+  if (clean.len > n) { `{clean.slice(0, n)}…` } else { clean }
+}
+
+// ─────────────────────────────
+// 定数・状態
+// ─────────────────────────────
+let CONNECTION = "mewk" // Vault 接続名
+let COUNT = 5           // 未回答一覧の最大表示件数
+
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let ACCENT = "34d3c7" // mewk のテーマ寄りの色
+let ALERT = "f43f5e"
+
+var result = null
+var firstRun = true
+
+// ─────────────────────────────
+// データ取得 (トークンは Vault が注入。headers に Authorization は書かない)
+// ─────────────────────────────
+@vaultGet(path) {
+  Nd:call("vault.fetch", {
+    connectionRef: CONNECTION
+    path: path
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+}
+
+@errMsg(res, fallback) {
+  // 外部文字列は MFM に流さない。HTTP ステータスのみ表示。
+  `{fallback} (HTTP {res.status})`
+}
+
+/// 受信箱の配列から未回答 (answer が無いもの) を COUNT 件まで整形する
+@collectUnanswered(questions) {
+  if (Core:type(questions) != "arr") { return [] }
+  var rows = []
+  for (let i, questions.len) {
+    if (rows.len >= COUNT) { break }
+    let q = questions[i]
+    let answered = Core:type(get(q, "answer", null)) == "obj"
+    if (answered) { continue }
+
+    let anon = get(q, "isAnonymous", true)
+    let who = if (anon) {
+      "匿名"
+    } else {
+      let s = get(q, "sender", null)
+      truncate(dflt(get(s, "name", null), dflt(get(s, "username", null), "誰か")), 16)
+    }
+    rows.push({
+      anon: anon
+      who: who
+      content: truncate(get(q, "content", ""), 44)
+      date: dateLabel(get(q, "createdAt", ""))
+    })
+  }
+  rows
+}
+
+@fetchData() {
+  let sres = vaultGet("/api/v1/users/me/stats")
+  if (sres.status != 200) {
+    result = { error: errMsg(sres, "統計の取得に失敗") }
+    render()
+    return null
+  }
+  let stats = Json:parse(sres.body)
+  let unanswered = get(stats, "unansweredCount", 0)
+
+  // 未回答があるときだけ受信箱を 1 回取る (folder=inbox, limit=20 が既定)
+  var inbox = []
+  if (unanswered > 0) {
+    let ires = vaultGet("/api/v1/questions/inbox")
+    if (ires.status == 200) {
+      inbox = collectUnanswered(get(Json:parse(ires.body), "questions", []))
+    }
+  }
+
+  result = {
+    unanswered: unanswered
+    received: get(stats, "receivedCount", 0)
+    sent: get(stats, "sentCount", 0)
+    inbox: inbox
+    fetchedAt: Date:now()
+  }
+  render()
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+@questionRow(r) {
+  // <br> は展開されないので 1 行 = 1 要素に分ける。値はサニタイズ済み。
+  let icon = if (r.anon) "🕶️" else "👤"
+  [
+    Ui:C:mfm({ text: `{icon} $[fg.color={ACCENT} {r.who}]　$[fg.color={MUTED} {r.date}]` })
+    Ui:C:mfm({ text: `　{r.content}` })
+  ]
+}
+
+@statsView(data) {
+  var body = []
+
+  // 未回答が主役
+  if (data.unanswered > 0) {
+    // 白抜き・丸角のバッジで件数を強調
+    body.push(Ui:C:mfm({ text: `<center>$[border.radius=8 $[bg.color={ALERT} $[fg.color=ffffff 　$[x2 {data.unanswered}] 件の未回答　]]]</center>` }))
+  } else {
+    body.push(Ui:C:mfm({ text: `<center>$[x2 ✅]　$[fg.color={ACCENT} すべて回答済み]</center>` }))
+  }
+
+  // 受信 / 送信
+  body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 受信] **{data.received}**　$[fg.color={MUTED} 送信] **{data.sent}**</center>` }))
+
+  // 未回答一覧を折りたたみに格納
+  if (data.unanswered > 0) {
+    var qs = []
+    if (data.inbox.len == 0) {
+      qs.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 一覧を取得できませんでした]</center>` }))
+    } else {
+      for (let i, data.inbox.len) {
+        if (i > 0) { qs.push(divider()) }
+        qs = qs.concat(questionRow(data.inbox[i]))
+      }
+    }
+    body.push(Ui:C:folder({
+      title: `📥 未回答の質問 ({data.inbox.len})`
+      opened: true
+      // 全体は中央寄せだが、一覧は左寄せの方が読みやすい
+      children: [ Ui:C:container({ align: "left", children: qs }) ]
+    }))
+  }
+
+  body
+}
+
+@render() {
+  // 初回のみ自動取得 (Vault にキーがあればワンタップ不要で表示)
+  if (firstRun && Core:type(result) == "null") {
+    Ui:render([
+      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "mewk を読み込み中… 📮" }) ] })
+    ])
+    firstRun = false
+    fetchData()
+    return null
+  }
+
+  var children = []
+  if (Core:type(result) == "null") {
+    children = [
+      Ui:C:container({ align: "center", children: [
+        Ui:C:button({ text: "🔄 更新", primary: true, rounded: true, onClick: @() { fetchData() } })
+      ] })
+    ]
+  } elif (Obj:has(result, "error")) {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color={ALERT} ⚠️ {result.error}]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>Vault 接続 (mewk / Bearer) の AI アクセス許可と scope (profile:read, questions:read) を確認してください</small>]</center>` })
+      Ui:C:container({ align: "center", children: [
+        Ui:C:button({ text: "再試行", primary: true, rounded: true, onClick: @() { fetchData() } })
+      ] })
+    ]
+  } else {
+    children = statsView(result)
+    children.push(divider())
+    children.push(Ui:C:mfm({ text: `<center>[mewk で回答する →](https://mewk.app)</center>` }))
+    children.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>最終更新 {timeLabel(result.fetchedAt)}</small>]</center>` }))
+    children.push(Ui:C:container({ align: "center", children: [
+      Ui:C:button({ text: "🔄 更新", rounded: true, onClick: @() { fetchData() } })
+    ] }))
+  }
+  Ui:render([ Ui:C:container({ align: "center", padding: 10, children: children }) ])
+}
+
+render()
