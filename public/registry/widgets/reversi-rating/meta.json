@@ -1,0 +1,13 @@
+{
+  "id": "reversi-rating",
+  "name": "リバーシレーティング",
+  "version": "1.0.0",
+  "author": "akane_shinonome",
+  "description": "Misskey リバーシの対局から Elo レーティングを算出し、順位・期待勝率を表示。akane_shinonome feat. hitalin の Misskey Play を NoteDeck ウィジェットへ移植・調整 (MIT)",
+  "icon": "ti-trophy",
+  "autoRun": true,
+  "category": "stats",
+  "capabilities": ["misskey-api", "misskey-account"],
+  "license": "MIT",
+  "tags": ["reversi", "misskey", "game", "stats", "rating", "elo"]
+}
