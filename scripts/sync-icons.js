@@ -22,6 +22,7 @@ const ICON_MAP = {
   'widgets/calendar': { pack: 'lucide', name: 'calendar' },
   'widgets/clickup': { pack: 'simple', name: 'clickup' },
   'widgets/crypto': { pack: 'simple', name: 'bitcoin' },
+  'widgets/ctftime': { pack: 'lucide', name: 'flag' },
   'widgets/digital-clock': { pack: 'lucide', name: 'clock' },
   'widgets/discord-online': { pack: 'simple', name: 'discord' },
   'widgets/github-releases': { pack: 'simple', name: 'github' },

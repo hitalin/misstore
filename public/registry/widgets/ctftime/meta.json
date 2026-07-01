@@ -1,0 +1,14 @@
+{
+  "id": "ctftime",
+  "name": "CTFTime",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "CTFTime の今後の CTF イベントを開催が近い順に表示。開始までのカウントダウン・規模(weight)・形式付き。API キー不要",
+  "icon": "ti-flag",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["ctf", "ctftime", "security", "event", "schedule"]
+}

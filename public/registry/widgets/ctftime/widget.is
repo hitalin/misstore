@@ -1,0 +1,201 @@
+/// CTFTime ウィジェット
+/// CTFTime 公式 API から今後の CTF イベントを開催が近い順に表示。API キー不要。
+/// 開始までのカウントダウン・規模(weight)・形式・オンライン/オンサイトを併記する。
+/// 設計の元ネタ: zenn / atcoder ウィジェット (表示・更新ループ)。
+
+// 表示するイベント件数。ここを書き換えると増減できる。
+let COUNT = 6
+
+// アクセント・テキスト色
+let ACCENT = "e01e5a"
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let LIVE = "ff4d4f"
+
+@dflt(v, d) {
+  if (Core:type(v) == "null") d else v
+}
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") {
+    d
+  } elif (Obj:has(o, k)) {
+    dflt(o[k], d)
+  } else {
+    d
+  }
+}
+
+var firstRun = true
+
+/// ISO 8601 ("2026-07-04T02:00:00+00:00") を "07/04 02:00" にする (UTC)
+@fmtDate(s) {
+  if (Core:type(s) == "str" && s.len >= 16) {
+    `{s.slice(5, 10).replace("-", "/")} {s.slice(11, 16)}`
+  } else {
+    "-"
+  }
+}
+
+/// 規模(weight)に応じた色 (大規模ほど目立たせる)
+@weightColor(w) {
+  if (Core:type(w) != "num") MUTED
+  elif (w >= 50) "ff4d4f"
+  elif (w >= 25) "ff8000"
+  elif (w > 0) "43a047"
+  else MUTED
+}
+
+/// 規模ラベル
+@weightLabel(w) {
+  if (Core:type(w) == "num" && w > 0) `w{Math:round(w)}` else "w—"
+}
+
+/// オンライン / オンサイト
+@venueLabel(onsite) {
+  if (onsite) "🏛 onsite" else "🌐 online"
+}
+
+/// 開催までの残り時間 / 開催中判定
+@countdown(startS, finishS) {
+  let startMs = Date:parse(startS)
+  let finishMs = Date:parse(finishS)
+  let nowMs = Date:now()
+  if (startMs <= nowMs && finishMs > nowMs) {
+    `$[fg.color={LIVE} 🔴 開催中]`
+  } else {
+    let diff = startMs - nowMs
+    let days = Math:floor(diff / 86400000)
+    if (days >= 1) {
+      `$[fg.color={ACCENT} あと{days}日]`
+    } else {
+      let hours = Math:floor(diff / 3600000)
+      if (hours >= 1) {
+        `$[fg.color={ACCENT} あと{hours}時間]`
+      } else {
+        let mins = Math:floor(diff / 60000)
+        `$[fg.color={ACCENT} あと{mins}分]`
+      }
+    }
+  }
+}
+
+/// 規模色の小さな丸
+@dot(color) {
+  `$[fg.color={color} ●]`
+}
+
+/// 横区切り線
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+@fetchEvents() {
+  let nowSec = Math:floor(Date:now() / 1000)
+  // 前日開始の開催中イベントも拾えるよう start は 1 日前から。90 日先まで。
+  let startSec = nowSec - 86400
+  let finishSec = nowSec + 7776000
+  let url = `https://ctftime.org/api/v1/events/?limit={COUNT + 8}&start={startSec}&finish={finishSec}`
+  let res = Nd:http(url, {
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+  if (res.status != 200) {
+    { error: `取得失敗 (HTTP {res.status})` }
+  } else {
+    { events: Json:parse(res.body) }
+  }
+}
+
+/// 1 件のイベントを 2 段 (2 要素) のリスト項目にする
+@eventRow(e) {
+  let title = get(e, "title", "(CTF)")
+  let url = get(e, "ctftime_url", "https://ctftime.org/")
+  let start = get(e, "start", "")
+  let finish = get(e, "finish", "")
+  let weight = get(e, "weight", 0)
+  let fmt = get(e, "format", "")
+  let onsite = get(e, "onsite", false)
+  [
+    Ui:C:mfm({ text: `{dot(weightColor(weight))} [{title}]({url})` })
+    Ui:C:mfm({ text: `　{countdown(start, finish)} $[fg.color={MUTED} ・ {fmtDate(start)} ・ {fmt} ・ {venueLabel(onsite)} ・ {weightLabel(weight)}]` })
+  ]
+}
+
+@eventsView() {
+  let data = fetchEvents()
+
+  // 取得失敗
+  if (Core:type(get(data, "error", null)) != "null") {
+    return [
+      Ui:C:mfm({ text: `<center>$[fg.color={ACCENT} 🚩 CTFTime]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color=f74e52 ⚠️ {data.error}]</center>` })
+    ]
+  }
+
+  let events = get(data, "events", [])
+  if (Core:type(events) != "arr" || events.len == 0) {
+    return [
+      Ui:C:mfm({ text: `<center>$[fg.color={ACCENT} 🚩 CTFTime]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 予定されている CTF がありません]</center>` })
+    ]
+  }
+
+  // 開催中 / 今後のみ (終了済みを除外)
+  let nowMs = Date:now()
+  var upcoming = []
+  for (let i, events.len) {
+    let e = events[i]
+    if (Date:parse(get(e, "finish", "")) > nowMs) {
+      upcoming = upcoming.concat([ e ])
+    }
+  }
+
+  var body = [
+    Ui:C:mfm({ text: `<center>$[fg.color={ACCENT} **🚩 CTFTime**] $[fg.color={MUTED} 今後の CTF]</center>` })
+    divider()
+  ]
+
+  if (upcoming.len == 0) {
+    body = body.concat([
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 直近に予定されている CTF がありません]</center>` })
+    ])
+  } else {
+    var shown = 0
+    for (let i, upcoming.len) {
+      if (shown < COUNT) {
+        body = body.concat(eventRow(upcoming[i]))
+        shown = shown + 1
+      }
+    }
+  }
+
+  // フッター導線
+  body.concat([
+    divider()
+    Ui:C:mfm({ text: `<center>[CTFTime のイベント一覧 →](https://ctftime.org/event/list/upcoming)</center>` })
+  ])
+}
+
+@render() {
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [ Ui:C:text({ text: "CTF イベントを読み込み中… 🚩" }) ]
+      })
+    ])
+  }
+  firstRun = false
+
+  let body = eventsView()
+  Ui:render([
+    Ui:C:container({
+      children: body
+    })
+  ])
+}
+
+render()
+// イベント予定は頻繁に変わらないので 30 分間隔で更新
+Async:interval(1800000, render, false)
