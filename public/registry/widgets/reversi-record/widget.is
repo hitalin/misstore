@@ -1,0 +1,520 @@
+/// @ 0.19.0
+// リバーシレコード
+// Copyright (c) 2024 @elysion
+// This script is licensed under the MIT
+// https://opensource.org/licenses/mit-license.php
+//
+// [misstore] @elysion の Misskey Play を NoteDeck ウィジェット向けに配布。
+// ソースは無改変。capabilities: misskey-api + misskey-account が必要。
+
+let PLAY_URL = if exists THIS_URL THIS_URL else `{SERVER_URL}/play/a103pp9bls`
+let PLAY_TAG = "#REVERSI_RECORD"
+
+// リバーシデータ
+@Reversi() {
+  let self = {
+    data: null
+    last_id: ""
+    // コンストラクタ
+    constructor: @() {
+      self.data = null
+      self.last_id = ""
+//self.deleteData()
+      // ロード
+      self.loadData()
+      self
+    }
+    // セーブデータ削除
+    deleteData: @() {
+      Mk:save(`@{USER_ID}/reversi_data`, null)
+      Mk:save(`@{USER_ID}/last_id`, null)
+    }
+    // ロード
+    loadData: @() {
+      self.data = Mk:load(`@{USER_ID}/reversi_data`)
+      self.last_id = Mk:load(`@{USER_ID}/last_id`)
+      if self.last_id == null self.last_id = "0000000000"
+    }
+    // セーブ
+    saveData: @() {
+      Mk:save(`@{USER_ID}/reversi_data`, self.data)
+      Mk:save(`@{USER_ID}/last_id`, self.last_id)
+    }
+    // データ取得
+    getData: @() { return self.data }
+    // ゲームデータがあるか否か
+    // return <bool>
+    isGameData: @() {
+      if self.data == null return false
+      if self.data.len == 0 return false else return true
+    }
+    // ゲームデータ取得
+    getGameData: @() {
+      var games = []
+      loop {
+        let works = Mk:api("reversi/games", {
+          limit: 100
+          sinceId: self.last_id
+        })
+        if works.len == 0 break
+
+        // ロセオ、ループボード、どこでも置けるモードは対象外
+        games = games.concat(works.filter(@(i) {
+          (i.user1Id == USER_ID || i.user2Id == USER_ID) && !i.isLlotheo && !i.canPutEverywhere && !i.loopedBoard && i.isEnded
+        }))
+        self.last_id = works[works.len - 1].id
+        if (works.len < 100) break
+      }
+      // 取得データがある場合
+      if games.len > 0 {
+        if self.data != null {
+          self.data = self.data.concat(games)
+        } else {
+          self.data = games
+        }
+      }
+      // セーブ
+      self.saveData()
+    }
+  }
+  self.constructor()
+}
+
+@Game() {
+  // リバーシ
+  var reversi = null
+  // 対戦相手情報
+  var match_users = []
+  // 対戦成績フォルダの UI コンポーネント（main で作成し matchResult で更新）
+  var folderUi = null
+  // ユーザー選択 select の UI コンポーネント（再描画で選択が消えないよう default を保持）
+  var selectUi = null
+  // 色情報
+  let color = {
+    win: "00cc00",
+    lose: "cc0000",
+    draw: "888888"
+    border: "3c3c3c"
+  }
+
+  // 初期化
+  @init() {
+    reversi = null
+    match_users = []
+
+    if (USER_ID == null) {
+      render([
+        Ui:C:container({
+          children: [
+            Ui:C:mfm({
+              text: `$[x4 ⚫⚪]`
+            })
+          ]
+          align: "center"
+        })
+      ])
+      Mk:dialog("エラー", [
+        `ユーザーIDが見つかりませんでした`
+        `$[x2 😵]`
+        `ログインしてから遊んでみてねー👋`
+      ].join(Str:lf), "error")
+    } else {
+
+      let loadMfm = []
+      loadMfm.push([
+        `$[x2 Now Loading]`
+        `リバーシデータ読み込み中$[bounce .]$[bounce.delay=0.2s .]$[bounce.delay=0.4s .]`
+        `<small>ℹ️ロセオ、ループボード、どこでも置けるモードは対象外</small>`
+      ].join(Str:lf))
+
+      reversi = Reversi()
+      // データがなかったら初回
+      if reversi.getData() == null {
+        // 初回読み込み時のメッセージ
+        loadMfm.push(`<small>⚠️初回読み込みはサーバー内のゲームデータが多いほど時間がかかります</small>`)
+      }
+
+      render([
+        Ui:C:container({
+          children: [
+            Ui:C:mfm({
+              text: loadMfm.join(Str:lf)
+            })
+          ]
+          align: "center"
+        })
+      ])
+      // ゲームデータ取得
+      reversi.getGameData()
+
+      // ゲームデータがなかったら
+      if !reversi.isGameData() {
+        render([
+          Ui:C:container({
+            children: [
+              Ui:C:mfm({
+                text: `$[x2 [リバーシで遊ぶ]({SERVER_URL}/reversi)]`
+              })
+            ]
+            align: "center"
+          })
+        ])
+        Mk:dialog("エラー", [
+          `リバーシデータが見つかりませんでした`
+          `$[x2 🤔]`
+          `リバーシを遊んでからきてねー👋`
+        ].join(Str:lf), "error")
+      } else {
+        main()
+      }
+    }
+  }
+  // 勝率関連のバー作成
+  // param: rate_obj<obj>
+  // return: <str>
+  @createRateBarMfm(rate_obj) {
+    let barWin = []
+    let win = eval {
+      var num = Math:round((rate_obj.win / rate_obj.match_num) * 100) / 10
+      if num < 1 && num > 0 num = 1
+      num
+    }
+    for win barWin.push("　")
+
+    let barLose = []
+    let lose = eval {
+      var num = Math:round((rate_obj.lose / rate_obj.match_num) * 100) / 10
+      if num < 1 && num > 0 num = 1
+      num
+    }
+    for lose barLose.push("　")
+
+    let barDraw = []
+    let draw = eval {
+      var num = Math:round((rate_obj.draw / rate_obj.match_num) * 100) / 10
+      if num < 1 && num > 0 num = 1
+      num
+    }
+    for draw barDraw.push("　")
+
+    let barMfm = eval {
+      let mfm = []
+      if barWin.len > 0 mfm.push(`$[bg.color={color.win} {barWin.join()}]`)
+      if barLose.len > 0 mfm.push(`$[bg.color={color.lose} {barLose.join()}]`)
+      if barDraw.len > 0 mfm.push(`$[bg.color={color.draw} {barDraw.join()}]`)
+      mfm.join()
+    }
+    barMfm
+  }
+  // 対戦相手との成績
+  // param: result_data<arr>
+  // param: match_user_id<str>
+  @matchResult(result_data, match_user_id) {
+    // 対戦相手
+    let match_user = match_users.filter(@(i) {
+      i.id == match_user_id
+    })
+    // 対戦相手との成績
+    let match_user_results = result_data.filter(@(i) {
+      i.user1Id == match_user[0].id || i.user2Id == match_user[0].id
+    })
+
+    // 成績表示用コンポーネント
+    let match_user_result_components = []
+    // 2桁ゼロ埋め
+    let pad = @(n) { if n < 10 `0{n}` else `{n}` }
+    each (let result, match_user_results) {
+      let result_marks = []
+      match result.winnerId {
+        // 勝ち
+        case USER_ID => { result_marks.push(`$[border.radius=5 $[bg.color={color.win} $[fg.color=fff Ｗ]]]`) }
+        // 引き分け
+        case null => { result_marks.push(`$[border.radius=5 $[bg.color={color.draw} $[fg.color=fff Ｄ]]]`) }
+        // 負け
+        default => { result_marks.push(`$[border.radius=5 $[bg.color={color.lose} $[fg.color=fff Ｌ]]]`) }
+      }
+      let extra_marks = []
+      // 投了
+      if result.surrenderedUserId == USER_ID {
+        extra_marks.push("🏳")
+      }
+      // 時間切れ
+      if result.timeoutUserId == USER_ID {
+        extra_marks.push("⏰")
+      }
+      // 各対戦へのリンク（リンクラベル内に $[unixtime] 等の MFM を置くと
+      // ラベルの `]` でリンクが壊れるため、日付はプレーン文字列で組み立てる）
+      let t = Date:parse(result.createdAt)
+      let date_str = `{Date:year(t)}/{pad(Date:month(t))}/{pad(Date:day(t))} {pad(Date:hour(t))}:{pad(Date:minute(t))}`
+      match_user_result_components.push(
+        Ui:C:mfm({
+          text: `<small>{result_marks.join()}[{date_str}]({SERVER_URL}/reversi/g/{result.id}){extra_marks.join()}</small>`
+        })
+      )
+    }
+    let match_user_rate_obj = {
+      win: match_user_results.filter(@(i) { i.winnerId == USER_ID }).len
+      lose: match_user_results.filter(@(i) { i.winnerId != USER_ID && i.winnerId != null }).len
+      draw: match_user_results.filter(@(i) { i.winnerId == null }).len
+      surrender: match_user_results.filter(@(i) { i.winnerId != USER_ID && i.surrenderedUserId == USER_ID }).len
+      timeout: match_user_results.filter(@(i) { i.winnerId != USER_ID && i.timeoutUserId == USER_ID }).len
+      match_num: match_user_results.len
+    }
+
+    // 勝率関連のバー作成
+    let barMfm = createRateBarMfm(match_user_rate_obj)
+
+    let match_userMfm = eval {
+      let name = if match_user[0].name == null match_user[0].username else match_user[0].name
+      let url = if match_user[0].host == null `{SERVER_URL}/@{match_user[0].username}` else `https://{match_user[0].host}/@{match_user[0].username}`
+      `?[<plain>{name}</plain>]({url})`
+    }
+
+    // 結果表示用
+    let user_resultMfm = [
+      `{match_userMfm}とのリバーシ成績`
+      `{match_user_results.len}戦{match_user_rate_obj.win}勝{match_user_rate_obj.lose}敗{match_user_rate_obj.draw}分け`
+      `$[border.width=2,radius=5,color={color.border},style=inset {barMfm}]`
+      `勝: {Math:round(match_user_rate_obj.win / match_user_results.len * 1000) / 10}%, 負: {Math:round(match_user_rate_obj.lose / match_user_results.len * 1000) / 10}%, 分: {Math:round(match_user_rate_obj.draw / match_user_results.len * 1000) / 10}%`
+      `<small>🏳️投了した数: {match_user_rate_obj.surrender}`
+      `⏰時間切れ数: {match_user_rate_obj.timeout}</small>`
+    ].join(Str:lf)
+
+    // 投稿用テキスト
+    let user_postText = [
+      `<center>`
+      user_resultMfm
+      PLAY_URL
+      PLAY_TAG
+      `</center>`
+    ].join(Str:lf)
+
+    match_user_result_components.unshift(
+      Ui:C:container({
+        children: [
+          Ui:C:postFormButton({
+            text: "投稿する"
+            form: {
+              text: user_postText
+            }
+            primary: true
+            rounded: true
+          })
+        ]
+        align: "center"
+      })
+    )
+    match_user_result_components.unshift(
+      Ui:C:container({
+        children: [
+          Ui:C:mfm({
+            text: user_resultMfm
+          })
+        ]
+        align: "center"
+      })
+    )
+
+    // 対戦成績と履歴
+    folderUi.update({
+      children: [
+        Ui:C:container({
+          children: match_user_result_components
+          align: "left"
+        })
+      ]
+      title: `🆚@{match_user[0].username}({match_user_results.len})`
+      opened: true
+    })
+  }
+  // メイン処理
+  @main() {
+
+    let reversiDataUi = Ui:C:mfm({})
+    render([
+      Ui:C:container({
+        children: [
+          Ui:C:mfm({
+            text: [
+              `$[x2 Now Loading]`
+              `対戦データ読み込み中$[bounce .]$[bounce.delay=0.2s .]$[bounce.delay=0.4s .]`
+            ].join(Str:lf)
+          })
+          reversiDataUi
+        ]
+        align: "center"
+      })
+    ])
+
+    let reversi_data = reversi.getData()
+    // ウィジェットでは USER_NAME/USER_USERNAME が空のため、ゲームデータから自分の情報を取得
+    let self_user = if reversi_data[0].user1Id == USER_ID reversi_data[0].user1 else reversi_data[0].user2
+    let result_data = []
+    for (let i = 0, reversi_data.len) {
+      // 作業中UI更新
+      reversiDataUi.update({
+        text: `{i + 1}/{reversi_data.len}`
+      })
+      // 対戦相手の情報
+      let match_user = {
+        id: if (reversi_data[i].user1Id != USER_ID) reversi_data[i].user1.id else reversi_data[i].user2.id
+        name: if (reversi_data[i].user1Id != USER_ID) reversi_data[i].user1.name else reversi_data[i].user2.name
+        username: if (reversi_data[i].user1Id != USER_ID) reversi_data[i].user1.username else reversi_data[i].user2.username
+        host: if (reversi_data[i].user1Id != USER_ID) reversi_data[i].user1.host else reversi_data[i].user2.host
+      }
+      // 重複していたら更新のため除外
+      match_users = match_users.filter(@(i) {
+        i.id != match_user.id
+      })
+      // 追加
+      match_users.push(match_user)
+
+      result_data.push(reversi_data[i])
+    }
+    match_users.reverse()
+    result_data.reverse()
+
+    let matchDataUi = Ui:C:mfm({})
+    render([
+      Ui:C:container({
+        children: [
+          Ui:C:mfm({
+            text: [
+              `$[x2 Now Loading]`
+              `対戦相手との成績作成中$[bounce .]$[bounce.delay=0.2s .]$[bounce.delay=0.4s .]`
+            ].join(Str:lf)
+          })
+          matchDataUi
+        ]
+        align: "center"
+      })
+    ])
+
+    // 対戦相手の選択肢作成
+    let match_user_items = []
+    for (let i = 0, match_users.len) {
+      // 作業中UI更新
+      matchDataUi.update({
+        text: `{i + 1}/{match_users.len}`
+      })
+      // 対戦相手との対戦数
+      let user_match_num = result_data.filter(@(idx) {
+        idx.user1Id == match_users[i].id || idx.user2Id == match_users[i].id
+      }).len
+
+      match_user_items.push({
+        text: `🆚@{match_users[i].username}({user_match_num})`
+        value: match_users[i].id
+      })
+    }
+
+    render([
+      Ui:C:container({
+        children: [
+          Ui:C:mfm({
+            text: [
+              `$[x2 Now Loading]`
+              `{if self_user.name == null self_user.username else self_user.name}の総合成績作成中$[bounce .]$[bounce.delay=0.2s .]$[bounce.delay=0.4s .]`
+            ].join(Str:lf)
+          })
+        ]
+        align: "center"
+      })
+    ])
+
+    let rate_obj = {
+      win: result_data.filter(@(i) { i.winnerId == USER_ID }).len
+      lose: result_data.filter(@(i) { i.winnerId != USER_ID && i.winnerId != null }).len
+      draw: result_data.filter(@(i) { i.winnerId == null }).len
+      surrender: result_data.filter(@(i) { i.winnerId != USER_ID && i.surrenderedUserId == USER_ID }).len
+      timeout: result_data.filter(@(i) { i.winnerId != USER_ID && i.timeoutUserId == USER_ID }).len
+      match_num: result_data.len
+    }
+    // 勝率関連のバー作成
+    let barMfm = createRateBarMfm(rate_obj)
+
+    let userMfm = eval {
+      let name = if self_user.name == null self_user.username else self_user.name
+      let url = if self_user.host == null `{SERVER_URL}/@{self_user.username}` else `https://{self_user.host}/@{self_user.username}`
+      `?[<plain>{name}</plain>]({url})`
+    }
+
+    // 結果表示用
+    let resultMfm = [
+      `{userMfm}のリバーシ成績`
+      `{result_data.len}戦{rate_obj.win}勝{rate_obj.lose}敗{rate_obj.draw}分け`
+      `$[border.width=2,radius=5,color={color.border},style=inset {barMfm}]`
+      `勝: {Math:round(rate_obj.win / result_data.len * 1000) / 10}%, 負: {Math:round(rate_obj.lose / result_data.len * 1000) / 10}%, 分: {Math:round(rate_obj.draw / result_data.len * 1000) / 10}%`
+      `<small>🏳️投了した数: {rate_obj.surrender}`
+      `⏰時間切れ数: {rate_obj.timeout}</small>`
+    ].join(Str:lf)
+
+    // 投稿用テキスト
+    let postText = [
+      `<center>`
+      resultMfm
+      PLAY_URL
+      PLAY_TAG
+      `</center>`
+    ].join(Str:lf)
+
+    folderUi = Ui:C:folder({
+      title: "対戦成績と履歴"
+      opened: true
+    })
+
+    selectUi = Ui:C:select({
+      items: match_user_items
+      onChange: @(value) {
+        // 再描画で選択が消えないよう、選択値を default として保持
+        selectUi.update({ default: value })
+        matchResult(result_data, value)
+      }
+      label: "ユーザー選択"
+      caption: "選択すると対戦成績と履歴を表示します"
+    })
+
+    render([
+      Ui:C:container({
+        children: [
+          Ui:C:mfm({
+            text: [
+              resultMfm
+            ].join(Str:lf)
+          })
+        ]
+        align: "center"
+      })
+      Ui:C:container({
+        children: [
+          Ui:C:postFormButton({
+            text: "投稿する"
+            form: {
+              text: postText
+            }
+            primary: true
+            rounded: true
+          })
+        ]
+        align: "center"
+      })
+      Ui:C:container({
+        children: [
+          selectUi
+        ]
+        align: "center"
+      })
+      Ui:C:container({
+        children: [
+          folderUi
+        ]
+        align: "center"
+      })
+    ])
+  }
+  @render(components) {
+    Ui:render(components)
+  }
+  init()
+}
+Game()

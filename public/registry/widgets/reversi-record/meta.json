@@ -1,0 +1,13 @@
+{
+  "id": "reversi-record",
+  "name": "リバーシレコード",
+  "version": "1.0.0",
+  "author": "@elysion",
+  "description": "Misskey リバーシの対戦成績を集計。対戦相手ごとの勝敗・勝率バー・履歴を表示。@elysion の Misskey Play を NoteDeck ウィジェットへ移植・調整 (MIT)",
+  "icon": "ti-circle-dot",
+  "autoRun": true,
+  "category": "stats",
+  "capabilities": ["misskey-api", "misskey-account"],
+  "license": "MIT",
+  "tags": ["reversi", "misskey", "game", "stats", "record"]
+}

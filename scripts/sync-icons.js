@@ -33,6 +33,7 @@ const ICON_MAP = {
   'widgets/poll': { pack: 'lucide', name: 'vote' },
   'widgets/post-form': { pack: 'lucide', name: 'square-pen' },
   'widgets/profile': { pack: 'lucide', name: 'circle-user' },
+  'widgets/reversi-record': { pack: 'lucide', name: 'circle-dot' },
   'widgets/rss-reader': { pack: 'simple', name: 'rss' },
   'widgets/server-info': { pack: 'lucide', name: 'server' },
   'widgets/stocks': { pack: 'lucide', name: 'trending-up' },
