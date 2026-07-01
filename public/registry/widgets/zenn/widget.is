@@ -1,14 +1,16 @@
-/// Zenn ウィジェット
-/// Zenn の公開 API から任意ユーザーの最新記事をいいね数付きで表示。API キー不要。
-/// デフォルトは catnose99 (Zenn 作者)。設定で任意のユーザー名に変更できる。
-/// 設計の元ネタ: github-releases ウィジェット (表示・更新ループ + 設定 UI)。
+/// Zenn トレンドウィジェット
+/// Zenn の公開 API からトレンド記事 (人気順) を著者付きで表示。API キー不要。
+/// 特定ユーザーではなく Zenn 全体の「今読まれている記事」にフォーカスする。
+/// 設計の元ネタ: ctftime / atcoder ウィジェット (イベント/ランキング表示ループ)。
 
-// 表示する件数 (最新 1 件 + 履歴)。ここを書き換えると増減できる。
-let COUNT = 6
+// 表示する記事件数 (1 位 + 以降)。ここを書き換えると増減できる。
+let COUNT = 8
 
-// Zenn のブランドカラー (アクセント用)
+// 集計期間: "daily" (今日) / "weekly" (今週) / "monthly" (今月)
+let PERIOD = "daily"
+
+// Zenn のブランドカラー・各種テキスト色
 let ACCENT = "3ea8ff"
-// 各種テキスト色
 let MUTED = "8a96a3"
 let LIKE = "f43f5e"
 let LINE = "5a6573"
@@ -27,14 +29,7 @@ let LINE = "5a6573"
   }
 }
 
-// 設定: 対象ユーザー名。Mk:save で永続化される。
-var username = dflt(Mk:load("username"), "catnose99")
 var firstRun = true
-
-/// ISO 8601 ("2025-10-14T14:31:58.775+09:00") を "2025/10/14" にする
-@dateLabel(s) {
-  if (Core:type(s) == "str" && s.len >= 10) s.slice(0, 10).replace("-", "/") else "-"
-}
 
 /// 大きな数を "1.4k" のように丸める (いいね数向け)
 @fmtNum(n) {
@@ -45,6 +40,14 @@ var firstRun = true
   } else {
     `{n}`
   }
+}
+
+/// 期間ラベル
+@periodLabel(p) {
+  if (p == "daily") "今日"
+  elif (p == "weekly") "今週"
+  elif (p == "monthly") "今月"
+  else p
 }
 
 /// 背景色付きラベルバッジ (MFM)
@@ -59,33 +62,25 @@ var firstRun = true
   else `$[fg.color={MUTED} {t}]`
 }
 
+/// 著者名を取り出す
+@authorName(a) {
+  get(get(a, "user", {}), "username", "")
+}
+
 /// 横区切り線
 @divider() {
   Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
 }
 
-@configFolder() {
-  Ui:C:folder({
-    title: "⚙️ 設定"
-    opened: false
-    children: [
-      Ui:C:textInput({
-        onInput: @(v) {
-          username = v
-          Mk:save("username", v)
-          firstRun = true
-          render()
-        }
-        default: username
-        label: "ユーザー名"
-        text: "Zenn のユーザー名 (例: catnose99)"
-      })
-    ]
+/// ヘッダー (ブランド + 期間)
+@header() {
+  Ui:C:mfm({
+    text: `<center>$[fg.color={ACCENT} **Zenn**] $[fg.color={MUTED} トレンド ・ {periodLabel(PERIOD)}]</center>`
   })
 }
 
 @fetchArticles() {
-  let url = `https://zenn.dev/api/articles?username={username}&order=latest&count={COUNT}`
+  let url = `https://zenn.dev/api/articles?order={PERIOD}&count={COUNT}`
   let res = Nd:http(url, {
     method: "GET"
     headers: {
@@ -101,25 +96,17 @@ var firstRun = true
   }
 }
 
-/// ヘッダー (ブランド + プロフィールリンク + 記事数)
-@header(count) {
-  let countLabel = if (count > 0) ` $[fg.color={MUTED} ・{count}件]` else ""
-  Ui:C:mfm({
-    text: `<center>$[fg.color={ACCENT} **Zenn**] [@{username}](https://zenn.dev/{username}){countLabel}</center>`
-  })
-}
-
-/// 1 件の記事を 2 段 (2 要素) のリスト項目にする
-/// MFM は <br> を展開しないので、行ごとに別要素へ分ける
-@articleRow(a) {
+/// 2 位以降の記事を 2 段 (2 要素) のリスト項目にする
+/// MFM は <br> を展開しないので行ごとに別要素へ、リンクは fn の外に置く
+@articleRow(a, rank) {
   let emoji = get(a, "emoji", "📄")
   let title = get(a, "title", "(無題)")
   let url = `https://zenn.dev{get(a, "path", "")}`
   let likes = fmtNum(get(a, "liked_count", 0))
-  let date = dateLabel(get(a, "published_at", ""))
+  let uname = authorName(a)
   [
-    Ui:C:mfm({ text: `{emoji} [{title}]({url})` })
-    Ui:C:mfm({ text: `　$[fg.color={LIKE} ♥{likes}] $[fg.color={MUTED} ・ {date}]` })
+    Ui:C:mfm({ text: `$[fg.color={MUTED} #{rank}] {emoji} [{title}]({url})` })
+    Ui:C:mfm({ text: `　$[fg.color={LIKE} ♥{likes}] $[fg.color={MUTED} ・ by] [@{uname}](https://zenn.dev/{uname})` })
   ]
 }
 
@@ -129,56 +116,53 @@ var firstRun = true
   // 取得失敗
   if (Core:type(get(data, "error", null)) != "null") {
     return [
-      header(0)
+      header()
       Ui:C:mfm({ text: `<center>$[fg.color=f74e52 ⚠️ {data.error}]</center>` })
-      configFolder()
     ]
   }
 
   let articles = get(data, "articles", [])
   if (Core:type(articles) != "arr" || articles.len == 0) {
     return [
-      header(0)
-      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 @{username} の記事が見つかりません]</center>` })
-      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} ユーザー名を確認してください]</center>` })
-      configFolder()
+      header()
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 トレンド記事が取得できません]</center>` })
     ]
   }
 
-  // 最新記事 (主役カード)
-  let latest = articles[0]
-  let emoji = get(latest, "emoji", "📄")
-  let title = get(latest, "title", "(無題)")
-  let url = `https://zenn.dev{get(latest, "path", "")}`
-  let likes = fmtNum(get(latest, "liked_count", 0))
-  let comments = get(latest, "comments_count", 0)
-  let date = dateLabel(get(latest, "published_at", ""))
+  // 1 位 (主役カード)
+  let head = articles[0]
+  let emoji = get(head, "emoji", "📄")
+  let title = get(head, "title", "(無題)")
+  let url = `https://zenn.dev{get(head, "path", "")}`
+  let likes = fmtNum(get(head, "liked_count", 0))
+  let comments = get(head, "comments_count", 0)
+  let uname = authorName(head)
 
   var body = [
-    header(articles.len)
+    header()
     divider()
+    Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 🥇 TREND #1]</center>` })
     Ui:C:mfm({ text: `<center>$[x2 {emoji}]</center>` })
-    Ui:C:mfm({ text: `<center>$[fg.color={MUTED} {date} 公開]　{typeBadge(get(latest, "article_type", ""))}</center>` })
     Ui:C:mfm({ text: `<center>[**{title}**]({url})</center>` })
-    Ui:C:mfm({ text: `<center>$[fg.color={LIKE} ♥ {likes}]　$[fg.color={MUTED} 💬 {comments}]</center>` })
+    Ui:C:mfm({ text: `<center>{typeBadge(get(head, "article_type", ""))}　$[fg.color={LIKE} ♥ {likes}]　$[fg.color={MUTED} 💬 {comments}]</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color={MUTED} by] [@{uname}](https://zenn.dev/{uname})</center>` })
   ]
 
-  // 履歴 (2 件目以降)
+  // 2 位以降
   if (articles.len > 1) {
     body = body.concat([
       divider()
-      Ui:C:mfm({ text: `$[fg.color={MUTED} 📚 ほかの記事]` })
+      Ui:C:mfm({ text: `$[fg.color={MUTED} 📈 ランキング]` })
     ])
     for (let i, articles.len - 1) {
-      body = body.concat(articleRow(articles[i + 1]))
+      body = body.concat(articleRow(articles[i + 1], i + 2))
     }
   }
 
-  // フッター導線 + 設定
+  // フッター導線
   body.concat([
     divider()
-    Ui:C:mfm({ text: `<center>[Zenn でもっと見る →](https://zenn.dev/{username})</center>` })
-    configFolder()
+    Ui:C:mfm({ text: `<center>[Zenn のトレンドを見る →](https://zenn.dev/)</center>` })
   ])
 }
 
@@ -187,7 +171,7 @@ var firstRun = true
     Ui:render([
       Ui:C:container({
         align: "center"
-        children: [ Ui:C:text({ text: "Zenn の記事を読み込み中… 📘" }) ]
+        children: [ Ui:C:text({ text: "Zenn のトレンドを読み込み中… 📘" }) ]
       })
     ])
   }
@@ -202,5 +186,5 @@ var firstRun = true
 }
 
 render()
-// 記事は頻繁に出ないので 5 分間隔で更新
-Async:interval(300000, render, false)
+// トレンドは頻繁に変わらないので 15 分間隔で更新
+Async:interval(900000, render, false)
