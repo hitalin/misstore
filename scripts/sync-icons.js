@@ -42,6 +42,7 @@ const ICON_MAP = {
   'widgets/steam': { pack: 'simple', name: 'steam' },
   'widgets/stocks': { pack: 'lucide', name: 'trending-up' },
   'widgets/todoist': { pack: 'simple', name: 'todoist' },
+  'widgets/wakatime': { pack: 'simple', name: 'wakatime' },
   'widgets/zenn': { pack: 'simple', name: 'zenn' },
   'skills/post-helper': { pack: 'lucide', name: 'wand-sparkles' },
   'skills/summarizer': { pack: 'lucide', name: 'align-left' },

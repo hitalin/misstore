@@ -1,0 +1,227 @@
+/// WakaTime ウィジェット
+/// 直近7日間のコーディング時間・1日平均・上位言語をバー付きで表示する
+/// 開発者向けダッシュボード。API Key は widget.is には一切書かず、
+/// Vault がサーバーサイドでクエリ (?api_key=...) に注入する。
+///
+/// ■ 事前準備
+/// 1. WakaTime の API Key を取得:
+///      https://wakatime.com/settings/api-key
+/// 2. NoteDeck の Secret Vault で接続を作成:
+///      名前        : WakaTime
+///      baseURL     : https://api.wakatime.com
+///      認証方式    : 「クエリ」を選ぶ (Bearer / ヘッダーでは 401)
+///                    パラメータ名 = api_key
+///      シークレット: WakaTime の API Key (生の値)
+///      "AI からのアクセスを許可" を ON にする
+///    → Vault が ?api_key=<Key> を各リクエストに自動付与する。
+///
+/// 対象は current (= Key の所有者) 固定なのでユーザー設定は不要。
+/// 取得は 1 本: /api/v1/users/current/stats/last_7_days。
+/// 集計中は is_up_to_date=false / HTTP 202 が返るので再取得を促す。
+/// 設計の元ネタ: hackerone (Vault) / atcoder (表示・更新ループ)。
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+/// MFM/HTML 制御文字を無害化。言語名・プロジェクト名・human_readable は
+/// 外部由来なので MFM ブレイクアウトを防ぐ。
+@sanitizeText(s) {
+  if (Core:type(s) != "str") { return "(不明)" }
+  var txt = s.replace("$[", "$ ")
+  txt = txt.replace("]", "］")
+  txt = txt.replace("[", "［")
+  txt = txt.replace("<", "＜")
+  txt = txt.replace(">", "＞")
+  txt = txt.replace("`", "｀")
+  txt = txt.replace("*", "＊")
+  txt = txt.replace("\\", "＼")
+  txt = txt.replace("://", ":／／")
+  txt
+}
+
+@truncName(s, n) {
+  let clean = sanitizeText(s)
+  if (clean.len > n) { `{clean.slice(0, n)}…` } else { clean }
+}
+
+/// percent (0-100 の float) を幅 WIDTH のブロックバーにする。
+@bar(percent) {
+  let width = 10
+  var filled = Math:round(percent / 10)
+  if (filled > width) { filled = width }
+  if (filled < 0) { filled = 0 }
+  var s = ""
+  for (let i, width) {
+    if (i < filled) { s = `{s}█` } else { s = `{s}░` }
+  }
+  s
+}
+
+// ─────────────────────────────
+// 定数
+// ─────────────────────────────
+let CONNECTION = "WakaTime"
+let MAX_LANGS = 5 // 表示する上位言語数
+
+let ACCENT = "3ea6ff" // WakaTime アクセント (青)
+let TOTAL  = "43a047" // 合計時間 (緑)
+let MUTED  = "8a919e"
+let LINE   = "5a6573"
+
+// ─────────────────────────────
+// 状態
+// ─────────────────────────────
+var result = null
+var firstRun = true
+
+// ─────────────────────────────
+// データ取得 (Key は Vault が ?api_key= に注入。headers に key は書かない)
+// ─────────────────────────────
+@vaultGet(path) {
+  Nd:call("vault.fetch", {
+    connectionRef: CONNECTION
+    path: path
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+}
+
+@errMsg(res, fallback) {
+  // 外部文字列は MFM に流さない。HTTP ステータスのみ表示。
+  `{fallback} (HTTP {res.status})`
+}
+
+@normalizeLangs(raw) {
+  if (Core:type(raw) != "arr") { return [] }
+  var items = []
+  for (let i, raw.len) {
+    let l = raw[i]
+    items.push({
+      name: get(l, "name", "?")
+      percent: get(l, "percent", 0)
+      text: get(l, "text", "")
+    })
+  }
+  items
+}
+
+@fetchData() {
+  let res = vaultGet("/api/v1/users/current/stats/last_7_days")
+
+  // 集計中 (202 Accepted)。データはまだ無いので再取得を促す。
+  if (res.status == 202) {
+    result = { calculating: true }
+    render()
+    return null
+  }
+  if (res.status != 200) {
+    result = { error: errMsg(res, "統計の取得に失敗") }
+    render()
+    return null
+  }
+
+  let data = get(Json:parse(res.body), "data", {})
+  if (Core:type(data) != "obj") {
+    result = { error: "統計データが不正です" }
+    render()
+    return null
+  }
+
+  // is_up_to_date=false は集計途中 (古い/欠損データ)。再取得を促す。
+  if (get(data, "is_up_to_date", true) == false) {
+    result = { calculating: true }
+    render()
+    return null
+  }
+
+  result = {
+    total: get(data, "human_readable_total", "0 secs")
+    totalSec: get(data, "total_seconds", 0)
+    daily: get(data, "human_readable_daily_average", "0 secs")
+    langs: normalizeLangs(get(data, "languages", []))
+  }
+  render()
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+@statsView(result) {
+  var body = [
+    Ui:C:mfm({ text: `<center>$[fg.color={ACCENT} **⏱ WakaTime**] $[fg.color={MUTED} 直近7日間]</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color={TOTAL} ⌨ {sanitizeText(result.total)}]</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📊 1日平均 {sanitizeText(result.daily)}]</center>` })
+  ]
+
+  let langs = result.langs
+  if (Core:type(langs) != "arr" || langs.len == 0) {
+    if (result.totalSec <= 0) {
+      body.push(divider())
+      body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 📭 直近7日間の記録がありません]</center>` }))
+    }
+    return body
+  }
+
+  body.push(divider())
+  body.push(Ui:C:mfm({ text: `$[fg.color={MUTED} 🗂 上位言語]` }))
+  let n = if (langs.len > MAX_LANGS) { MAX_LANGS } else { langs.len }
+  for (let i, n) {
+    let l = langs[i]
+    let pct = Math:round(l.percent)
+    // 言語名は 1 段目、バー+割合は 2 段目 (リンクラベル内 MFM ネスト不可の慣例に合わせ分割)
+    body.push(Ui:C:mfm({ text: `$[fg.color={ACCENT} ▸] {truncName(l.name, 16)} $[fg.color={MUTED} · {pct}%]` }))
+    body.push(Ui:C:mfm({ text: `　$[fg.color={ACCENT} {bar(l.percent)}]` }))
+  }
+  body
+}
+
+@render() {
+  // 初回のみ自動取得 (Vault に Key があればワンタップ不要)
+  if (firstRun && Core:type(result) == "null") {
+    Ui:render([
+      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "WakaTime を読み込み中… ⏱" }) ] })
+    ])
+    firstRun = false
+    fetchData()
+    return null
+  }
+
+  var children = []
+  if (Core:type(result) == "null") {
+    children = [ Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchData() } }) ]
+  } elif (Obj:has(result, "calculating")) {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} ⏳ WakaTime が集計中です]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 少し待ってから更新してください]</center>` })
+      Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchData() } })
+    ]
+  } elif (Obj:has(result, "error")) {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color=ea3943 ⚠️ {result.error}]</center>` })
+      Ui:C:text({ text: "Vault 接続 (WakaTime / クエリ認証 / param=api_key) と AI アクセス許可を確認してください" })
+      Ui:C:button({ text: "再試行", primary: true, onClick: @() { fetchData() } })
+    ]
+  } else {
+    children = statsView(result)
+    children.push(divider())
+    children.push(Ui:C:mfm({ text: `<center>[WakaTime を開く →](https://wakatime.com/dashboard)</center>` }))
+    children.push(Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchData() } }))
+  }
+  Ui:render([ Ui:C:container({ children: children }) ])
+}
+
+render()
+// コーディング時間は日内で緩やかに増えるので 10 分間隔で更新
+Async:interval(600000, fetchData, false)

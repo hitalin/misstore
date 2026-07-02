@@ -1,0 +1,14 @@
+{
+  "id": "wakatime",
+  "name": "WakaTime",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "WakaTime の直近7日間のコーディング時間・1日平均・上位言語をバー付きで表示。Secret Vault で API Key をクエリ認証。ユーザー設定不要 (キーの所有者が対象)",
+  "icon": "ti-clock-code",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["wakatime", "vault", "coding", "developer", "stats"]
+}
