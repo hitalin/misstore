@@ -1,0 +1,326 @@
+/// Steam ウィジェット
+/// Steam ユーザーのオンライン状態・現在プレイ中のゲーム・直近2週間の
+/// プレイ時間を表示する。Web API Key は widget.is には一切書かず、
+/// Vault がサーバーサイドでクエリ (?key=...) に注入する。
+///
+/// ■ 事前準備
+/// 1. Steam Web API Key を取得 (無料・アカウント1個):
+///      https://steamcommunity.com/dev/apikey
+///      ドメイン欄は照合されないので所有ドメイン (例: hital.in) を入れて可。
+/// 2. NoteDeck の Secret Vault で接続を作成:
+///      名前        : Steam
+///      baseURL     : https://api.steampowered.com
+///      認証方式    : 「クエリ」を選ぶ (Bearer / ヘッダーでは 403)
+///                    パラメータ名 = key
+///      シークレット: Steam Web API Key (生の値)
+///      "AI からのアクセスを許可" を ON にする
+///    → Vault が ?key=<APIKey> を各リクエストに自動付与する。
+/// 3. 設定で対象を指定: SteamID64 (17桁) か vanity 名 (例: hitalin)。
+///    ※ プレイ時間・現在ゲームは対象プロフィールが「公開」である必要あり。
+///
+/// 取得は最大3本: ResolveVanityURL (vanity のときのみ) →
+///   GetPlayerSummaries (状態・現在ゲーム) → GetRecentlyPlayedGames (直近)。
+/// 設計の元ネタ: hackerone (Vault) / atcoder (表示・設定 UI・更新ループ)。
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+@digitVal(c) {
+  if (c == "0") { 0 } elif (c == "1") { 1 } elif (c == "2") { 2 }
+  elif (c == "3") { 3 } elif (c == "4") { 4 } elif (c == "5") { 5 }
+  elif (c == "6") { 6 } elif (c == "7") { 7 } elif (c == "8") { 8 }
+  elif (c == "9") { 9 } else { -1 }
+}
+
+/// 17桁の数字のみか (= SteamID64 とみなす)
+@isSteamId64(s) {
+  if (Core:type(s) != "str" || s.len != 17) { return false }
+  var ok = true
+  for (let i, s.len) { if (digitVal(s.slice(i, i + 1)) < 0) { ok = false } }
+  ok
+}
+
+/// vanity 名として安全か (英数・アンダースコア・ハイフンのみ)。
+/// URL パス/クエリへのブレイクアウトを防ぐ。
+/// AiScript の <= / >= は数値専用なので、許可文字は集合で照合する。
+let VANITY_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-".split("")
+@isSafeVanity(s) {
+  if (Core:type(s) != "str" || s == "" || s.len > 64) { return false }
+  var ok = true
+  for (let i, s.len) {
+    if (!VANITY_CHARS.incl(s.slice(i, i + 1))) { ok = false }
+  }
+  ok
+}
+
+/// 前後の空白を除去
+@trim(s) {
+  if (Core:type(s) != "str") { return "" }
+  var a = 0
+  var b = s.len
+  loop { if (a < b && s.slice(a, a + 1) == " ") { a = a + 1 } else { break } }
+  loop { if (b > a && s.slice(b - 1, b) == " ") { b = b - 1 } else { break } }
+  s.slice(a, b)
+}
+
+/// 分 → 時間 (小数1桁の文字列)。"125" 分 → "2.1h"
+@fmtHours(min) {
+  if (Core:type(min) != "num" || min <= 0) { return "0h" }
+  let tenth = Math:round(min / 6) // 0.1 時間単位の整数
+  let h = Math:floor(tenth / 10)
+  let f = tenth % 10
+  `{h}.{f}h`
+}
+
+/// MFM/HTML 制御文字を無害化。persona 名・ゲーム名は外部由来なのでサニタイズ。
+@sanitizeText(s) {
+  if (Core:type(s) != "str") { return "(不明)" }
+  var txt = s.replace("$[", "$ ")
+  txt = txt.replace("]", "］")
+  txt = txt.replace("[", "［")
+  txt = txt.replace("<", "＜")
+  txt = txt.replace(">", "＞")
+  txt = txt.replace("`", "｀")
+  txt = txt.replace("*", "＊")
+  txt = txt.replace("\\", "＼")
+  txt = txt.replace("://", ":／／")
+  txt
+}
+
+@truncName(s, n) {
+  let clean = sanitizeText(s)
+  if (clean.len > n) { `{clean.slice(0, n)}…` } else { clean }
+}
+
+// ─────────────────────────────
+// 定数
+// ─────────────────────────────
+let CONNECTION = "Steam"
+let MAX_GAMES = 6 // 表示する直近ゲーム数
+
+let ACCENT = "66c0f4" // Steam アクセント (水色)
+let GREEN  = "90ba3c" // オンライン / プレイ中 (Steam グリーン)
+let MUTED  = "8a919e"
+let LINE   = "5a6573"
+let COL_AWAY = "e6a817" // 退席・取り込み中
+let COL_OFF  = "6a7078" // オフライン
+
+/// personastate → { label, color }。gameextrainfo があれば呼び出し側で上書き。
+@stateInfo(st) {
+  if (st == 1) { { label: "オンライン", color: GREEN } }
+  elif (st == 2) { { label: "取り込み中", color: COL_AWAY } }
+  elif (st == 3) { { label: "退席中", color: COL_AWAY } }
+  elif (st == 4) { { label: "スヌーズ", color: COL_AWAY } }
+  elif (st == 5) { { label: "トレード希望", color: GREEN } }
+  elif (st == 6) { { label: "プレイ希望", color: GREEN } }
+  else { { label: "オフライン", color: COL_OFF } }
+}
+
+// ─────────────────────────────
+// 状態
+// ─────────────────────────────
+var target = trim(dflt(Mk:load("steamTarget"), "")) // SteamID64 か vanity 名
+var steamId64 = null // 解決済みキャッシュ
+var result = null
+var firstRun = true
+
+// ─────────────────────────────
+// データ取得 (Key は Vault が ?key= に注入。headers に key は書かない)
+// ─────────────────────────────
+@vaultGet(path) {
+  Nd:call("vault.fetch", {
+    connectionRef: CONNECTION
+    path: path
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+}
+
+@errMsg(res, fallback) {
+  // 外部文字列は MFM に流さない。HTTP ステータスのみ表示。
+  `{fallback} (HTTP {res.status})`
+}
+
+/// 対象を SteamID64 に解決する。成功で id64 文字列、失敗で null。
+@resolveTarget() {
+  if (isSteamId64(target)) { return target }
+  if (!isSafeVanity(target)) { return null }
+  let res = vaultGet(`/ISteamUser/ResolveVanityURL/v1/?vanityurl={target}`)
+  if (res.status != 200) { return null }
+  let r = get(Json:parse(res.body), "response", {})
+  if (get(r, "success", 0) == 1) {
+    let id = get(r, "steamid", "")
+    if (isSteamId64(id)) { id } else { null }
+  } else {
+    null
+  }
+}
+
+/// GetPlayerSummaries → { name, state, game } (game は未プレイなら null)
+@fetchSummary(id64) {
+  let res = vaultGet(`/ISteamUser/GetPlayerSummaries/v2/?steamids={id64}`)
+  if (res.status != 200) { return { error: errMsg(res, "プロフィールの取得に失敗") } }
+  let players = get(get(Json:parse(res.body), "response", {}), "players", [])
+  if (Core:type(players) != "arr" || players.len == 0) {
+    return { error: "プロフィールが見つかりません" }
+  }
+  let p = players[0]
+  let game = get(p, "gameextrainfo", null)
+  {
+    name: get(p, "personaname", "(不明)")
+    state: get(p, "personastate", 0)
+    game: if (Core:type(game) == "str" && game != "") { game } else { null }
+    visible: get(p, "communityvisibilitystate", 0) == 3
+  }
+}
+
+/// GetRecentlyPlayedGames → [ { name, mins } ] (2週間プレイ時間の降順は API 側)
+@fetchRecent(id64) {
+  let res = vaultGet(`/IPlayerService/GetRecentlyPlayedGames/v1/?steamid={id64}&count=12`)
+  if (res.status != 200) { return [] }
+  let games = get(get(Json:parse(res.body), "response", {}), "games", [])
+  if (Core:type(games) != "arr") { return [] }
+  var items = []
+  for (let i, games.len) {
+    let g = games[i]
+    items.push({
+      name: get(g, "name", "(不明)")
+      mins: get(g, "playtime_2weeks", 0)
+    })
+  }
+  items
+}
+
+@fetchData() {
+  if (trim(target) == "") {
+    result = { error: "対象を設定してください (下の ⚙️ 設定)" }
+    render()
+    return null
+  }
+
+  // 対象を解決 (キャッシュ済みなら再利用)
+  if (Core:type(steamId64) != "str") { steamId64 = resolveTarget() }
+  if (Core:type(steamId64) != "str") {
+    result = { error: "対象を解決できません (SteamID64 か vanity 名を確認)" }
+    render()
+    return null
+  }
+
+  let sum = fetchSummary(steamId64)
+  if (Obj:has(sum, "error")) {
+    result = { error: sum.error }
+    render()
+    return null
+  }
+
+  let recent = fetchRecent(steamId64)
+  result = { summary: sum, recent: recent }
+  render()
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+@configFolder() {
+  Ui:C:folder({
+    title: "⚙️ 設定"
+    opened: false
+    children: [
+      Ui:C:textInput({
+        onInput: @(v) {
+          target = trim(v)
+          Mk:save("steamTarget", target)
+          steamId64 = null // 対象が変わったので解決キャッシュを破棄
+          firstRun = true
+          fetchData()
+        }
+        default: target
+        label: "対象"
+        text: "SteamID64 (17桁) か vanity 名 (例: hitalin)"
+      })
+    ]
+  })
+}
+
+@statusView(result) {
+  let sum = result.summary
+  let nm = truncName(sum.name, 24)
+  var body = [
+    Ui:C:mfm({ text: `<center>$[fg.color={ACCENT} **🎮 Steam**] $[fg.color={MUTED} {nm}]</center>` })
+  ]
+
+  // 現在の状態: プレイ中を最優先で強調
+  if (Core:type(sum.game) == "str") {
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={GREEN} ▶ プレイ中: {truncName(sum.game, 26)}]</center>` }))
+  } else {
+    let st = stateInfo(sum.state)
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={st.color} ● {st.label}]</center>` }))
+  }
+
+  body.push(divider())
+
+  // 直近2週間
+  let recent = result.recent
+  if (Core:type(recent) != "arr" || recent.len == 0) {
+    let msg = if (sum.visible) { "📭 直近2週間のプレイなし" } else { "🔒 プレイ履歴は非公開" }
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} {msg}]</center>` }))
+    return body
+  }
+
+  body.push(Ui:C:mfm({ text: `$[fg.color={MUTED} 🕹 直近2週間]` }))
+  let n = if (recent.len > MAX_GAMES) { MAX_GAMES } else { recent.len }
+  for (let i, n) {
+    let g = recent[i]
+    body.push(Ui:C:mfm({ text: `$[fg.color={ACCENT} ▸] {truncName(g.name, 22)} $[fg.color={MUTED} · {fmtHours(g.mins)}]` }))
+  }
+  if (recent.len > MAX_GAMES) {
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} 他 {recent.len - MAX_GAMES} 件]</center>` }))
+  }
+  body
+}
+
+@render() {
+  // 初回のみ自動取得 (Vault に Key があればワンタップ不要)
+  if (firstRun && Core:type(result) == "null") {
+    Ui:render([
+      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "Steam を読み込み中… 🎮" }) ] })
+    ])
+    firstRun = false
+    fetchData()
+    return null
+  }
+
+  var children = []
+  if (Core:type(result) == "null") {
+    children = [ Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchData() } }) ]
+  } elif (Obj:has(result, "error")) {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color=ea3943 ⚠️ {result.error}]</center>` })
+      Ui:C:text({ text: "Vault 接続 (Steam / クエリ認証 / param=key) と AI アクセス許可、対象設定を確認してください" })
+      configFolder()
+      Ui:C:button({ text: "再試行", primary: true, onClick: @() { fetchData() } })
+    ]
+  } else {
+    children = statusView(result)
+    children.push(divider())
+    children.push(configFolder())
+    children.push(Ui:C:button({ text: "更新", primary: true, onClick: @() { fetchData() } }))
+  }
+  Ui:render([ Ui:C:container({ children: children }) ])
+}
+
+render()
+// オンライン状態・現在ゲームは変動が速いので 5 分間隔で更新
+Async:interval(300000, fetchData, false)

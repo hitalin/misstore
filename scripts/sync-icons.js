@@ -39,6 +39,7 @@ const ICON_MAP = {
   'widgets/reversi-rating': { pack: 'lucide', name: 'trophy' },
   'widgets/rss-reader': { pack: 'simple', name: 'rss' },
   'widgets/server-info': { pack: 'lucide', name: 'server' },
+  'widgets/steam': { pack: 'simple', name: 'steam' },
   'widgets/stocks': { pack: 'lucide', name: 'trending-up' },
   'widgets/todoist': { pack: 'simple', name: 'todoist' },
   'widgets/zenn': { pack: 'simple', name: 'zenn' },

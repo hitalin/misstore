@@ -1,0 +1,14 @@
+{
+  "id": "steam",
+  "name": "Steam",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "Steam ユーザーのオンライン状態・現在プレイ中のゲーム・直近2週間のプレイ時間を表示。Secret Vault で Web API Key をクエリ認証。SteamID64 か vanity 名を設定",
+  "icon": "ti-brand-steam",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["steam", "vault", "gaming", "status", "profile"]
+}
