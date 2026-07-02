@@ -127,7 +127,7 @@ let COL_OFF  = "6a7078" // オフライン
 // ─────────────────────────────
 // 状態
 // ─────────────────────────────
-var target = trim(dflt(Mk:load("steamTarget"), "")) // SteamID64 か vanity 名
+var target = trim(dflt(Mk:load("steamTarget"), "hitalin")) // SteamID64 か vanity 名
 var steamId64 = null // 解決済みキャッシュ
 var result = null
 var firstRun = true
@@ -239,16 +239,20 @@ var firstRun = true
     opened: false
     children: [
       Ui:C:textInput({
+        // 入力ごとに render()/fetch すると再描画でフォーカスが飛び、1文字ずつしか
+        // 打てなくなる。ここでは値の保存のみ行い、反映は下の「適用」ボタンで明示的に。
         onInput: @(v) {
           target = trim(v)
           Mk:save("steamTarget", target)
           steamId64 = null // 対象が変わったので解決キャッシュを破棄
-          firstRun = true
-          fetchData()
         }
         default: target
         label: "対象"
-        text: "SteamID64 (17桁) か vanity 名 (例: hitalin)"
+        text: "SteamID64 (17桁) か vanity 名 (例: hitalin)。変更後は「適用」を押す"
+      })
+      Ui:C:button({
+        text: "適用して再読み込み"
+        onClick: @() { fetchData() }
       })
     ]
   })
