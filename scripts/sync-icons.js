@@ -48,6 +48,7 @@ const ICON_MAP = {
   'skills/mfm-reference': { pack: 'lucide', name: 'book-open' },
   'skills/post-helper': { pack: 'lucide', name: 'wand-sparkles' },
   'skills/summarizer': { pack: 'lucide', name: 'align-left' },
+  'skills/theme-maker': { pack: 'lucide', name: 'swatch-book' },
   'skills/translator': { pack: 'lucide', name: 'languages' },
 }
 
