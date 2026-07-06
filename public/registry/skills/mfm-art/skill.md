@@ -1,12 +1,13 @@
 ---
 id: mfm-art
 name: MFMアート
-version: 0.1.0
+version: 0.2.0
 description: テーマからMFMアートを設計・生成する職人スキル。絵文字フリート芸のようなレイヤー構図をMFMの position/scale/rotate で再現する
 author: "@hitalin"
 authorUrl: "https://github.com/hitalin"
 category: composing
-mode: manual
+mode: trigger
+triggers: [MFMアート, MFMで描いて, 絵文字アート, 絵文字で描いて, フリート芸, mfm art]
 scope: global
 tags: [mfm, art, emoji, creative]
 license: MIT
