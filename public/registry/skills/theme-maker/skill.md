@@ -1,8 +1,8 @@
 ---
 id: theme-maker
 name: テーマ職人
-version: 0.1.0
-description: 好きな色やモチーフから Misskey / NoteDeck のカラーテーマを設計・生成する職人スキル。4本柱の配色から破綻しないテーマコードに仕上げる
+version: 0.2.0
+description: 好きな色やモチーフから Misskey / NoteDeck のカラーテーマを設計・生成する職人スキル。配布実績のあるテーマ群から抽出した実勢パターンで破綻しない配色に仕上げる
 author: "@hitalin"
 authorUrl: "https://github.com/hitalin"
 category: composing
@@ -35,27 +35,51 @@ license: MIT
 ```
 
 props に書かなかったキーは base テーマ (Misskey 標準の light / dark) の既定値に
-フォールバックする。**全キーを埋める必要はない** — 柱と目立つ色だけ書き、
-残りは既定値に任せるのが軽くて壊れにくい。
+フォールバックする。**全キーを埋める必要はない** — 実際、公式配布テーマの
+大半は 20 キー未満しか書いていない。
 
 ## props の記法 (4 種類)
 
-- **リテラル**: `'#B84B59'` / `'rgba(255, 255, 255, 0.18)'`
+- **リテラル**: `'#B84B59'` / `'rgb(255, 89, 117)'` / `'rgba(255, 255, 255, 0.14)'`
 - **参照**: `'@accent'` — 他の prop の値をそのまま使う
 - **関数**: `':関数<引数<値'` — 値には参照やさらに関数をネストできる
-  - `:darken<5<@accent` / `:lighten<10<@bg` — 明度を ± (HSL の L、0〜100)
-  - `:alpha<0.3<@accent` — 不透明度を指定値に置き換え (0〜1)
-  - `:hue<20<@accent` — 色相を ± (度)
-  - `:saturate<15<@accent` — 彩度を ± (0〜100)
+  - `:alpha<0.3<@accent` — 不透明度を指定値に置き換え (0〜1)。**最頻出**
+  - `:lighten<3<@bg` / `:darken<5<@accent` — 明度を ± (HSL の L、0〜100)
+  - `:hue<20<@accent` — 色相を ± (度)。buttonGradateB の定番
+  - `:saturate<15<@accent` — 彩度を ± (実際のテーマではほぼ使われない)
   - ネスト例: `':alpha<0.5<:lighten<10<@accent'`
-- **生 CSS**: 先頭に `"` を 1 つ置く (閉じない)。
-  例: `panelBorder: '" solid 1px var(--MI_THEME-divider)'`。
-  グラデーション等 CSS をそのまま通したいときに使う
+- **生 CSS**: 先頭に `"` を 1 つ置く (閉じない)。定番はこの 1 行:
+  `panelBorder: '" solid 1px var(--MI_THEME-divider)'`
+
+## 作り込みの 3 段階 (配布実績から)
+
+配布されているテーマは書き込む props の量で 3 段階に分かれる。
+**迷ったら標準セットで作る。**
+
+- **最小 (3〜10 props)**: `accent` + `bg` + `fgOnWhite: '@accent'` だけでも
+  テーマとして成立する (公式 Mi Ice Dark は実際にこの 3 つだけ)。
+  「色だけ変えたい」という依頼はこれで十分
+- **標準 (10〜20 props)**: 公式 mi-* テーマの大半。柱 4 本 + divider +
+  投稿色 (link / renote / mention / hashtag / mentionMe) + 機能色の微調整 +
+  必要なら navBg / infoBg。**依頼の既定値はここ**
+- **フルカスタム (40+ props)**: base の既定値をほぼ書き下ろして完全制御。
+  グラデーションや透明パネルなど演出をやり込むときだけ。管理コストも上がる
+
+## 定番セット (18 テーマの実勢頻度順)
+
+ほぼ全テーマが書く順に: `bg` `accent` `fgOnWhite` `fg` `link` `renote`
+`panel` `divider` `hashtag` `mention` `mentionMe` `fgHighlighted`、
+続いて機能色 `error` `success` `warn`、雰囲気が出るなら `navBg` `infoBg`。
+
+- **`fgOnWhite: '@accent'` は全テーマ共通のイディオム**。白地カードの上の
+  文字色で、これを書かないと白地だけ既定の緑が残って浮く。必ず入れる
+- `mentionMe` (自分宛メンション) は `@mention` に流すか、
+  あえて赤系 (#de6161 / #fb5d38 など) に分離して目立たせる 2 択
 
 ## 4本柱と派生
 
 まず **accent / bg / fg / panel** の 4 つを決める。残りは `@参照` と関数で
-柱から派生させると全体に統一感が出て、後から柱を差し替えるだけで追従する:
+柱から派生させると統一感が出て、柱を差し替えるだけで全体が追従する:
 
 ```json5
 accent: '#B84B59',
@@ -68,39 +92,41 @@ buttonGradateA: '@accent',
 buttonGradateB: ':hue<20<@accent',
 ```
 
-## 主要 props (グループ別)
+alpha の実勢引数: focus は 0.3、accentedBg は 0.15、header は
+`:alpha<0.7<@panel`。この比率は公式テーマ間でほぼ共通。
 
-- **骨格**: bg, panel, panelHighlight, popup, header, windowHeader, deckBg,
-  divider, shadow, panelBorder
-- **テキスト**: fg, fgHighlighted, fgOnAccent, fgOnWhite, dateLabelFg
-- **アクセント系**: accent, accentedBg, focus, indicator, love (リアクション)
-- **ナビ**: navBg, navFg, navActive, navIndicator, pageHeaderBg, pageHeaderFg
-- **投稿まわり**: link, hashtag, mention, mentionMe, renote
-- **機能色**: success, error, warn, badge, infoBg / infoFg, infoWarnBg / infoWarnFg
-- **操作系**: buttonBg, buttonHoverBg, buttonGradateA / B,
-  switchOnBg / switchOnFg / switchOffBg / switchOffFg, inputBorder, inputBorderHover
-- **コード表示**: codeString, codeNumber, codeBoolean
-- **その他**: modalBg, messageBg, scrollbarHandle (+Hover),
-  folderHeaderBg (+HoverBg), htmlThemeColor (通常 `'@bg'`)
+## 投稿色の 2 流派
 
-## 配色の定石 (職人知)
+- **accent 統一派**: `renote` `link` `mention` `hashtag` を全部 `'@accent'` に
+  流す (Mi Cherry Dark 方式)。手軽で統一感が強い。モチーフ色を全面に
+  出したいときはこれ
+- **役割分離派**: hashtag に水色系、link に別色相、mentionMe に警告色寄りを
+  割り、TL の情報の種類が色で見分けられるようにする (Mi Persimmon /
+  Mi Astro 方式)。実用重視・長時間閲覧向け
+
+どちらでも `hashtag` だけは accent と離すテーマが多い (全統一だと
+タグがリンクと区別できない)。
+
+## 配色の定石 (実測値つき)
 
 - **base の選択**: 主役の色が映える側に。深い色・ネオン系 → dark、
   パステル・白基調 → light
-- **明度の階段**: dark は bg → panel → popup を数 % ずつ持ち上げる
-  (`:lighten<3<@bg` の連鎖)。light は panel を白に近く、bg をわずかにグレーへ
-- **真っ黒を避ける**: `#000` は OLED 狙い以外では `#101018` 程度に持ち上げ、
-  テーマの色相をほんのり混ぜると「そのテーマの夜」になる
-- **コントラスト**: fg と bg / panel は 4.5:1 を目安に。fgOnAccent は accent の
-  明度で白か黒を選ぶ (中明度の accent に白文字は読めない)
-- **機能色は色相を守る**: error は赤系、warn は黄系、success は緑系のまま。
-  テーマに寄せるのは彩度・明度の微調整までにしないと意味が伝わらなくなる
-- **link / hashtag / renote は accent と離す**: 全部同系色にすると
-  「押せるもの」の区別がつかなくなる。色相を変えるか明度差をつける
-- **透明度で馴染ませる**: divider, focus, accentedBg, modalBg は
-  ベタ塗りより `:alpha<` で作ると背景の上で自然に混ざる
-- キャラクターや作品モチーフは「メインカラー → accent、背景の雰囲気 → bg、
-  差し色 → link / renote / badge」に割り振ると原作感が出る
+- **dark の bg**: 配布テーマに真っ黒 `#000` は皆無。実勢は `#0C1210`〜`#232526`
+  で、テーマの色相をほんのり混ぜる (#172426 = 緑がかった夜、#161426 = 紫の夜)
+- **panel**: `:lighten<3<@bg` か、bg より明度 +5〜12 のベタ色。
+  light では panel = `#fff` 付近、bg をわずかに色付きグレー
+  (#f0eee9 / #fafafa / #e6e5e2) に落とすのが公式の型
+- **light の fg**: 真っ黒でなく `#444`〜`#5f5f5f`。dark の fg は白に
+  ごくわずか色味を混ぜると馴染む (#efdab9 = 琥珀の紙、#cdd8c7 = 緑白)
+- **divider**: dark = `rgba(255,255,255, 0.1〜0.14)`、
+  light = `rgba(0,0,0, 0.08〜0.1)`。ベタ色でもよいが alpha が馴染む
+- **機能色は色相を守る**: error 赤系 / warn 黄系 / success 緑系のまま、
+  彩度・明度だけテーマに寄せる (Persimmon は error #ce5441 と
+  柿色 accent を同系に寄せつつ赤と分かる範囲に留める)
+- **fgOnAccent**: accent が中明度なら白文字が読めるか確認。
+  淡い accent なら `#333` 系に
+- **X2〜X17 は Misskey 内部の派生変数**。通常は書かず base に任せる。
+  フルカスタムで透明度演出を制御したいときだけ触る
 
 ## NoteDeck での流れ
 
@@ -122,13 +148,14 @@ Misskey WebUI の 設定 → テーマ → テーマのインストール に貼
 ## セルフチェック
 
 - id は新規 UUID v4 か / base は `light` か `dark` か
+- `fgOnWhite` を書いたか (書き忘れ最頻)
 - `@参照` のタイポがないか (存在しない prop を参照すると空になり壊れる)
 - 関数は `:関数<引数<値` の形か (`<` 区切り・閉じ括弧なし)
 - fg × bg / panel、fgOnAccent × accent のコントラストは足りるか
 - 機能色 (error / warn / success) がひと目でそれと分かるか
 - 「light も dark も欲しい」と言われたら base 違いの **2 テーマ** に分けて作る
 
-## 作例: 夜霧のラベンダー (dark)
+## 作例: 夜霧のラベンダー (dark・標準セット)
 
 ```json5
 {
@@ -140,17 +167,17 @@ Misskey WebUI の 設定 → テーマ → テーマのインストール に貼
   props: {
     accent: '#9d7bd8',
     bg: '#14121e',
-    fg: 'rgba(235, 232, 245, 0.92)',
+    fg: '#e8e4f0',
+    fgHighlighted: ':lighten<3<@fg',
+    fgOnWhite: '@accent',
     panel: ':lighten<3<@bg',
-    popup: ':lighten<5<@bg',
-    divider: 'rgba(157, 123, 216, 0.15)',
-    accentedBg: ':alpha<0.15<@accent',
+    divider: 'rgba(157, 123, 216, 0.14)',
     focus: ':alpha<0.3<@accent',
-    fgOnAccent: '#fff',
     link: '#7bb8d8',
-    hashtag: '#d8a97b',
     renote: '#7bd8a9',
     mention: '@accent',
+    mentionMe: '#d87b8f',
+    hashtag: '#d8a97b',
     buttonGradateA: '@accent',
     buttonGradateB: ':hue<25<@accent',
     htmlThemeColor: '@bg',
@@ -158,5 +185,6 @@ Misskey WebUI の 設定 → テーマ → テーマのインストール に貼
 }
 ```
 
-柱 4 つ + 目立つ色だけを書き、残りは base に任せた最小構成。link / hashtag /
-renote は accent (紫) から色相を離して役割が見分けられるようにしている。
+役割分離派の標準セット構成。bg は真っ黒でなく紫がかった夜 (#14121e)、
+divider は accent の alpha 落としで霧の質感、link / renote / hashtag は
+accent (紫) から色相を離して情報の種類が見分けられるようにしている。
