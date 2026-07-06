@@ -44,6 +44,7 @@ const ICON_MAP = {
   'widgets/todoist': { pack: 'simple', name: 'todoist' },
   'widgets/wakatime': { pack: 'simple', name: 'wakatime' },
   'widgets/zenn': { pack: 'simple', name: 'zenn' },
+  'skills/mfm-art': { pack: 'lucide', name: 'palette' },
   'skills/post-helper': { pack: 'lucide', name: 'wand-sparkles' },
   'skills/summarizer': { pack: 'lucide', name: 'align-left' },
   'skills/translator': { pack: 'lucide', name: 'languages' },
