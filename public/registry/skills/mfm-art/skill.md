@@ -1,7 +1,7 @@
 ---
 id: mfm-art
 name: MFMアート
-version: 0.3.0
+version: 0.3.1
 description: テーマからMFMアートを設計・生成する職人スキル。絵文字フリート芸のようなレイヤー構図をMFMの position/scale/rotate で再現する
 author: "@hitalin"
 authorUrl: "https://github.com/hitalin"
@@ -54,6 +54,9 @@ license: MIT
 
 関数はネスト可能: `$[position.y=-1 $[x2 $[rotate.deg=20 🚀]]]`
 (パーサーの上限は 20 段だが、読める作品は 5 段程度に収まる)
+
+ここに挙げたのはアートで使う要点だけ。全構文の網羅版は別スキル
+「MFM文法リファレンス」(mfm-reference) が持つ。単なる書き方の質問はそちらの領分
 
 ## アートの定石
 
