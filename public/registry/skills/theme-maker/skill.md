@@ -1,7 +1,7 @@
 ---
 id: theme-maker
 name: テーマ職人
-version: 0.2.0
+version: 0.3.0
 description: 好きな色やモチーフから Misskey / NoteDeck のカラーテーマを設計・生成する職人スキル。配布実績のあるテーマ群から抽出した実勢パターンで破綻しない配色に仕上げる
 author: "@hitalin"
 authorUrl: "https://github.com/hitalin"
@@ -19,37 +19,20 @@ license: MIT
 イメージ (好きな色・キャラクター・季節・ゲーム・「目に優しく」のような雰囲気)
 を、そのままインストールできる 1 つのテーマに落とし込みます。
 
-## テーマの構造
+## 形式の要点
 
-テーマは 1 つの JSON5 オブジェクト:
+テーマは `{ id, name, base, desc, author, props }` の JSON5 オブジェクト。
+id は新規 UUID v4、base は `'light'` か `'dark'`。props に書かなかったキーは
+base テーマの既定値にフォールバックするので、**全キーを埋める必要はない**。
 
-```json5
-{
-  id: '(新規生成した UUID v4)',
-  name: 'テーマ名',
-  base: 'dark',        // 'light' か 'dark'
-  desc: '一言説明',
-  author: '@ユーザー名@サーバー',
-  props: { /* 色定義 */ },
-}
-```
+props の値は 4 記法: リテラル (`'#B84B59'`) / 参照 (`'@accent'`) /
+関数 (`':alpha<0.3<@accent'` — alpha・lighten・darken・hue・saturate、
+ネスト可) / 生 CSS (先頭 `"`、定番は
+`panelBorder: '" solid 1px var(--MI_THEME-divider)'`)。
 
-props に書かなかったキーは base テーマ (Misskey 標準の light / dark) の既定値に
-フォールバックする。**全キーを埋める必要はない** — 実際、公式配布テーマの
-大半は 20 キー未満しか書いていない。
-
-## props の記法 (4 種類)
-
-- **リテラル**: `'#B84B59'` / `'rgb(255, 89, 117)'` / `'rgba(255, 255, 255, 0.14)'`
-- **参照**: `'@accent'` — 他の prop の値をそのまま使う
-- **関数**: `':関数<引数<値'` — 値には参照やさらに関数をネストできる
-  - `:alpha<0.3<@accent` — 不透明度を指定値に置き換え (0〜1)。**最頻出**
-  - `:lighten<3<@bg` / `:darken<5<@accent` — 明度を ± (HSL の L、0〜100)
-  - `:hue<20<@accent` — 色相を ± (度)。buttonGradateB の定番
-  - `:saturate<15<@accent` — 彩度を ± (実際のテーマではほぼ使われない)
-  - ネスト例: `':alpha<0.5<:lighten<10<@accent'`
-- **生 CSS**: 先頭に `"` を 1 つ置く (閉じない)。定番はこの 1 行:
-  `panelBorder: '" solid 1px var(--MI_THEME-divider)'`
+ここに挙げたのは制作で使う要点だけ。記法の正確な仕様と全 props の意味は
+別スキル「テーマ文法リファレンス」(theme-reference) が持つ。
+「この prop はどこに効く?」のような質問はそちらの領分。
 
 ## 作り込みの 3 段階 (配布実績から)
 
@@ -127,6 +110,8 @@ alpha の実勢引数: focus は 0.3、accentedBg は 0.15、header は
   淡い accent なら `#333` 系に
 - **X2〜X17 は Misskey 内部の派生変数**。通常は書かず base に任せる。
   フルカスタムで透明度演出を制御したいときだけ触る
+- キャラクターや作品モチーフは「メインカラー → accent、背景の雰囲気 → bg、
+  差し色 → link / renote / badge」に割り振ると原作感が出る
 
 ## NoteDeck での流れ
 
