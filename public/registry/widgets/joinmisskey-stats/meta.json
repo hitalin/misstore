@@ -1,0 +1,14 @@
+{
+  "id": "joinmisskey-stats",
+  "name": "連合統計",
+  "version": "1.2.1",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "joinmisskey のデータで Misskey 連合の統計・ランキング (総合/アクティブ切替)・自サーバーの順位とバージョン状態を表示。当日キャッシュで軽量",
+  "icon": "ti-planet",
+  "autoRun": true,
+  "category": "stats",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["fediverse", "federation", "misskey", "joinmisskey", "stats"]
+}

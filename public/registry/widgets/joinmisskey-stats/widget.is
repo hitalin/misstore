@@ -1,0 +1,346 @@
+/// 連合統計ウィジェット
+/// joinmisskey (instanceapp.misskey.page) のサーバー一覧データで
+/// Misskey 連合全体の統計・サーバーランキング・自サーバーの状態を表示。
+///
+/// 実装メモ:
+/// - instancesInfos は総合スコア (value) 降順ソート済み → 総合ランキングは先頭を取るだけ
+/// - アクティブ top5 と自サーバー順位は 1 回の線形走査 (910件) で同時に計算 (~16k steps)。
+///   AiScript のフルソートは maxStep 予算 (生涯累積 100k) 的に不可
+/// - データは日次更新なので Mk:save に当日分をキャッシュし、再起動時は 5.7MB の再取得を省く。
+///   フル再構築は 1 セッションあたり ~6 回が予算上限 (🔄 の連打はしない想定)
+
+let API_URL = "https://instanceapp.misskey.page/instances.json"
+let KEY = "joinmisskey-stats:v2"
+let TOP_N = 5
+let BARS = ["▱▱▱▱▱▱", "▰▱▱▱▱▱", "▰▰▱▱▱▱", "▰▰▰▱▱▱", "▰▰▰▰▱▱", "▰▰▰▰▰▱", "▰▰▰▰▰▰"]
+
+// カラーパレット (crypto / misskey-online と同系統)
+let COL_ACCENT = "86b300"  // Misskey 緑 (バー・自サーバー名)
+let COL_UP = "16c784"      // 上昇トレンド
+let COL_DOWN = "ea3943"    // 下降トレンド・エラー
+let COL_WARN = "e69500"    // 要更新バッジ背景 (橙)
+let COL_BADGE_T = "0b0d12" // バッジ文字 (濃色・背景とのコントラスト用)
+let COL_DIM = "9aa4b0"     // ラベル・補助
+let COL_SUB = "6b7480"     // フッター・更新日
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+/// 数値を日本語の桁表記に (1860726 -> 186.1万, 413774654 -> 41.4億)
+@fmtNum(n) {
+  if (Core:type(n) != "num") { "?" }
+  elif (n >= 100000000) { `{Math:round(n / 10000000) / 10}億` }
+  elif (n >= 10000) { `{Math:round(n / 1000) / 10}万` }
+  else { `{Math:round(n)}` }
+}
+
+/// リンクラベル内の ] はリンクを壊すので全角へ
+@safeLabel(s) {
+  if (Core:type(s) != "str") { "?" }
+  else { s.replace("[", "［").replace("]", "］") }
+}
+
+@trunc(s, n) {
+  if (s.len > n) `{s.slice(0, n)}…` else s
+}
+
+@usersOf(inst) {
+  get(get(get(get(inst, "nodeinfo", {}), "usage", {}), "users", {}), "total", null)
+}
+
+@medal(i) {
+  if (i == 0) "🥇" elif (i == 1) "🥈" elif (i == 2) "🥉" else `{i + 1}.`
+}
+
+/// ピル型バッジ (背景色 + 前景濃色)
+@badge(bg, label) {
+  `$[bg.color={bg} $[fg.color={COL_BADGE_T}  {label} ]]`
+}
+
+/// v/max を 6 段階のバーに (文字列はプリビルトなのでループなし)。
+/// 1 位が突出していると 2 位以下が全部空になるので √ スケール + 最低 1 目盛り
+@bar(v, max) {
+  if (Core:type(v) != "num" || Core:type(max) != "num" || max <= 0) {
+    BARS[0]
+  } else {
+    var idx = Math:round(Math:sqrt(v / max) * 6)
+    if (idx < 1 && v > 0) { idx = 1 }
+    if (idx < 0) { idx = 0 }
+    if (idx > 6) { idx = 6 }
+    BARS[idx]
+  }
+}
+
+/// 昨日のアクティブ数と 15 日平均の差をトレンド表示に
+@trendLabel(dy, avg) {
+  if (Core:type(dy) != "num" || Core:type(avg) != "num" || avg <= 0) {
+    ""
+  } else {
+    let pct = Math:round((dy - avg) / avg * 100)
+    if (pct >= 3) { `$[fg.color={COL_UP} ▲{pct}%]` }
+    elif (pct <= -3) { `$[fg.color={COL_DOWN} ▼{Math:abs(pct)}%]` }
+    elif (pct >= 0) { `$[fg.color={COL_DIM} +{pct}%]` }
+    else { `$[fg.color={COL_DIM} -{Math:abs(pct)}%]` }
+  }
+}
+
+/// 降順 top5 リストへの挿入 (要素は {i, dru})
+@insTop(arr, item) {
+  var res = []
+  var placed = false
+  each (let t, arr) {
+    if (!placed && item.dru > t.dru) {
+      res.push(item)
+      placed = true
+    }
+    res.push(t)
+  }
+  if (!placed) { res.push(item) }
+  if (res.len > TOP_N) res.slice(0, TOP_N) else res
+}
+
+@todayStr() {
+  let n = Date:now()
+  `{Date:year(n)}-{Date:month(n)}-{Date:day(n)}`
+}
+
+/// ランキング 1 行: メダル + サーバー名リンク + バーと数値
+@rankRow(rank, inst, barStr, numLabel) {
+  `{medal(rank)} [{trunc(safeLabel(dflt(inst.name, inst.url)), 11)}](https://{inst.url}) <small>$[fg.color={COL_ACCENT} {barStr}] $[fg.color={COL_DIM} {numLabel}]</small>`
+}
+
+/// 取得データから表示用モデル (文字列のみ) を構築。Mk:save でそのままキャッシュできる
+@buildModel(data, host) {
+  let st = data.stats
+  let infos = data.instancesInfos
+  let total = infos.len
+
+  // 1 回の走査でアクティブ top5 と自サーバー位置を同時に取る。
+  // 5 位の値を minDru に持ち、per-iter の比較を 1 回に抑える (910 件 × 毎回 len/index 参照は steps が嵩む)
+  var topA = []
+  var minDru = -1
+  var myIdx = -1
+  var i = 0
+  each (let inst, infos) {
+    if (inst.dru15 > minDru) {
+      topA = insTop(topA, { i: i, dru: inst.dru15 })
+      if (topA.len >= TOP_N) {
+        minDru = topA[topA.len - 1].dru
+      }
+    }
+    if (myIdx < 0 && inst.url == host) {
+      myIdx = i
+    }
+    i += 1
+  }
+
+  // ヘッダー: タイトル行にデータ更新日を統合 (crypto の流儀)
+  var dateLabel = ""
+  let ts = Date:parse(get(data, "date", ""))
+  if (Core:type(ts) == "num") {
+    dateLabel = `　$[fg.color={COL_DIM} {Date:month(ts)}/{Date:day(ts)}]`
+  }
+  var header = [
+    `<center>🌌 **Misskey 連合**{dateLabel}</center>`
+    `<center>サーバー **{fmtNum(st.instancesCount)}** ・ ユーザー **{fmtNum(st.usersCount)}**</center>`
+  ]
+  var actLine = `ノート {fmtNum(st.notesCount)} ・ アクティブ {fmtNum(st.dru15)}/日`
+  let gtl = trendLabel(st.druYesterday, st.dru15)
+  if (gtl != "") {
+    actLine = `{actLine} {gtl}`
+  }
+  header.push(`<center><small>$[fg.color={COL_DIM} {actLine}]</small></center>`)
+
+  // 総合ランキング (value 順 = 配列順)。バーと数値はユーザー数
+  let cnt = if (total < TOP_N) total else TOP_N
+  var users5 = []
+  var maxUsers = 0
+  for (let j, cnt) {
+    let u = usersOf(infos[j])
+    users5.push(u)
+    if (Core:type(u) == "num" && u > maxUsers) {
+      maxUsers = u
+    }
+  }
+  var scoreRows = []
+  for (let j, cnt) {
+    scoreRows.push(rankRow(j, infos[j], bar(users5[j], maxUsers), `{fmtNum(users5[j])}人`))
+  }
+
+  // アクティブランキング。バーと数値は dru15 (日次アクティブユーザーの 15 日平均)
+  var activeRows = []
+  let maxDru = if (topA.len > 0) topA[0].dru else 0
+  var k = 0
+  each (let t, topA) {
+    activeRows.push(rankRow(k, infos[t.i], bar(t.dru, maxDru), `{fmtNum(t.dru)}/日`))
+    k += 1
+  }
+
+  // 自サーバーカード
+  var mine = []
+  if (host != "") {
+    if (myIdx >= 0) {
+      let m = infos[myIdx]
+      mine.push(`📍 $[fg.color={COL_ACCENT} **{trunc(safeLabel(dflt(m.name, host)), 14)}**] <small>$[fg.color={COL_DIM} #{myIdx + 1} / {total}]</small>`)
+      var l2 = `アクティブ {fmtNum(m.dru15)}/日 ・ {fmtNum(usersOf(m))}人`
+      let mtl = trendLabel(m.druYesterday, m.dru15)
+      if (mtl != "") {
+        l2 = `$[fg.color={COL_DIM} {l2}] {mtl}`
+      } else {
+        l2 = `$[fg.color={COL_DIM} {l2}]`
+      }
+      mine.push(`<small>{l2}</small>`)
+      // バージョンと最新安定版チェック (フォークは "2026.6.0-yami-…" 形式なので前方一致で判定)
+      let soft = get(get(m, "nodeinfo", {}), "software", {})
+      let sname = get(soft, "name", "?")
+      let ver = get(soft, "version", "?")
+      var vline = `$[fg.color={COL_DIM} {sname} v{trunc(ver, 20)}]`
+      let latest = get(data, "latestMisskeyStableVersion", "")
+      if (latest != "" && Core:type(ver) == "str") {
+        if (ver.index_of(latest) == 0) {
+          vline = `{vline} {badge(COL_ACCENT, "✓ 最新")}`
+        } elif (sname == "misskey") {
+          vline = `{vline} {badge(COL_WARN, `⚠ {latest}`)}`
+        }
+      }
+      mine.push(`<small>{vline}</small>`)
+    } else {
+      mine.push(`<small>$[fg.color={COL_DIM} 📍 {host} は joinmisskey 未掲載]</small>`)
+    }
+  }
+
+  {
+    day: todayStr()
+    host: host
+    header: header
+    scoreRows: scoreRows
+    activeRows: activeRows
+    mine: mine
+  }
+}
+
+// ---- ここから UI 層 (ハーネス検証はこの行より上の純粋関数のみ) ----
+
+@myHost() {
+  if (exists SERVER_URL && Core:type(SERVER_URL) == "str" && SERVER_URL != "") {
+    SERVER_URL.replace("https://", "").replace("http://", "").replace("/", "")
+  } else {
+    null
+  }
+}
+
+@fetchInstances() {
+  let res = Nd:http(API_URL, {
+    method: "GET"
+    headers: { "Accept": "application/json", "Accept-Encoding": "identity" }
+    timeoutMs: 60000
+  })
+  if (res.status != 200) { return null }
+  let data = Json:parse(res.body)
+  if (Core:type(data) != "obj") null else data
+}
+
+var hostG = ""
+var model = null
+var mode = "active"
+
+@saveModel() {
+  model.mode = mode
+  Mk:save(KEY, model)
+}
+
+@loadRemote() {
+  let data = fetchInstances()
+  if (Core:type(data) != "null") {
+    model = buildModel(data, hostG)
+    saveModel()
+  }
+}
+
+@renderLoading() {
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      children: [Ui:C:text({ text: "連合データを取得中… 🌌" })]
+    })
+  ])
+}
+
+@renderError() {
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      children: [
+        Ui:C:mfm({ text: `<center>$[fg.color={COL_DOWN} ⚠️ 連合データを取得できません]</center>` })
+        Ui:C:button({ text: "🔄 再試行", rounded: true, onClick: @() { refresh() } })
+      ]
+    })
+  ])
+}
+
+@uiRender() {
+  var body = []
+  each (let l, model.header) {
+    body.push(Ui:C:mfm({ text: l }))
+  }
+  body.push(Ui:C:select({
+    items: [
+      { text: "🔥 アクティブ (人/日)", value: "active" }
+      { text: "🏆 総合ランキング", value: "score" }
+    ]
+    default: mode
+    onChange: @(v) {
+      mode = v
+      saveModel()
+      uiRender()
+    }
+  }))
+  let rows = if (mode == "active") model.activeRows else model.scoreRows
+  each (let r, rows) {
+    body.push(Ui:C:mfm({ text: r }))
+  }
+  each (let l, model.mine) {
+    body.push(Ui:C:mfm({ text: l }))
+  }
+  body.push(Ui:C:mfm({ text: `<center><small>$[fg.color={COL_SUB} データ: joinmisskey]</small></center>` }))
+  body.push(Ui:C:button({ text: "🔄 更新", rounded: true, onClick: @() { refresh() } }))
+  Ui:render([
+    Ui:C:container({
+      children: body
+    })
+  ])
+}
+
+@refresh() {
+  // 表示があるうちはローディングに切り替えず、取得失敗時も前回表示を維持する
+  // (チラつき防止。crypto / misskey-online と同じ流儀)
+  if (model == null) { renderLoading() }
+  loadRemote()
+  if (model == null) { renderError() } else { uiRender() }
+}
+
+// ─────────────────────────────
+// 起動: 当日キャッシュがあれば 5.7MB の再取得をスキップ
+// ─────────────────────────────
+let h = myHost()
+if (h != null) {
+  hostG = h
+}
+let cached = Mk:load(KEY)
+if (Core:type(cached) == "obj" && cached.day == todayStr() && cached.host == hostG) {
+  model = cached
+  if (Core:type(cached.mode) == "str") {
+    mode = cached.mode
+  }
+  uiRender()
+} else {
+  refresh()
+}
