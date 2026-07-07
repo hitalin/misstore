@@ -1,0 +1,14 @@
+{
+  "id": "ink-new-servers",
+  "name": "新着サーバー",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "servers.misskey.ink の API で最近誕生した Misskey サーバーを表示。発見日・ユーザー数・登録受付状態つき (日本語/全言語切替)",
+  "icon": "ti-seedling",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["misskey", "servers", "new", "discovery", "fediverse"]
+}
