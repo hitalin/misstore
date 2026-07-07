@@ -1,0 +1,202 @@
+/// ミス廃スコアウィジェット
+/// Misskey Tools (misshaialert) の「ミス廃データ」「ミス廃アラート」を移植。
+/// - ミス廃レート = ノート数 ÷ (アカウント作成からの経過日数 + 1)  …本家 update-rating.ts 準拠
+/// - 前日比 = 日付が変わって最初の実行時のスナップショットとの差分
+///   (本家は毎日0時に prev カウントを更新する。Mk:save で同じ仕組みを再現)
+/// - アラート文面は本家デフォルトテンプレート準拠 (「フォロー : 」等のスペースの癖も忠実に)
+/// NoteDeck ではログイン中アカウントで Mk:api が実行されるため、アクセストークンの設定は不要。
+/// UI の様式 (色定数 / divider / ヒーロー数値 / 最終更新フッター) は mewk ウィジェットを踏襲。
+
+let LF = Str:lf
+let STORE_URL = "https://misstore.hital.in/widgets/misuhai-score"
+let DAY_MS = 86400000
+
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let GOLD = "ffb300"
+let GREEN = "3dd68c"
+let RED = "ff6961"
+let ALERT = "f43f5e"
+
+var result = null
+var firstRun = true
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@pad(n) { if (n < 10) `0{n}` else `{n}` }
+
+/// エポック (Date:now) → "HH:MM"
+@timeLabel(t) {
+  `{pad(Date:hour(t))}:{pad(Date:minute(t))}`
+}
+
+// 本家 to-signed-string.ts: 0 以上は "+" を付ける
+@signed(n) {
+  if n < 0 { return `{n}` }
+  `+{n}`
+}
+
+@todayStr() {
+  let now = Date:now()
+  `{Date:year(now)}-{Date:month(now)}-{Date:day(now)}`
+}
+
+// 前日比の MFM 装飾: 増加は緑、減少は赤、±0 と未集計は控えめに
+@deltaMfm(d) {
+  if d == "—" { return `$[fg.color={MUTED} —]` }
+  if d.slice(0, 1) == "-" { return `$[fg.color={RED} **{d}**]` }
+  if d == "+0" { return `$[fg.color={MUTED} +0]` }
+  `$[fg.color={GREEN} **{d}**]`
+}
+
+@divider() {
+  Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+}
+
+// ─────────────────────────────
+// データ取得
+// ─────────────────────────────
+@fetchData() {
+  let me = Mk:api("i", {})
+  if me == null || Core:type(me) != "obj" {
+    result = { error: "ユーザー情報を取得できませんでした" }
+    render()
+    return null
+  }
+
+  // --- 前日比 (本家: 0時に保存した prev カウントとの差分) ---
+  let storageKey = `misshai-baseline:{me.id}`
+  let today = todayStr()
+  var base = null
+  let saved = Mk:load(storageKey)
+  if saved != null && Core:type(saved) == "obj" { base = saved }
+
+  var notesDelta = "—"
+  var followingDelta = "—"
+  var followersDelta = "—"
+  if base != null {
+    notesDelta = signed(me.notesCount - base.notesCount)
+    followingDelta = signed(me.followingCount - base.followingCount)
+    followersDelta = signed(me.followersCount - base.followersCount)
+  }
+  // 日付が変わっていたら (または初回なら) スナップショットを更新
+  if base == null || base.day != today {
+    Mk:save(storageKey, {
+      day: today
+      notesCount: me.notesCount
+      followingCount: me.followingCount
+      followersCount: me.followersCount
+    })
+  }
+
+  // --- ミス廃レート (本家: notesCount / (経過日数 + 1)) ---
+  var rateText = "?"
+  var rateNote = "アカウント作成日を取得できませんでした"
+  if me.createdAt != null && Core:type(me.createdAt) == "str" {
+    // Date:parse は失敗時に error 型の値を返す (NaN ではない) ので型でガードする
+    let created = Date:parse(me.createdAt)
+    if Core:type(created) == "num" {
+      var elapsedDays = Math:floor((Date:now() - created) / DAY_MS) + 1
+      if elapsedDays < 1 { elapsedDays = 1 }
+      let rate = Math:round((me.notesCount / elapsedDays) * 100) / 100
+      rateText = `{rate}`
+      rateNote = `ノート {me.notesCount} ÷ 登録から {elapsedDays}日`
+    }
+  }
+
+  // --- アラート文面 (本家デフォルトテンプレート + #misshaialert) ---
+  let postText = `昨日のMisskeyの活動は{LF}{LF}ノート: {me.notesCount}({notesDelta}){LF}フォロー : {me.followingCount}({followingDelta}){LF}フォロワー :{me.followersCount}({followersDelta}){LF}{LF}でした。{LF}{STORE_URL}{LF}{LF}#ミス廃アラート`
+
+  result = {
+    notesCount: me.notesCount
+    followingCount: me.followingCount
+    followersCount: me.followersCount
+    notesDelta: notesDelta
+    followingDelta: followingDelta
+    followersDelta: followersDelta
+    rateText: rateText
+    rateNote: rateNote
+    isFirstDay: base == null
+    postText: postText
+    fetchedAt: Date:now()
+  }
+  render()
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+@dataView(d) {
+  var body = []
+
+  // ミス廃レートが主役 (本家ランキングの見出し数値)
+  body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>⚡ ミス廃レート</small>]</center>` }))
+  body.push(Ui:C:mfm({ text: `<center>$[x2 $[fg.color={GOLD} **{d.rateText}**]]</center>` }))
+  body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>{d.rateNote}</small>]</center>` }))
+
+  body.push(divider())
+
+  // 本家「ミス廃データ」テーブル: スコアと前日比
+  let notesRow = `📝 $[fg.color={MUTED} ノート　　] **{d.notesCount}**　{deltaMfm(d.notesDelta)}`
+  let followingRow = `➕ $[fg.color={MUTED} フォロー　] **{d.followingCount}**　{deltaMfm(d.followingDelta)}`
+  let followersRow = `👥 $[fg.color={MUTED} フォロワー] **{d.followersCount}**　{deltaMfm(d.followersDelta)}`
+  body.push(Ui:C:container({
+    align: "left"
+    children: [
+      Ui:C:mfm({ text: notesRow })
+      Ui:C:mfm({ text: followingRow })
+      Ui:C:mfm({ text: followersRow })
+    ]
+  }))
+  if d.isFirstDay {
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>前日比は明日から表示されます</small>]</center>` }))
+  }
+
+  body
+}
+
+@render() {
+  // 初回のみ自動取得
+  if firstRun && Core:type(result) == "null" {
+    Ui:render([
+      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "ミス廃データを読み込み中… 📊" }) ] })
+    ])
+    firstRun = false
+    fetchData()
+    return null
+  }
+
+  var children = []
+  if Core:type(result) == "null" {
+    children = [
+      Ui:C:container({ align: "center", children: [
+        Ui:C:button({ text: "🔄 更新", primary: true, rounded: true, onClick: @() { fetchData() } })
+      ] })
+    ]
+  } elif Obj:has(result, "error") {
+    children = [
+      Ui:C:mfm({ text: `<center>$[fg.color={ALERT} ⚠️ {result.error}]</center>` })
+      Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>カラムにアカウントが紐づいているか確認してください</small>]</center>` })
+      Ui:C:container({ align: "center", children: [
+        Ui:C:button({ text: "再試行", primary: true, rounded: true, onClick: @() { fetchData() } })
+      ] })
+    ]
+  } else {
+    children = dataView(result)
+    children.push(divider())
+    children.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>最終更新 {timeLabel(result.fetchedAt)}</small>]</center>` }))
+    children.push(Ui:C:container({ align: "center", children: [
+      Ui:C:postFormButton({
+        text: "📮 アラートを送信"
+        rounded: true
+        primary: true
+        form: { text: result.postText }
+      })
+      Ui:C:button({ text: "🔄 更新", rounded: true, onClick: @() { fetchData() } })
+    ] }))
+  }
+  Ui:render([ Ui:C:container({ align: "center", padding: 10, children: children }) ])
+}
+
+render()
