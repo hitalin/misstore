@@ -31,6 +31,8 @@ const ICON_MAP = {
   'widgets/mewk': { pack: 'lucide', name: 'cat' },
   'widgets/minecraft': { pack: 'lucide', name: 'box' },
   'widgets/misskey-online': { pack: 'simple', name: 'misskey' },
+  // 本家 misskey-tools のミス廃アラートは fa-tower-broadcast
+  'widgets/misuhai-score': { pack: 'lucide', name: 'radio-tower' },
   'widgets/online-users': { pack: 'lucide', name: 'users' },
   'widgets/poll': { pack: 'lucide', name: 'vote' },
   'widgets/post-form': { pack: 'lucide', name: 'square-pen' },

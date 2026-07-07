@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "@hitalin",
   "description": "Misskey Tools (misshaialert) のミス廃データ・ミス廃レート・ミス廃アラートを再現。ノート/フォロー/フォロワーの前日比とレートを表示し、本家テンプレートのアラートを投稿できる。トークン設定不要",
-  "icon": "ti-flame",
+  "icon": "ti-broadcast",
   "autoRun": true,
   "category": "stats",
   "capabilities": ["misskey-api", "misskey-account"],
