@@ -1,0 +1,66 @@
+/// @ 1.2.1
+
+// 投稿ガード — うっかり投稿防止
+//
+// note_post_interruptor は同期実行のため確認ダイアログは挟めない。
+// そのため「確認して止める」ではなく「自動で保護する」方式:
+// 検知ワードを含む投稿に CW を自動付与し、パブリック投稿をホームに下げる。
+
+### {
+	name: "投稿ガード"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "設定したワードを含む投稿に自動で CW を付け、公開範囲をホームに下げるうっかり防止プラグイン"
+	config: {
+		watchWords: {
+			type: "string"
+			label: "検知ワード (カンマ区切り)"
+			description: "これらの語を含む投稿が保護対象になります"
+			default: ""
+		}
+		cwLabel: {
+			type: "string"
+			label: "自動付与する CW ラベル"
+			default: "auto CW"
+		}
+		guardVisibility: {
+			type: "boolean"
+			label: "検知時にパブリック投稿をホームに下げる"
+			default: true
+		}
+	}
+}
+
+@parseWords(raw) {
+	var words = []
+	each (let part, raw.split(",")) {
+		let w = part.trim()
+		if (w != "") {
+			words.push(w)
+		}
+	}
+	words
+}
+
+let watchWords = parseWords(Plugin:config.watchWords)
+
+Plugin:register_note_post_interruptor(@(note) {
+	if (watchWords.len == 0) return note
+	let text = if (note.text == null) "" else note.text
+	let cwText = if (note.cw == null) "" else note.cw
+	let haystack = `{text}{Str:lf}{cwText}`
+	var hit = false
+	each (let w, watchWords) {
+		if (haystack.index_of(w) != -1) {
+			hit = true
+		}
+	}
+	if (!hit) return note
+	if (note.cw == null && Plugin:config.cwLabel != "") {
+		note.cw = Plugin:config.cwLabel
+	}
+	if (Plugin:config.guardVisibility && note.visibility == "public") {
+		note.visibility = "home"
+	}
+	note
+})

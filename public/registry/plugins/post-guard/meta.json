@@ -1,0 +1,13 @@
+{
+  "id": "post-guard",
+  "name": "投稿ガード",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "設定したワードを含む投稿に自動で CW を付け、公開範囲をホームに下げるうっかり防止プラグイン",
+  "license": "MIT",
+  "category": "posting",
+  "tags": ["safety", "cw", "visibility"],
+  "permissions": [],
+  "minNoteDeckVersion": "1.8.0"
+}
