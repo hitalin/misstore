@@ -1,0 +1,13 @@
+{
+  "id": "pakuru",
+  "name": "パクる & 数字引用",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "本文をそのまま自分の投稿として送る「パクる」と、末尾の数字を +1 して引用する「数字引用」。Misskey プラグイン文化の古典の再実装",
+  "license": "MIT",
+  "category": "other",
+  "tags": ["fun", "classic", "pakuru", "numberquote"],
+  "permissions": ["notes.write"],
+  "minNoteDeckVersion": "1.8.0"
+}

@@ -1,0 +1,57 @@
+/// @ 1.2.1
+
+// パクる & 数字引用 — Misskey プラグイン文化の古典の再実装
+//
+// オリジナルは taiy 氏のプラグイン群 (原本は非公開)。
+// 本実装はオマージュとしてのクリーンルーム再実装。
+// - パクる: ノート本文をそのまま自分の投稿として送る
+// - 数字引用: 本文末尾の数字を +1 して引用リノートする (数字がなければ「2」を付ける)
+
+### {
+	name: "パクる & 数字引用"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノートメニューに、本文をそのまま自分の投稿として送る「パクる」と、末尾の数字を +1 して引用する「数字引用」を追加します"
+	permissions: ["notes.write"]
+}
+
+let digits = "0123456789"
+
+@incrementTrailing(text) {
+	let chars = text.split("")
+	var idx = chars.len
+	loop {
+		if (idx == 0) break
+		if (digits.index_of(chars[idx - 1]) == -1) break
+		idx -= 1
+	}
+	if (idx == chars.len) return `{text} 2`
+	var num = 0
+	for (let i, chars.len - idx) {
+		num = num * 10 + digits.index_of(chars[idx + i])
+	}
+	let prefix = chars.slice(0, idx).join("")
+	`{prefix}{num + 1}`
+}
+
+Plugin:register_note_action("パクる", @(note) {
+	if (note.text == null || note.text == "") return null
+	var params = {
+		text: note.text
+	}
+	if (note.cw != null) {
+		params.cw = note.cw
+	}
+	Mk:api("notes/create", params)
+	Mk:toast("パクりました", "success")
+})
+
+Plugin:register_note_action("数字引用", @(note) {
+	let base = if (note.text == null) "" else note.text
+	let newText = if (base == "") "2" else incrementTrailing(base)
+	Mk:api("notes/create", {
+		text: newText
+		renoteId: note.id
+	})
+	Mk:toast("数字引用しました", "success")
+})
