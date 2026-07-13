@@ -1,20 +1,20 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-07T08:31:51.158Z",
+  "updatedAt": "2026-07-13T13:02:55.312Z",
   "plugins": {
-    "count": 2,
-    "updatedAt": "2026-07-07T08:31:51.158Z"
+    "count": 8,
+    "updatedAt": "2026-07-13T13:02:55.312Z"
   },
   "themes": {
     "count": 18,
-    "updatedAt": "2026-07-07T08:31:51.158Z"
+    "updatedAt": "2026-07-13T13:02:55.312Z"
   },
   "widgets": {
     "count": 39,
-    "updatedAt": "2026-07-07T08:31:51.158Z"
+    "updatedAt": "2026-07-13T13:02:55.312Z"
   },
   "skills": {
     "count": 17,
-    "updatedAt": "2026-07-07T08:31:51.158Z"
+    "updatedAt": "2026-07-13T13:02:55.312Z"
   }
 }

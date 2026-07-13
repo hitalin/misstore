@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-07T08:31:51.158Z",
+  "updatedAt": "2026-07-13T13:02:55.312Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -17,8 +17,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/api.json",
       "sha512": "faf48d19db3e836a619702f3b5f49be6212bb1bc58ce956dc0cfdf560c7787b25d202eae4cf2fdb69d816d704b9b15c2114b9a820c0652358a8553871b76ea64",
-      "createdAt": "2026-07-07T08:31:51.410Z",
-      "updatedAt": "2026-07-07T08:31:51.410Z",
+      "createdAt": "2026-07-13T13:02:55.316Z",
+      "updatedAt": "2026-07-13T13:02:55.316Z",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
@@ -29,6 +29,27 @@
         "notifications"
       ],
       "iconUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/icon.svg"
+    },
+    {
+      "id": "tracking-link-cleaner",
+      "name": "Tracking Link Cleaner",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "投稿時に URL から utm_* や fbclid などのトラッキングパラメータを自動削除",
+      "category": "posting",
+      "tags": [
+        "url",
+        "privacy",
+        "cleanup"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/api.json",
+      "sha512": "768fd22fd9d083c603d92020320e73c5ccf60b53c487af92f29c0fe32043c5b723dbc8c5258f08ab3d2c588a5fcaec4eadbc9a0e1bcc61a34eb85f5e56e23571",
+      "createdAt": "2026-07-13T13:02:55.317Z",
+      "updatedAt": "2026-07-13T13:02:55.317Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "iconUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/icon.svg"
     },
     {
       "id": "youtube-link-cleaner",
@@ -45,12 +66,127 @@
       "sourceUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/api.json",
       "sha512": "128cdc9b717019ddc4aec84cce788d7be84e480d78f5f5b6cfb70d0d43005195d138f16e20c640ac216466f772a43f49db5b3c6dfd4e2138d19585e404b54efd",
-      "createdAt": "2026-07-07T08:31:51.419Z",
-      "updatedAt": "2026-07-07T08:31:51.419Z",
+      "createdAt": "2026-07-13T13:02:55.317Z",
+      "updatedAt": "2026-07-13T13:02:55.317Z",
       "authorUrl": "https://github.com/jj1guj",
       "license": "MIT",
       "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",
       "iconUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/icon.svg"
+    },
+    {
+      "id": "note-to-memo",
+      "name": "ノートをメモに保存",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "ノートメニューから本文と作者情報を NoteDeck のメモに保存。PKM 連携の入口に",
+      "category": "utility",
+      "tags": [
+        "memo",
+        "pkm",
+        "clip"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/api.json",
+      "sha512": "b343cd8421290565984fe7c44450fca204782526091ab5e87fb95ec33a8dcfaf24cc22d0003e9a9ffea732dedf04c7770a2f60924b30ae060f4a914bdaeb9b27",
+      "createdAt": "2026-07-13T13:02:55.314Z",
+      "updatedAt": "2026-07-13T13:02:55.314Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "memos.write"
+      ],
+      "iconUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/icon.svg"
+    },
+    {
+      "id": "deepl-translate",
+      "name": "ノート翻訳 (DeepL)",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "ノートメニューから DeepL API で本文を翻訳してダイアログ表示。ユーザー自身の API キーで動くのでサーバー環境に依存しない",
+      "category": "integration",
+      "tags": [
+        "translate",
+        "deepl",
+        "i18n"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/api.json",
+      "sha512": "985077d987ebc532eaddd1f8122ad184e1d6248e57046558d4b2b321dda189f035988d1f78c71ae65bc240db76ec717a7eaf3fd00640fd333c411ab0a9936997",
+      "createdAt": "2026-07-13T13:02:55.313Z",
+      "updatedAt": "2026-07-13T13:02:55.313Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "network.external"
+      ],
+      "iconUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/icon.svg"
+    },
+    {
+      "id": "pakuru",
+      "name": "パクる & 数字引用",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "本文をそのまま自分の投稿として送る「パクる」と、末尾の数字を +1 して引用する「数字引用」。Misskey プラグイン文化の古典の再実装",
+      "category": "other",
+      "tags": [
+        "fun",
+        "classic",
+        "pakuru",
+        "numberquote"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/pakuru/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/pakuru/api.json",
+      "sha512": "407d729baecf2e31a03ffadef416841289ede1b8a2ec581c098c8eb24dfcbaad1b29a1abcd9a9b878612b649af102fda19606458535fcbc18c87ce4d60291b84",
+      "createdAt": "2026-07-13T13:02:55.314Z",
+      "updatedAt": "2026-07-13T13:02:55.314Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "notes.write"
+      ],
+      "iconUrl": "https://misstore.hital.in/registry/plugins/pakuru/icon.svg"
+    },
+    {
+      "id": "snippet-palette",
+      "name": "定型文パレット",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "投稿フォームに定型文や MFM スニペットの挿入ボタンを追加。設定の 1 行が 1 ボタンに",
+      "category": "posting",
+      "tags": [
+        "mfm",
+        "template",
+        "snippet"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/api.json",
+      "sha512": "38366e77b381948c35e3a973d963e2499f528f8b221848824edee3ae95a76fbc724c13bb95f44f28de5e2127c6dd3e7a2f188b1ce7f995a318051a23c139ae37",
+      "createdAt": "2026-07-13T13:02:55.317Z",
+      "updatedAt": "2026-07-13T13:02:55.317Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "iconUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/icon.svg"
+    },
+    {
+      "id": "post-guard",
+      "name": "投稿ガード",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "設定したワードを含む投稿に自動で CW を付け、公開範囲をホームに下げるうっかり防止プラグイン",
+      "category": "posting",
+      "tags": [
+        "safety",
+        "cw",
+        "visibility"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/post-guard/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/post-guard/api.json",
+      "sha512": "18d68bd7fd620e554b730aac6af527e5256d91e41f43950307124cbf86a4d2c4e2903b66c82555c238ec2d6bbf89bf12ea794d3d82f6e7239925a76c3b16adf3",
+      "createdAt": "2026-07-13T13:02:55.316Z",
+      "updatedAt": "2026-07-13T13:02:55.316Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "iconUrl": "https://misstore.hital.in/registry/plugins/post-guard/icon.svg"
     }
   ]
 }
