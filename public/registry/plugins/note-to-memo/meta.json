@@ -1,0 +1,13 @@
+{
+  "id": "note-to-memo",
+  "name": "ノートをメモに保存",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ノートメニューから本文と作者情報を NoteDeck のメモに保存。PKM 連携の入口に",
+  "license": "MIT",
+  "category": "utility",
+  "tags": ["memo", "pkm", "clip"],
+  "permissions": ["memos.write"],
+  "minNoteDeckVersion": "1.8.0"
+}

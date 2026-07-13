@@ -1,0 +1,45 @@
+/// @ 1.2.1
+
+// ノートをメモに保存 — PKM キャプチャの入口
+//
+// ノートメニューから本文と作者情報を markdown 整形して
+// NoteDeck のメモ (memos.create) に保存する。
+// タイムラインを流れて消える「後で使いたい情報」を自分の注釈込みで残せる。
+
+### {
+	name: "ノートをメモに保存"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノートメニューから本文と作者情報を NoteDeck のメモに保存します。PKM 連携の入口に"
+	permissions: ["memos.write"]
+}
+
+Plugin:register_note_action("メモに保存", @(note) {
+	let user = note.user
+	let username = if (user == null || user.username == null) "?" else user.username
+	let host = if (user == null) null else user.host
+	let acct = if (host == null) `@{username}` else `@{username}@{host}`
+	let name = if (user == null || user.name == null) username else user.name
+	let raw = if (note.text == null) "" else note.text
+
+	var lines = []
+	lines.push(`{name} ({acct}) のノート:`)
+	lines.push("")
+	each (let line, raw.split(Str:lf)) {
+		lines.push(`> {line}`)
+	}
+	lines.push("")
+	if (note.cw != null) {
+		lines.push(`CW: {note.cw}`)
+	}
+	if (note.uri != null) {
+		lines.push(`元ノート: {note.uri}`)
+	}
+	lines.push(`noteId: {note.id}`)
+
+	Nd:call("memos.create", {
+		text: lines.join(Str:lf)
+		tags: ["note-clip"]
+	})
+	Mk:toast("メモに保存しました", "success")
+})
