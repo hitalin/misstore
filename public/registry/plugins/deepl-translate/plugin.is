@@ -1,0 +1,63 @@
+/// @ 1.2.1
+
+// ノート翻訳 (DeepL) — クライアント側で完結する翻訳
+//
+// 本家 Misskey の翻訳はサーバー管理者が翻訳 API を設定していないと使えないが、
+// このプラグインはユーザー自身の DeepL API キーで動くのでサーバー環境に依存しない。
+// 外部送信先は DeepL API のみ (本文がそのまま送られる点は description に明記)。
+
+### {
+	name: "ノート翻訳 (DeepL)"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノートメニューから DeepL API で本文を翻訳してダイアログ表示します。翻訳時に本文が DeepL に送信されます。API キーはユーザー自身のものを設定してください"
+	permissions: ["network.external"]
+	config: {
+		apiKey: {
+			type: "string"
+			label: "DeepL API キー"
+			description: "DeepL API Free / Pro の認証キー"
+			default: ""
+		}
+		targetLang: {
+			type: "string"
+			label: "翻訳先言語 (JA / EN-US など)"
+			default: "JA"
+		}
+		usePro: {
+			type: "boolean"
+			label: "Pro プラン API を使う"
+			default: false
+		}
+	}
+}
+
+Plugin:register_note_action("翻訳", @(note) {
+	if (Plugin:config.apiKey == "") {
+		Mk:dialog("翻訳", "プラグイン設定で DeepL API キーを入力してください", "warning")
+		return null
+	}
+	let text = if (note.text == null) "" else note.text
+	if (text == "") {
+		Mk:dialog("翻訳", "本文が空のノートです", "info")
+		return null
+	}
+	let host = if (Plugin:config.usePro) "api.deepl.com" else "api-free.deepl.com"
+	var headers = {}
+	Obj:set(headers, "Authorization", `DeepL-Auth-Key {Plugin:config.apiKey}`)
+	Obj:set(headers, "Content-Type", "application/json")
+	let res = Nd:http(`https://{host}/v2/translate`, {
+		method: "POST"
+		headers: headers
+		body: Json:stringify({
+			text: [text]
+			target_lang: Plugin:config.targetLang
+		})
+	})
+	if (res.status != 200) {
+		Mk:dialog("翻訳エラー", `DeepL API エラー (HTTP {res.status})`, "error")
+		return null
+	}
+	let data = Json:parse(res.body)
+	Mk:dialog("翻訳", data.translations[0].text, "info")
+})
