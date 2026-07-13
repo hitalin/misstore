@@ -1,0 +1,13 @@
+{
+  "id": "snippet-palette",
+  "name": "定型文パレット",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "投稿フォームに定型文や MFM スニペットの挿入ボタンを追加。設定の 1 行が 1 ボタンに",
+  "license": "MIT",
+  "category": "posting",
+  "tags": ["mfm", "template", "snippet"],
+  "permissions": [],
+  "minNoteDeckVersion": "1.8.0"
+}

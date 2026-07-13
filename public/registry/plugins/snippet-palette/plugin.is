@@ -1,0 +1,35 @@
+/// @ 1.2.1
+
+// 定型文パレット — 投稿フォームに定型文 / MFM スニペットの挿入ボタンを追加
+//
+// 設定の 1 行が 1 ボタンとして投稿フォームのプラグインメニューに並ぶ。
+// 形式: ラベル|挿入テキスト (本文中の <br> は改行に変換)
+
+### {
+	name: "定型文パレット"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "投稿フォームに定型文や MFM スニペットの挿入ボタンを追加します。設定の 1 行が 1 ボタンになります"
+	config: {
+		snippets: {
+			type: "string"
+			label: "スニペット定義 (1 行 1 個: ラベル|挿入テキスト)"
+			description: "挿入テキスト中の <br> は改行に変換されます"
+			default: "きらきら|$[sparkle ここに文字]\nでっかく|$[x3 ここに文字]\nにじいろ|$[rainbow ここに文字]\nぐるぐる|$[spin ここに文字]\nもこもこ|$[jelly ここに文字]"
+		}
+	}
+}
+
+each (let line, Plugin:config.snippets.split(Str:lf)) {
+	let sep = line.index_of("|")
+	if (sep != -1) {
+		let label = line.slice(0, sep)
+		let body = line.slice(sep + 1, line.len).replace("<br>", Str:lf)
+		if (label != "" && body != "") {
+			Plugin:register_post_form_action(label, @(form, update) {
+				let cur = if (form.text == null) "" else form.text
+				update("text", `{cur}{body}`)
+			})
+		}
+	}
+}
