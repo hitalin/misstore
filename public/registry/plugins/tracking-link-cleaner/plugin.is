@@ -1,0 +1,87 @@
+/// @ 1.2.1
+
+// Tracking Link Cleaner — 投稿時に URL のトラッキングパラメータを自動削除
+//
+// utm_* プレフィックスと既知のクリック ID 系パラメータを落とす。
+// si は YouTube / Spotify の共有 URL に付くものだけを対象にする
+// (汎用パラメータ名なので他サイトでは意味を持つ可能性があるため)。
+
+### {
+	name: "Tracking Link Cleaner"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "投稿時に URL から utm_* や fbclid などのトラッキングパラメータを自動削除します"
+}
+
+let denyExact = ["fbclid", "gclid", "dclid", "msclkid", "yclid", "twclid", "mc_cid", "mc_eid", "igsh", "igshid", "ref_src", "ref_url", "mibextid", "cmpid"]
+let shareHosts = ["youtu.be", "youtube.com", "open.spotify.com"]
+let trailingClosers = [")", "）", "」", "]", ",", "、", "。", "\""]
+
+@isTracked(key, url) {
+	if (key.index_of("utm_") == 0) return true
+	if (denyExact.incl(key)) return true
+	if (key == "si") {
+		var share = false
+		each (let h, shareHosts) {
+			if (url.index_of(h) != -1) {
+				share = true
+			}
+		}
+		return share
+	}
+	false
+}
+
+@cleanUrl(url) {
+	if (url.index_of("://") == -1) return url
+	let qIndex = url.index_of("?")
+	if (qIndex == -1) return url
+	let base = url.slice(0, qIndex)
+	var rest = url.slice(qIndex + 1, url.len)
+	var fragment = ""
+	let fIndex = rest.index_of("#")
+	if (fIndex != -1) {
+		fragment = rest.slice(fIndex, rest.len)
+		rest = rest.slice(0, fIndex)
+	}
+	var kept = []
+	each (let param, rest.split("&")) {
+		let key = param.split("=")[0]
+		if (!isTracked(key, url)) {
+			kept.push(param)
+		}
+	}
+	var cleaned = base
+	if (kept.len > 0) {
+		cleaned = `{base}?{kept.join("&")}`
+	}
+	`{cleaned}{fragment}`
+}
+
+// 文末で URL に括弧や句読点が続くケース (「(https://...)」等) は
+// 末尾記号を剥がしてから処理し、剥がした分を戻す。
+@cleanToken(token) {
+	var body = token
+	var tail = ""
+	loop {
+		if (body.len == 0) break
+		let last = body.slice(body.len - 1, body.len)
+		if (!trailingClosers.incl(last)) break
+		tail = `{last}{tail}`
+		body = body.slice(0, body.len - 1)
+	}
+	`{cleanUrl(body)}{tail}`
+}
+
+Plugin:register_note_post_interruptor(@(note) {
+	if (note.text == null) return note
+	let normalized = note.text.replace(" ", Str:lf).replace("　", Str:lf)
+	var cleaned = note.text
+	each (let token, normalized.split(Str:lf)) {
+		if (token != "" && token.index_of("://") != -1) {
+			cleaned = cleaned.replace(token, cleanToken(token))
+		}
+	}
+	note.text = cleaned
+	note
+})

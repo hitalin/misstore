@@ -1,0 +1,13 @@
+{
+  "id": "tracking-link-cleaner",
+  "name": "Tracking Link Cleaner",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "投稿時に URL から utm_* や fbclid などのトラッキングパラメータを自動削除",
+  "license": "MIT",
+  "category": "posting",
+  "tags": ["url", "privacy", "cleanup"],
+  "permissions": [],
+  "minNoteDeckVersion": "1.8.0"
+}
