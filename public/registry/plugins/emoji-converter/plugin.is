@@ -1,0 +1,136 @@
+/// @ 1.2.1
+
+// 絵文字コンバーター — 他鯖絵文字を自鯖の絵文字に変換
+//
+// リモートノートに含まれるカスタム絵文字 (:name: / :name@host:) が
+// 自分のサーバーに存在するか照合し、無ければ名前の近い候補を提示する。
+// 「変換してコピー」で本文中の絵文字を自鯖で使える名前に置換した
+// テキストをクリップボードに取れる。
+// 絵文字一覧はプラグイン起動中 1 回だけ取得してキャッシュする。
+
+### {
+	name: "絵文字コンバーター"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノート内のカスタム絵文字が自分のサーバーにあるか照合し、無ければ類似候補を提示。自鯖で使える形に変換した本文をコピーできます"
+	permissions: ["clipboard"]
+}
+
+// { list: 絵文字配列, names: name -> true の索引 } を起動中キャッシュ
+var emojiIndex = null
+
+@getEmojiIndex() {
+	if (emojiIndex == null) {
+		let res = Mk:api("emojis", {})
+		var names = {}
+		each (let e, res.emojis) {
+			Obj:set(names, e.name, true)
+		}
+		emojiIndex = {
+			list: res.emojis
+			names: names
+		}
+	}
+	emojiIndex
+}
+
+@isEmojiToken(token) {
+	if (token.len == 0 || token.len > 64) {
+		false
+	} else {
+		let allowed = "abcdefghijklmnopqrstuvwxyz0123456789_+-.@"
+		var ok = true
+		each (let ch, token.lower().split()) {
+			if (!allowed.incl(ch)) ok = false
+		}
+		ok
+	}
+}
+
+// 本文から :token: を抽出して [{ token, name }] を返す
+// (name は :name@host: の host を落としたもの)
+// mfm.js と同じく、絵文字として成立したら閉じコロンを消費して次へ進む
+@extractEmojis(text) {
+	let parts = text.split(":")
+	var found = []
+	var seen = []
+	var i = 1
+	loop {
+		if (i > parts.len - 2) break
+		let token = parts[i]
+		if (isEmojiToken(token)) {
+			if (!seen.incl(token)) {
+				seen.push(token)
+				found.push({
+					token: token
+					name: token.split("@")[0]
+				})
+			}
+			i = i + 2
+		} else {
+			i = i + 1
+		}
+	}
+	found
+}
+
+// 自鯖に無い name について alias 一致 / 部分一致の候補を探す (最大3件)
+@findCandidates(name, list) {
+	var aliasHit = null
+	var partial = []
+	each (let e, list) {
+		if (aliasHit == null && e.aliases != null && e.aliases.incl(name)) {
+			aliasHit = e.name
+		} elif (partial.len < 3 && e.name.incl(name)) {
+			partial.push(e.name)
+		}
+	}
+	if (aliasHit != null) [aliasHit] else partial
+}
+
+Plugin:register_note_action("絵文字を変換", @(note) {
+	let text = if (note.text == null) "" else note.text
+	let emojis = extractEmojis(text)
+	if (emojis.len == 0) {
+		Mk:dialog("絵文字コンバーター", "本文にカスタム絵文字が見つかりません", "info")
+		return null
+	}
+
+	let index = getEmojiIndex()
+	var lines = []
+	// 置換予定: [{ token, to }]
+	var replacements = []
+	each (let em, emojis) {
+		if (Obj:has(index.names, em.name)) {
+			lines.push(`✅ :{em.token}: — この鯖にあります`)
+			if (em.token != em.name) {
+				// :name@host: → :name: に正規化できる
+				replacements.push({ token: em.token, to: em.name })
+			}
+		} else {
+			let candidates = findCandidates(em.name, index.list)
+			if (candidates.len == 0) {
+				lines.push(`❌ :{em.token}: — 見つかりません`)
+			} else {
+				var s = ""
+				each (let c, candidates) {
+					s = `{s} :{c}:`
+				}
+				lines.push(`🔁 :{em.token}: → 候補:{s}`)
+				replacements.push({ token: em.token, to: candidates[0] })
+			}
+		}
+	}
+	Mk:dialog("絵文字コンバーター", lines.join(Str:lf), "info")
+
+	if (replacements.len > 0) {
+		if (Mk:confirm("絵文字コンバーター", `{replacements.len} 個の絵文字を自鯖で使える名前に置換した本文をコピーしますか?`)) {
+			var converted = text
+			each (let r, replacements) {
+				converted = converted.replace(`:{r.token}:`, `:{r.to}:`)
+			}
+			Nd:call("clipboard.write", { text: converted })
+			Mk:toast("変換した本文をコピーしました", "success")
+		}
+	}
+})

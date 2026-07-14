@@ -1,0 +1,13 @@
+{
+  "id": "emoji-converter",
+  "name": "絵文字コンバーター",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ノート内のカスタム絵文字が自分のサーバーにあるか照合し、無ければ類似候補を提示。自鯖で使える形に変換した本文をコピーできる",
+  "license": "MIT",
+  "category": "utility",
+  "tags": ["emoji", "custom-emoji", "converter"],
+  "permissions": ["clipboard"],
+  "minNoteDeckVersion": "1.8.0"
+}
