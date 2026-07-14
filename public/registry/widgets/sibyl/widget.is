@@ -1,0 +1,285 @@
+/// シビュラシステム — フォローリクエスト監視・自動執行ウィジェット
+/// 保留中のフォローリクエストを定期スキャンし、リクエスト元の犯罪係数
+/// (スパム傾向・信頼度スコア) を算出して一覧表示する。
+/// スコアリングは X (Twitter) 公開アルゴリズムの tweepcred
+/// (the-algorithm: UserMass.scala / Reputation.scala) と SpamVector の写像。
+/// dominator プラグイン (ユーザーメニュー単発スキャン) と同一の算出式。
+///
+/// - 承認 / 拒否ボタンと自動執行 (係数300以上を自動拒否・デフォルト OFF) には
+///   account.write が必要 → permissions.json5 の plugin プロファイルを full にする
+/// - 一覧取得と採点は account.read / allow のみで動く
+/// - スコアはこのウィジェット内に閉じる (公開・共有機能は無い)
+///
+/// maxStep (生涯累積 100000) 対策: 採点結果はユーザー単位でキャッシュし、
+/// リクエスト一覧が変わらない間のポーリングは署名比較 + 時刻表示更新のみ。
+/// TICK_LIMIT 到達で interval を自前停止して再読み込みを案内する (wellbeing 方式)。
+
+let POLL_MS = 180000
+let TICK_LIMIT = 220
+
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let CYAN = "7ac7ff"
+let YELLOW = "ffb300"
+let RED = "ff6961"
+
+let AUTO_KEY = "sibyl:auto"
+
+// ── 信用度 (0..1) — tweepcred の写像 ──────────────────
+// 詳細な出典と定数の根拠は dominator プラグインのコメント参照 (同一実装)
+
+@computeTrust(user, ageDays) {
+	if (Obj:has(user, "isSuspended") && user.isSuspended) return 0
+
+	var trust = 0.05
+	if (user.avatarUrl != null && user.avatarUrl.index_of("identicon") == -1) { trust += 0.25 }
+	if (user.description != null && user.description != "") { trust += 0.15 }
+	if (user.notesCount >= 10) { trust += 0.15 }
+
+	if (ageDays >= 0) {
+		let ageFactor = Math:min(1, Math:log(1 + ageDays / 15))
+		trust = trust * ageFactor
+	}
+
+	let followers = user.followersCount
+	let following = user.followingCount
+	if (following > 250) {
+		let ratio = (following + 1) / (followers + 1)
+		if (ratio > 2) {
+			var div = Math:exp(1.5 * (ratio - 2) * Math:log(Math:log(following)))
+			if (div > 50) { div = 50 }
+			if (div < 1) { div = 1 }
+			trust = trust / div
+		}
+	}
+
+	if (Obj:has(user, "isFollowed") && user.isFollowed) { trust += 0.35 }
+	if (followers >= 1000) { trust += 0.3 }
+	elif (followers >= 100) { trust += 0.15 }
+	if (trust > 1) { trust = 1 }
+
+	if (Obj:has(user, "isSilenced") && user.isSilenced) { trust = trust * 0.1 }
+
+	if (following <= 100 && trust < 0.17) { trust = 0.17 }
+	trust
+}
+
+@analyzeNotes(notes, trust) {
+	var penalty = 0
+	var reasons = []
+	if (notes.len == 0) return { penalty: 0, reasons: [] }
+
+	var linkNotes = 0
+	var linkNoEngage = 0
+	var mentionTotal = 0
+	var texts = {}
+	var dup = false
+	each (let n, notes) {
+		var t = ""
+		if (Obj:has(n, "text") && n.text != null) { t = n.text }
+		var eng = 0
+		if (Obj:has(n, "renoteCount") && n.renoteCount != null) { eng += n.renoteCount }
+		if (Obj:has(n, "repliesCount") && n.repliesCount != null) { eng += n.repliesCount }
+		if (Obj:has(n, "reactions") && n.reactions != null) { eng += Obj:keys(n.reactions).len }
+		if (t.index_of("http") != -1) {
+			linkNotes += 1
+			if (eng == 0) { linkNoEngage += 1 }
+		}
+		mentionTotal += (t.split("@").len - 1)
+		if (t != "") {
+			let k = t.slice(0, 40)
+			if (Obj:has(texts, k)) { dup = true } else { Obj:set(texts, k, true) }
+		}
+	}
+
+	if (trust < 0.25 && linkNoEngage * 2 > notes.len) {
+		penalty += 80
+		reasons.push("低信用×リンク×無反応")
+	} elif (linkNotes * 2 > notes.len) {
+		penalty += 30
+		reasons.push("リンク投稿多め")
+	}
+	let mentionAvg10 = Math:floor(mentionTotal * 10 / notes.len)
+	if (mentionAvg10 >= 30) {
+		penalty += 50
+		reasons.push("メンション乱発")
+	} elif (mentionAvg10 >= 15) {
+		penalty += 25
+		reasons.push("メンション多め")
+	}
+	if (dup) {
+		penalty += 40
+		reasons.push("同一文面の反復")
+	}
+	{ penalty: penalty, reasons: reasons }
+}
+
+@scoreUser(user, notes) {
+	var ageDays = -1
+	let created = Date:parse(user.createdAt)
+	if (Core:type(created) == "num") {
+		ageDays = Math:floor((Date:now() - created) / 86400000)
+	}
+	let trust = computeTrust(user, ageDays)
+	let behavior = analyzeNotes(notes, trust)
+
+	var reasons = []
+	reasons.push(`信用度{Math:round(trust * 100)}`)
+	if (ageDays >= 0 && ageDays < 30) { reasons.push(`作成{ageDays}日`) }
+	each (let r, behavior.reasons) { reasons.push(r) }
+
+	var coeff = Math:round((1 - trust) * 160) + behavior.penalty
+	if (Obj:has(user, "isBot") && user.isBot) {
+		coeff += 15
+		reasons.push("bot")
+	}
+	if (coeff < 0) { coeff = 0 }
+	if (coeff > 400) { coeff = 400 }
+	{ value: coeff, reasons: reasons }
+}
+
+// ── 状態 ─────────────────────────────────
+var pending = []
+var scoreCache = {}
+var lastSig = "(init)"
+var autoMode = false
+var tickCount = 0
+var stopTick = null
+var statusC = null
+
+let savedAuto = Mk:load(AUTO_KEY)
+if (savedAuto != null && Core:type(savedAuto) == "bool") { autoMode = savedAuto }
+
+@pad(n) { if (n < 10) `0{n}` else `{n}` }
+
+@coeffColor(coeff) {
+	if (coeff >= 300) RED
+	elif (coeff >= 100) YELLOW
+	else CYAN
+}
+
+@acctLabel(user) {
+	if (Obj:has(user, "host") && user.host != null) `@{user.username}@{user.host}`
+	else `@{user.username}`
+}
+
+// ── UI ───────────────────────────────────
+@statusText() {
+	let now = Date:now()
+	let time = `{pad(Date:hour(now))}:{pad(Date:minute(now))}`
+	if (pending.len == 0) `$[fg.color={MUTED} <small>保留中のフォローリクエストなし · 最終スキャン {time}</small>]`
+	else `$[fg.color={MUTED} <small>保留中 {pending.len} 件 · 最終スキャン {time}</small>]`
+}
+
+@rebuild() {
+	var body = []
+	body.push(Ui:C:mfm({ text: `<center>$[fg.color={CYAN} **SIBYL SYSTEM**]</center>` }))
+	statusC = Ui:C:mfm({ text: statusText() })
+	body.push(statusC)
+
+	each (let entry, pending) {
+		body.push(Ui:C:mfm({ text: `$[fg.color={LINE} ───────────────]` }))
+		body.push(Ui:C:mfm({ text: `**{entry.name}** <small>$[fg.color={MUTED} {entry.acct}]</small>` }))
+		var line = `$[fg.color={coeffColor(entry.coeff)} 犯罪係数 **{entry.coeff}.{entry.deci}**]`
+		if (entry.executed) {
+			line = `{line} $[fg.color={RED} <small>自動執行済み</small>]`
+		}
+		body.push(Ui:C:mfm({ text: line }))
+		body.push(Ui:C:mfm({ text: `<small>$[fg.color={MUTED} {entry.reasons.join(" / ")}]</small>` }))
+		if (!entry.executed) {
+			let uid = entry.userId
+			body.push(Ui:C:buttons({ buttons: [
+				{ text: "承認", onClick: @() { execute(uid, true) } }
+				{ text: "拒否", onClick: @() { execute(uid, false) } }
+			] }))
+		}
+	}
+
+	body.push(Ui:C:mfm({ text: `$[fg.color={LINE} ───────────────]` }))
+	let autoLabel = if (autoMode) "自動執行: ON (係数300以上を拒否)" else "自動執行: OFF"
+	body.push(Ui:C:container({ align: "center", children: [
+		Ui:C:button({ text: autoLabel, rounded: true, onClick: @() {
+			autoMode = !autoMode
+			Mk:save(AUTO_KEY, autoMode)
+			rebuild()
+		} })
+	] }))
+	body.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>承認/拒否と自動執行には plugin プロファイルの account.write (full) が必要</small>]</center>` }))
+
+	Ui:render([
+		Ui:C:container({ padding: 10, children: body })
+	])
+}
+
+// ── 執行 (手動ボタン) ─────────────────────────
+@execute(uid, doAccept) {
+	if (doAccept) {
+		Mk:api("following/requests/accept", { userId: uid })
+	} else {
+		Mk:api("following/requests/reject", { userId: uid })
+	}
+	lastSig = "(dirty)"
+	poll()
+}
+
+// ── ポーリング ─────────────────────────────
+@poll() {
+	let list = Mk:api("following/requests/list", {})
+	var ids = []
+	each (let req, list) { ids.push(req.follower.id) }
+	let sig = ids.join(",")
+	if (sig == lastSig) {
+		// 変化なし: 時刻表示のみ更新 (低ステップ)
+		if (statusC != null) { statusC.update({ text: statusText() }) }
+		return null
+	}
+	lastSig = sig
+
+	pending = []
+	each (let req, list) {
+		let uid = req.follower.id
+		var entry = null
+		if (Obj:has(scoreCache, uid)) {
+			entry = Obj:get(scoreCache, uid)
+		} else {
+			let user = Mk:api("users/show", { userId: uid })
+			let notes = Mk:api("users/notes", { userId: uid, limit: 10 })
+			let result = scoreUser(user, notes)
+			let name = if (user.name != null) user.name else user.username
+			entry = {
+				userId: uid
+				name: name
+				acct: acctLabel(user)
+				coeff: result.value
+				deci: user.notesCount % 10
+				reasons: result.reasons
+				executed: false
+			}
+			Obj:set(scoreCache, uid, entry)
+		}
+		if (autoMode && entry.coeff >= 300 && !entry.executed) {
+			Mk:api("following/requests/reject", { userId: uid })
+			Obj:set(entry, "executed", true)
+			Mk:toast(`犯罪係数 {entry.coeff} — {entry.acct} のリクエストを執行しました`)
+		}
+		pending.push(entry)
+	}
+	rebuild()
+}
+
+@tick() {
+	tickCount += 1
+	if (tickCount >= TICK_LIMIT) {
+		if (stopTick != null) { stopTick() }
+		if (statusC != null) {
+			statusC.update({ text: `$[fg.color={YELLOW} <small>⏸ 長時間経過のため監視を一時停止しました。ウィジェットを再読み込みすると再開します</small>]` })
+		}
+		return null
+	}
+	poll()
+}
+
+// ── 起動 ─────────────────────────────────
+rebuild()
+poll()
+stopTick = Async:interval(POLL_MS, tick, false)
