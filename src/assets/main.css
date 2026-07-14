@@ -1152,7 +1152,6 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   gap: 6px;
   font-family: var(--font-body);
   font-weight: 600;
-  text-transform: uppercase;
   letter-spacing: 0.04em;
   font-size: 11px;
 }
