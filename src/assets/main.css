@@ -483,7 +483,7 @@ html[style*="color-scheme: dark"] .nav-right-button:hover { background: rgba(255
 /* ===== Card Grid ===== */
 .store-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -536,7 +536,7 @@ html[style*="color-scheme: dark"] .nav-right-button:hover { background: rgba(255
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 48px;
+  font-size: 40px;
   line-height: 1;
   background:
     radial-gradient(circle at 30% 25%, var(--accent-soft), transparent 70%),
@@ -1257,6 +1257,7 @@ html[style*="color-scheme: dark"] .shiki span {
 
 /* ===== Responsive ===== */
 @media (max-width: 900px) {
+  .store-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .detail-layout { grid-template-columns: 1fr; gap: 20px; }
   .detail-sidebar { position: static; top: auto; }
 }
