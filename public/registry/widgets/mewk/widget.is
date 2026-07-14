@@ -1,16 +1,16 @@
-/// mewk ウィジェット
-/// mewk (Misskey 向け質問箱) の「未回答の質問があるか」を把握する。
+/// Mewk ウィジェット
+/// Mewk (Misskey 向け質問箱) の「未回答の質問があるか」を把握する。
 /// 未回答数を主役に、受信/送信数と未回答質問の一覧・回答導線を表示。
 /// API キーは widget.is には一切書かず、Vault がサーバーサイドで Authorization を注入する。
 ///
 /// ■ 事前準備
-/// 1. mewk の API キーを取得:
+/// 1. Mewk の API キーを取得:
 ///      /settings/developer で発行 (scope: profile:read, questions:read)
 /// 2. NoteDeck の Secret Vault で接続を作成:
 ///      名前        : mewk
 ///      baseURL     : https://mewk.app
 ///      認証方式    : 既定の「Bearer」のまま (Authorization: Bearer <key> になる)
-///      シークレット: mewk の API キー (mewk_xxxx…)
+///      シークレット: Mewk の API キー (mewk_xxxx…)
 ///      "AI からのアクセスを許可" を ON にする
 ///
 /// 取得は /api/v1/users/me/stats。未回答があれば /api/v1/questions/inbox も 1 回。
@@ -71,7 +71,7 @@ let COUNT = 5           // 未回答一覧の最大表示件数
 
 let MUTED = "8a96a3"
 let LINE = "5a6573"
-let ACCENT = "34d3c7" // mewk のテーマ寄りの色
+let ACCENT = "34d3c7" // Mewk のテーマ寄りの色
 let ALERT = "f43f5e"
 
 var result = null
@@ -206,7 +206,7 @@ var firstRun = true
   // 初回のみ自動取得 (Vault にキーがあればワンタップ不要で表示)
   if (firstRun && Core:type(result) == "null") {
     Ui:render([
-      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "mewk を読み込み中… 📮" }) ] })
+      Ui:C:container({ align: "center", children: [ Ui:C:text({ text: "Mewk を読み込み中… 📮" }) ] })
     ])
     firstRun = false
     fetchData()
@@ -231,7 +231,7 @@ var firstRun = true
   } else {
     children = statsView(result)
     children.push(divider())
-    children.push(Ui:C:mfm({ text: `<center>[mewk で回答する →](https://mewk.app)</center>` }))
+    children.push(Ui:C:mfm({ text: `<center>[Mewk で回答する →](https://mewk.app)</center>` }))
     children.push(Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>最終更新 {timeLabel(result.fetchedAt)}</small>]</center>` }))
     children.push(Ui:C:container({ align: "center", children: [
       Ui:C:button({ text: "🔄 更新", rounded: true, onClick: @() { fetchData() } })

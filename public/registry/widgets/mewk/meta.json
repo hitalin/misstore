@@ -1,10 +1,10 @@
 {
   "id": "mewk",
-  "name": "mewk",
+  "name": "Mewk",
   "version": "1.0.0",
   "author": "@hitalin",
   "authorUrl": "https://github.com/hitalin",
-  "description": "mewk (Misskey 向け質問箱) の未回答質問を表示。未回答数・受信/送信数と未回答一覧を把握。Secret Vault で API キーを Bearer 認証",
+  "description": "Mewk (Misskey 向け質問箱) の未回答質問を表示。未回答数・受信/送信数と未回答一覧を把握。Secret Vault で API キーを Bearer 認証",
   "icon": "ti-cat",
   "autoRun": true,
   "category": "stats",
