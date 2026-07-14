@@ -1,0 +1,10 @@
+{
+  "id": "atelier-gray",
+  "name": "アトリエグレー",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "description": "色彩評価を邪魔しない無彩色ニュートラルグレーのダークテーマ。イラスト制作ソフトの UI と同じ思想で、作業の合間に開いても目の色順応を乱さない",
+  "base": "dark",
+  "license": "MIT",
+  "tags": ["artist", "gray", "neutral", "dark", "atelier"]
+}
