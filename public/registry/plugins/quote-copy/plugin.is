@@ -1,0 +1,108 @@
+/// @ 1.2.1
+
+// 引用形式でコピー — 出典付きでノートを引用
+//
+// NoteDeck 標準の「内容をコピー」は本文プレーンテキストのみで
+// 出典 (作者・日時・URL) が付かない。このプラグインは Markdown 引用 /
+// プレーンテキスト / BibLaTeX の3形式で出典付きコピーを提供する。
+// ノート URL はリモートノートなら元 URL、ローカルノートは
+// サーバーの meta から組み立てる。
+
+### {
+	name: "引用形式でコピー"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノートを作者・日時・URL 付きの引用形式でクリップボードにコピーします。形式は markdown / plain / biblatex から選択"
+	permissions: ["clipboard"]
+	config: {
+		format: {
+			type: "string"
+			label: "コピー形式 (markdown / plain / biblatex)"
+			default: "markdown"
+		}
+	}
+}
+
+// サーバー URL はプラグイン起動中 1 回だけ取得してキャッシュ
+var serverUrlCache = null
+
+@noteUrl(note) {
+	if (note.uri != null) {
+		note.uri
+	} else {
+		if (serverUrlCache == null) {
+			let m = Mk:api("meta", {})
+			serverUrlCache = m.uri
+		}
+		`{serverUrlCache}/notes/{note.id}`
+	}
+}
+
+@buildMarkdown(text, cw, name, acct, date, url) {
+	var lines = []
+	if (cw != null) {
+		lines.push(`> CW: {cw}`)
+		lines.push(">")
+	}
+	each (let line, text.split(Str:lf)) {
+		lines.push(`> {line}`)
+	}
+	lines.push(">")
+	lines.push(`> — {name} ({acct}) {date}`)
+	lines.push("")
+	lines.push(url)
+	lines.join(Str:lf)
+}
+
+@buildPlain(text, cw, name, acct, date, url) {
+	var lines = []
+	if (cw != null) {
+		lines.push(`CW: {cw}`)
+		lines.push("")
+	}
+	lines.push(text)
+	lines.push("")
+	lines.push(`— {name} ({acct}) {date}`)
+	lines.push(url)
+	lines.join(Str:lf)
+}
+
+@buildBiblatex(text, name, acct, date, url, noteId) {
+	let firstLine = text.split(Str:lf)[0]
+	let title = if (firstLine.len > 40) `{firstLine.slice(0, 40)}…` else firstLine
+	var lines = []
+	lines.push(`@online\{misskey-{noteId},`)
+	lines.push(`  author = \{{name} ({acct})\},`)
+	lines.push(`  title = \{{title}\},`)
+	lines.push(`  date = \{{date}\},`)
+	lines.push(`  url = \{{url}\}`)
+	lines.push("}")
+	lines.join(Str:lf)
+}
+
+Plugin:register_note_action("引用形式でコピー", @(note) {
+	let text = if (note.text == null) "" else note.text
+	if (text == "") {
+		Mk:dialog("引用コピー", "本文が空のノートです", "info")
+		return null
+	}
+	let user = note.user
+	let username = if (user == null || user.username == null) "?" else user.username
+	let host = if (user == null) null else user.host
+	let acct = if (host == null) `@{username}` else `@{username}@{host}`
+	let name = if (user == null || user.name == null) username else user.name
+	let date = note.createdAt.slice(0, 10)
+	let url = noteUrl(note)
+
+	let format = Plugin:config.format
+	let result = if (format == "biblatex") {
+		buildBiblatex(text, name, acct, date, url, note.id)
+	} elif (format == "plain") {
+		buildPlain(text, note.cw, name, acct, date, url)
+	} else {
+		buildMarkdown(text, note.cw, name, acct, date, url)
+	}
+
+	Nd:call("clipboard.write", { text: result })
+	Mk:toast("引用形式でコピーしました", "success")
+})
