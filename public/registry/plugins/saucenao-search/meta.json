@@ -1,7 +1,7 @@
 {
   "id": "saucenao-search",
   "name": "SauceNao 画像検索",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "hitalin",
   "authorUrl": "https://github.com/hitalin",
   "description": "ノートメニューから添付画像の出典を SauceNao で逆検索。API キーは Secret Vault の接続で管理",
@@ -9,5 +9,5 @@
   "category": "integration",
   "tags": ["saucenao", "image-search", "reverse-search"],
   "permissions": ["vault.use"],
-  "minNoteDeckVersion": "1.8.0"
+  "minNoteDeckVersion": "1.9.1"
 }

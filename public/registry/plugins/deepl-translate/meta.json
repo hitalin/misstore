@@ -1,7 +1,7 @@
 {
   "id": "deepl-translate",
   "name": "ノート翻訳 (DeepL)",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "hitalin",
   "authorUrl": "https://github.com/hitalin",
   "description": "ノートメニューから DeepL API で本文を翻訳してダイアログ表示。API キーは Secret Vault の接続で管理",
@@ -9,5 +9,5 @@
   "category": "integration",
   "tags": ["translate", "deepl", "i18n"],
   "permissions": ["vault.use"],
-  "minNoteDeckVersion": "1.8.0"
+  "minNoteDeckVersion": "1.9.1"
 }

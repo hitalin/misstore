@@ -9,11 +9,16 @@
 // API キーは Secret Vault の「接続」で管理する (平文保存されない):
 //   接続名: SauceNao / baseUrl: https://saucenao.com
 //   認証タイプ: クエリパラメータ (パラメータ名: api_key)
-// vault.fetch の plugin 開放 (notedeck#759) が前提。
+//
+// 動作要件 (notedeck#759 は 1.9.1 で per-connection opt-in として解決済み):
+//   - NoteDeck 1.9.1 以上
+//   - 権限設定: plugin プロファイルで vault.use を有効化 (safe プリセットでは OFF)
+//   - 接続設定: 「プラグイン・ウィジェットに見せる」を ON (デフォルト非開示。
+//     開示とその trust は接続×クラス単位 — 全プラグイン・ウィジェットに及ぶ)
 
 ### {
 	name: "SauceNao 画像検索"
-	version: "2.0.0"
+	version: "2.0.1"
 	author: "@hitalin"
 	description: "ノートメニューから添付画像の出典を SauceNao で逆検索します。検索時に画像 URL が SauceNao に送信されます。API キーは Secret Vault の接続で管理します"
 	permissions: ["vault.use"]
