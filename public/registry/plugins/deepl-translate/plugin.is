@@ -5,50 +5,45 @@
 // 本家 Misskey の翻訳はサーバー管理者が翻訳 API を設定していないと使えないが、
 // このプラグインはユーザー自身の DeepL API キーで動くのでサーバー環境に依存しない。
 // 外部送信先は DeepL API のみ (本文がそのまま送られる点は description に明記)。
+//
+// API キーは Secret Vault の「接続」で管理する (平文保存されない):
+//   接続名: DeepL / baseUrl: https://api-free.deepl.com (Pro は https://api.deepl.com)
+//   認証タイプ: カスタムヘッダ (名前: Authorization、シークレット値: DeepL-Auth-Key <キー>)
+// vault.fetch の plugin 開放 (notedeck#759) が前提。
 
 ### {
 	name: "ノート翻訳 (DeepL)"
-	version: "1.0.0"
+	version: "2.0.0"
 	author: "@hitalin"
-	description: "ノートメニューから DeepL API で本文を翻訳してダイアログ表示します。翻訳時に本文が DeepL に送信されます。API キーはユーザー自身のものを設定してください"
-	permissions: ["network.external"]
+	description: "ノートメニューから DeepL API で本文を翻訳してダイアログ表示します。翻訳時に本文が DeepL に送信されます。API キーは Secret Vault の接続で管理します"
+	permissions: ["vault.use"]
 	config: {
-		apiKey: {
+		connection: {
 			type: "string"
-			label: "DeepL API キー"
-			description: "DeepL API Free / Pro の認証キー"
-			default: ""
+			label: "Vault 接続名"
+			description: "Secret Vault に登録した DeepL 接続の名前"
+			default: "DeepL"
 		}
 		targetLang: {
 			type: "string"
 			label: "翻訳先言語 (JA / EN-US など)"
 			default: "JA"
 		}
-		usePro: {
-			type: "boolean"
-			label: "Pro プラン API を使う"
-			default: false
-		}
 	}
 }
 
 Plugin:register_note_action("翻訳", @(note) {
-	if (Plugin:config.apiKey == "") {
-		Mk:dialog("翻訳", "プラグイン設定で DeepL API キーを入力してください", "warning")
-		return null
-	}
 	let text = if (note.text == null) "" else note.text
 	if (text == "") {
 		Mk:dialog("翻訳", "本文が空のノートです", "info")
 		return null
 	}
-	let host = if (Plugin:config.usePro) "api.deepl.com" else "api-free.deepl.com"
-	var headers = {}
-	Obj:set(headers, "Authorization", `DeepL-Auth-Key {Plugin:config.apiKey}`)
-	Obj:set(headers, "Content-Type", "application/json")
-	let res = Nd:http(`https://{host}/v2/translate`, {
+	// トークンは Vault が Rust 側で注入する。AiScript には露出しない
+	let res = Nd:call("vault.fetch", {
+		connectionRef: Plugin:config.connection
+		path: "/v2/translate"
 		method: "POST"
-		headers: headers
+		headers: { "Content-Type": "application/json" }
 		body: Json:stringify({
 			text: [text]
 			target_lang: Plugin:config.targetLang

@@ -5,20 +5,24 @@
 // ノートメニューから添付画像 (1枚目) を SauceNao API に送り、
 // 類似度の高い出典 (pixiv / Twitter / Danbooru 等) を一覧表示する。
 // 検索時に画像 URL が SauceNao に送信される点は description に明記。
-// API キーはユーザー自身のもの (saucenao.com で無料発行可) を設定する。
+//
+// API キーは Secret Vault の「接続」で管理する (平文保存されない):
+//   接続名: SauceNao / baseUrl: https://saucenao.com
+//   認証タイプ: クエリパラメータ (パラメータ名: api_key)
+// vault.fetch の plugin 開放 (notedeck#759) が前提。
 
 ### {
 	name: "SauceNao 画像検索"
-	version: "1.0.0"
+	version: "2.0.0"
 	author: "@hitalin"
-	description: "ノートメニューから添付画像の出典を SauceNao で逆検索します。検索時に画像 URL が SauceNao に送信されます。API キーはユーザー自身のものを設定してください"
-	permissions: ["network.external"]
+	description: "ノートメニューから添付画像の出典を SauceNao で逆検索します。検索時に画像 URL が SauceNao に送信されます。API キーは Secret Vault の接続で管理します"
+	permissions: ["vault.use"]
 	config: {
-		apiKey: {
+		connection: {
 			type: "string"
-			label: "SauceNao API キー"
-			description: "saucenao.com のアカウントページで発行できます (無料枠あり)"
-			default: ""
+			label: "Vault 接続名"
+			description: "Secret Vault に登録した SauceNao 接続の名前"
+			default: "SauceNao"
 		}
 		minSimilarity: {
 			type: "number"
@@ -29,10 +33,6 @@
 }
 
 Plugin:register_note_action("画像の出典を検索", @(note) {
-	if (Plugin:config.apiKey == "") {
-		Mk:dialog("SauceNao", "プラグイン設定で SauceNao API キーを入力してください", "warning")
-		return null
-	}
 	let files = if (note.files == null) [] else note.files
 	var images = []
 	each (let f, files) {
@@ -46,8 +46,12 @@ Plugin:register_note_action("画像の出典を検索", @(note) {
 	}
 
 	let img = images[0]
-	let url = `https://saucenao.com/search.php?output_type=2&numres=5&api_key={Plugin:config.apiKey}&url={Uri:encode_component(img.url)}`
-	let res = Nd:http(url, { method: "GET" })
+	// api_key は Vault が Rust 側でクエリに注入する。AiScript には露出しない
+	let res = Nd:call("vault.fetch", {
+		connectionRef: Plugin:config.connection
+		path: `/search.php?output_type=2&numres=5&url={Uri:encode_component(img.url)}`
+		method: "GET"
+	})
 	if (res.status != 200) {
 		Mk:dialog("SauceNao エラー", `SauceNao API エラー (HTTP {res.status})`, "error")
 		return null
