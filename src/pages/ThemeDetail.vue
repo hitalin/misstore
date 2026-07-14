@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useCopySource } from '@/composables/useCopySource'
+import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import ThemePreview from '@/components/ThemePreview.vue'
@@ -115,6 +116,26 @@ function openMisskeyInstall() {
               </dd>
             </div>
           </dl>
+
+          <div class="detail-more-info">
+            <h3 class="detail-more-info-title">More Info</h3>
+            <div class="detail-more-info-row">
+              <span>Released</span>
+              <span>{{ formatDate(theme.createdAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Last Updated</span>
+              <span>{{ formatDate(theme.updatedAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Version</span>
+              <span>v{{ theme.version }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Identifier</span>
+              <span>{{ theme.id }}</span>
+            </div>
+          </div>
         </aside>
       </div>
     </template>

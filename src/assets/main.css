@@ -1041,6 +1041,40 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   color: var(--text);
 }
 
+.detail-more-info {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.detail-more-info-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.detail-more-info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12.5px;
+  padding: 3px 0;
+}
+
+.detail-more-info-row > span:first-child {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.detail-more-info-row > span:last-child {
+  color: var(--text);
+  text-align: right;
+  word-break: break-all;
+}
+
 .detail-link {
   color: var(--accent);
   text-decoration: none;

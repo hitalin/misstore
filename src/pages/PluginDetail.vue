@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router'
 import { PLUGIN_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
+import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
@@ -122,6 +123,26 @@ function openMisskeyInstall() {
               </dd>
             </div>
           </dl>
+
+          <div class="detail-more-info">
+            <h3 class="detail-more-info-title">More Info</h3>
+            <div class="detail-more-info-row">
+              <span>Released</span>
+              <span>{{ formatDate(plugin.createdAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Last Updated</span>
+              <span>{{ formatDate(plugin.updatedAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Version</span>
+              <span>v{{ plugin.version }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Identifier</span>
+              <span>{{ plugin.id }}</span>
+            </div>
+          </div>
         </aside>
       </div>
     </template>

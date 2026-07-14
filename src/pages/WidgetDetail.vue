@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router'
 import { WIDGET_CAPABILITY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
+import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
@@ -111,6 +112,26 @@ const widget = findWidget(route.params.id as string)
               </dd>
             </div>
           </dl>
+
+          <div class="detail-more-info">
+            <h3 class="detail-more-info-title">More Info</h3>
+            <div class="detail-more-info-row">
+              <span>Released</span>
+              <span>{{ formatDate(widget.createdAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Last Updated</span>
+              <span>{{ formatDate(widget.updatedAt) }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Version</span>
+              <span>v{{ widget.version }}</span>
+            </div>
+            <div class="detail-more-info-row">
+              <span>Identifier</span>
+              <span>{{ widget.id }}</span>
+            </div>
+          </div>
         </aside>
       </div>
     </template>
