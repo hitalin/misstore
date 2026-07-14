@@ -45,7 +45,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
       <div class="home-card-icon" aria-hidden="true">🧩</div>
       <div class="home-card-title">Plugins</div>
       <div class="home-card-count">
-        <template v-if="loaded">{{ plugins.length }} items</template>
+        <template v-if="loaded"><span class="home-card-count-num">{{ plugins.length }}</span> items</template>
         <template v-else><span class="home-card-count-skel"></span></template>
       </div>
       <p class="home-card-desc">タイムラインや投稿を拡張する AiScript プラグイン。</p>
@@ -55,7 +55,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
       <div class="home-card-icon" aria-hidden="true">🎨</div>
       <div class="home-card-title">Themes</div>
       <div class="home-card-count">
-        <template v-if="loaded">{{ themes.length }} items</template>
+        <template v-if="loaded"><span class="home-card-count-num">{{ themes.length }}</span> items</template>
         <template v-else><span class="home-card-count-skel"></span></template>
       </div>
       <p class="home-card-desc">配色を丸ごと入れ替える Misskey 互換テーマ。</p>
@@ -67,7 +67,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
       </div>
       <div class="home-card-title">Widgets</div>
       <div class="home-card-count">
-        <template v-if="loaded">{{ widgets.length }} items</template>
+        <template v-if="loaded"><span class="home-card-count-num">{{ widgets.length }}</span> items</template>
         <template v-else><span class="home-card-count-skel"></span></template>
       </div>
       <p class="home-card-desc">NoteDeck のカラムに追加できるウィジェット。</p>
@@ -79,7 +79,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
       </div>
       <div class="home-card-title">Skills</div>
       <div class="home-card-count">
-        <template v-if="loaded">{{ skills.length }} items</template>
+        <template v-if="loaded"><span class="home-card-count-num">{{ skills.length }}</span> items</template>
         <template v-else><span class="home-card-count-skel"></span></template>
       </div>
       <p class="home-card-desc">NoteDeck の AI に持たせるシステムプロンプト。</p>
@@ -220,7 +220,18 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
 .home-card-count {
   font-size: 12px;
   color: var(--text-muted);
-  min-height: 16px;
+  min-height: 22px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.home-card-count-num {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
 }
 
 .home-card-count-skel {
