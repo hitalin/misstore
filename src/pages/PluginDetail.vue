@@ -6,6 +6,7 @@ import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
+import IntegrityCard from '@/components/IntegrityCard.vue'
 
 const route = useRoute()
 const { loaded, findPlugin, buildInstallUrl, misskeyHost } = useStore()
@@ -99,51 +100,55 @@ function openMisskeyInstall() {
           </section>
         </div>
 
-        <aside class="detail-sidebar">
-          <dl class="detail-info-list">
-            <div class="detail-info-item">
-              <dt>Author</dt>
-              <dd>
-                <a v-if="plugin.authorUrl" :href="plugin.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ plugin.author }}</a>
-                <span v-else>{{ plugin.author }}</span>
-              </dd>
-            </div>
-            <div v-if="plugin.license" class="detail-info-item">
-              <dt>License</dt>
-              <dd>{{ plugin.license }}</dd>
-            </div>
-            <div v-if="plugin.repository" class="detail-info-item">
-              <dt>Repository</dt>
-              <dd><a :href="plugin.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
-            </div>
-            <div v-if="plugin.tags.length" class="detail-info-item">
-              <dt>Tags</dt>
-              <dd class="detail-tags">
-                <span v-for="tag in plugin.tags" :key="tag" class="detail-tag">{{ tag }}</span>
-              </dd>
-            </div>
-          </dl>
+        <div class="detail-side">
+          <aside class="detail-sidebar">
+            <dl class="detail-info-list">
+              <div class="detail-info-item">
+                <dt>Author</dt>
+                <dd>
+                  <a v-if="plugin.authorUrl" :href="plugin.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ plugin.author }}</a>
+                  <span v-else>{{ plugin.author }}</span>
+                </dd>
+              </div>
+              <div v-if="plugin.license" class="detail-info-item">
+                <dt>License</dt>
+                <dd>{{ plugin.license }}</dd>
+              </div>
+              <div v-if="plugin.repository" class="detail-info-item">
+                <dt>Repository</dt>
+                <dd><a :href="plugin.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
+              </div>
+              <div v-if="plugin.tags.length" class="detail-info-item">
+                <dt>Tags</dt>
+                <dd class="detail-tags">
+                  <span v-for="tag in plugin.tags" :key="tag" class="detail-tag">{{ tag }}</span>
+                </dd>
+              </div>
+            </dl>
 
-          <div class="detail-more-info">
-            <h3 class="detail-more-info-title">More Info</h3>
-            <div class="detail-more-info-row">
-              <span>Released</span>
-              <span>{{ formatDate(plugin.createdAt) }}</span>
+            <div class="detail-more-info">
+              <h3 class="detail-more-info-title">More Info</h3>
+              <div class="detail-more-info-row">
+                <span>Released</span>
+                <span>{{ formatDate(plugin.createdAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Last Updated</span>
+                <span>{{ formatDate(plugin.updatedAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Version</span>
+                <span>v{{ plugin.version }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Identifier</span>
+                <span>{{ plugin.id }}</span>
+              </div>
             </div>
-            <div class="detail-more-info-row">
-              <span>Last Updated</span>
-              <span>{{ formatDate(plugin.updatedAt) }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Version</span>
-              <span>v{{ plugin.version }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Identifier</span>
-              <span>{{ plugin.id }}</span>
-            </div>
-          </div>
-        </aside>
+          </aside>
+
+          <IntegrityCard :sha512="plugin.sha512" />
+        </div>
       </div>
     </template>
   </main>

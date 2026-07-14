@@ -7,6 +7,7 @@ import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import ThemePreview from '@/components/ThemePreview.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
+import IntegrityCard from '@/components/IntegrityCard.vue'
 
 const route = useRoute()
 const { loaded, findTheme, buildInstallUrl, misskeyHost } = useStore()
@@ -103,40 +104,44 @@ function openMisskeyInstall() {
           </section>
         </div>
 
-        <aside class="detail-sidebar">
-          <dl class="detail-info-list">
-            <div class="detail-info-item">
-              <dt>Author</dt>
-              <dd>{{ theme.author }}</dd>
-            </div>
-            <div v-if="theme.tags.length" class="detail-info-item">
-              <dt>Tags</dt>
-              <dd class="detail-tags">
-                <span v-for="tag in theme.tags" :key="tag" class="detail-tag">{{ tag }}</span>
-              </dd>
-            </div>
-          </dl>
+        <div class="detail-side">
+          <aside class="detail-sidebar">
+            <dl class="detail-info-list">
+              <div class="detail-info-item">
+                <dt>Author</dt>
+                <dd>{{ theme.author }}</dd>
+              </div>
+              <div v-if="theme.tags.length" class="detail-info-item">
+                <dt>Tags</dt>
+                <dd class="detail-tags">
+                  <span v-for="tag in theme.tags" :key="tag" class="detail-tag">{{ tag }}</span>
+                </dd>
+              </div>
+            </dl>
 
-          <div class="detail-more-info">
-            <h3 class="detail-more-info-title">More Info</h3>
-            <div class="detail-more-info-row">
-              <span>Released</span>
-              <span>{{ formatDate(theme.createdAt) }}</span>
+            <div class="detail-more-info">
+              <h3 class="detail-more-info-title">More Info</h3>
+              <div class="detail-more-info-row">
+                <span>Released</span>
+                <span>{{ formatDate(theme.createdAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Last Updated</span>
+                <span>{{ formatDate(theme.updatedAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Version</span>
+                <span>v{{ theme.version }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Identifier</span>
+                <span>{{ theme.id }}</span>
+              </div>
             </div>
-            <div class="detail-more-info-row">
-              <span>Last Updated</span>
-              <span>{{ formatDate(theme.updatedAt) }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Version</span>
-              <span>v{{ theme.version }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Identifier</span>
-              <span>{{ theme.id }}</span>
-            </div>
-          </div>
-        </aside>
+          </aside>
+
+          <IntegrityCard :sha512="theme.sha512" />
+        </div>
       </div>
     </template>
   </main>

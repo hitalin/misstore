@@ -6,6 +6,7 @@ import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
+import IntegrityCard from '@/components/IntegrityCard.vue'
 
 const route = useRoute()
 const { loaded, findWidget } = useStore()
@@ -77,62 +78,66 @@ const widget = findWidget(route.params.id as string)
           </section>
         </div>
 
-        <aside class="detail-sidebar">
-          <dl class="detail-info-list">
-            <div class="detail-info-item">
-              <dt>Author</dt>
-              <dd>
-                <a v-if="widget.authorUrl" :href="widget.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ widget.author }}</a>
-                <span v-else>{{ widget.author }}</span>
-              </dd>
-            </div>
-            <div v-if="widget.license" class="detail-info-item">
-              <dt>License</dt>
-              <dd>{{ widget.license }}</dd>
-            </div>
-            <div v-if="widget.repository" class="detail-info-item">
-              <dt>Repository</dt>
-              <dd><a :href="widget.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
-            </div>
-            <div class="detail-info-item">
-              <dt>Auto Run</dt>
-              <dd>{{ widget.autoRun ? 'Yes' : 'No' }}</dd>
-            </div>
-            <div class="detail-info-item">
-              <dt>Requires</dt>
-              <dd v-if="widget.capabilities.length" class="detail-tags">
-                <span v-for="c in widget.capabilities" :key="c" class="detail-tag">{{ WIDGET_CAPABILITY_LABELS[c] || c }}</span>
-              </dd>
-              <dd v-else>Standalone</dd>
-            </div>
-            <div v-if="widget.tags.length" class="detail-info-item">
-              <dt>Tags</dt>
-              <dd class="detail-tags">
-                <span v-for="tag in widget.tags" :key="tag" class="detail-tag">{{ tag }}</span>
-              </dd>
-            </div>
-          </dl>
+        <div class="detail-side">
+          <aside class="detail-sidebar">
+            <dl class="detail-info-list">
+              <div class="detail-info-item">
+                <dt>Author</dt>
+                <dd>
+                  <a v-if="widget.authorUrl" :href="widget.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ widget.author }}</a>
+                  <span v-else>{{ widget.author }}</span>
+                </dd>
+              </div>
+              <div v-if="widget.license" class="detail-info-item">
+                <dt>License</dt>
+                <dd>{{ widget.license }}</dd>
+              </div>
+              <div v-if="widget.repository" class="detail-info-item">
+                <dt>Repository</dt>
+                <dd><a :href="widget.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
+              </div>
+              <div class="detail-info-item">
+                <dt>Auto Run</dt>
+                <dd>{{ widget.autoRun ? 'Yes' : 'No' }}</dd>
+              </div>
+              <div class="detail-info-item">
+                <dt>Requires</dt>
+                <dd v-if="widget.capabilities.length" class="detail-tags">
+                  <span v-for="c in widget.capabilities" :key="c" class="detail-tag">{{ WIDGET_CAPABILITY_LABELS[c] || c }}</span>
+                </dd>
+                <dd v-else>Standalone</dd>
+              </div>
+              <div v-if="widget.tags.length" class="detail-info-item">
+                <dt>Tags</dt>
+                <dd class="detail-tags">
+                  <span v-for="tag in widget.tags" :key="tag" class="detail-tag">{{ tag }}</span>
+                </dd>
+              </div>
+            </dl>
 
-          <div class="detail-more-info">
-            <h3 class="detail-more-info-title">More Info</h3>
-            <div class="detail-more-info-row">
-              <span>Released</span>
-              <span>{{ formatDate(widget.createdAt) }}</span>
+            <div class="detail-more-info">
+              <h3 class="detail-more-info-title">More Info</h3>
+              <div class="detail-more-info-row">
+                <span>Released</span>
+                <span>{{ formatDate(widget.createdAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Last Updated</span>
+                <span>{{ formatDate(widget.updatedAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Version</span>
+                <span>v{{ widget.version }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Identifier</span>
+                <span>{{ widget.id }}</span>
+              </div>
             </div>
-            <div class="detail-more-info-row">
-              <span>Last Updated</span>
-              <span>{{ formatDate(widget.updatedAt) }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Version</span>
-              <span>v{{ widget.version }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Identifier</span>
-              <span>{{ widget.id }}</span>
-            </div>
-          </div>
-        </aside>
+          </aside>
+
+          <IntegrityCard :sha512="widget.sha512" />
+        </div>
       </div>
     </template>
   </main>

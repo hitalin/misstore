@@ -10,6 +10,7 @@ import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
+import IntegrityCard from '@/components/IntegrityCard.vue'
 
 const route = useRoute()
 const { loaded, findSkill } = useStore()
@@ -81,73 +82,77 @@ const skill = findSkill(route.params.id as string)
           </section>
         </div>
 
-        <aside class="detail-sidebar">
-          <dl class="detail-info-list">
-            <div class="detail-info-item">
-              <dt>Author</dt>
-              <dd>
-                <a v-if="skill.authorUrl" :href="skill.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ skill.author }}</a>
-                <span v-else>{{ skill.author }}</span>
-              </dd>
-            </div>
-            <div v-if="skill.license" class="detail-info-item">
-              <dt>License</dt>
-              <dd>{{ skill.license }}</dd>
-            </div>
-            <div v-if="skill.repository" class="detail-info-item">
-              <dt>Repository</dt>
-              <dd><a :href="skill.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
-            </div>
-            <div class="detail-info-item">
-              <dt>Mode</dt>
-              <dd>{{ SKILL_MODE_LABELS[skill.mode] || skill.mode }}</dd>
-            </div>
-            <div class="detail-info-item">
-              <dt>Scope</dt>
-              <dd>{{ SKILL_SCOPE_LABELS[skill.scope] || skill.scope }}</dd>
-            </div>
-            <div v-if="skill.triggers.length" class="detail-info-item">
-              <dt>Triggers</dt>
-              <dd class="detail-tags">
-                <span v-for="t in skill.triggers" :key="t" class="detail-tag">{{ t }}</span>
-              </dd>
-            </div>
-            <div v-if="skill.builtIn" class="detail-info-item">
-              <dt>Built-in</dt>
-              <dd>Yes</dd>
-            </div>
-            <div v-if="skill.isPersona" class="detail-info-item">
-              <dt>Persona</dt>
-              <dd>Yes</dd>
-            </div>
-            <div v-if="skill.tags.length" class="detail-info-item">
-              <dt>Tags</dt>
-              <dd class="detail-tags">
-                <span v-for="tag in skill.tags" :key="tag" class="detail-tag">{{ tag }}</span>
-              </dd>
-            </div>
-          </dl>
+        <div class="detail-side">
+          <aside class="detail-sidebar">
+            <dl class="detail-info-list">
+              <div class="detail-info-item">
+                <dt>Author</dt>
+                <dd>
+                  <a v-if="skill.authorUrl" :href="skill.authorUrl" target="_blank" rel="noopener" class="detail-link">{{ skill.author }}</a>
+                  <span v-else>{{ skill.author }}</span>
+                </dd>
+              </div>
+              <div v-if="skill.license" class="detail-info-item">
+                <dt>License</dt>
+                <dd>{{ skill.license }}</dd>
+              </div>
+              <div v-if="skill.repository" class="detail-info-item">
+                <dt>Repository</dt>
+                <dd><a :href="skill.repository" target="_blank" rel="noopener" class="detail-link">Source Code</a></dd>
+              </div>
+              <div class="detail-info-item">
+                <dt>Mode</dt>
+                <dd>{{ SKILL_MODE_LABELS[skill.mode] || skill.mode }}</dd>
+              </div>
+              <div class="detail-info-item">
+                <dt>Scope</dt>
+                <dd>{{ SKILL_SCOPE_LABELS[skill.scope] || skill.scope }}</dd>
+              </div>
+              <div v-if="skill.triggers.length" class="detail-info-item">
+                <dt>Triggers</dt>
+                <dd class="detail-tags">
+                  <span v-for="t in skill.triggers" :key="t" class="detail-tag">{{ t }}</span>
+                </dd>
+              </div>
+              <div v-if="skill.builtIn" class="detail-info-item">
+                <dt>Built-in</dt>
+                <dd>Yes</dd>
+              </div>
+              <div v-if="skill.isPersona" class="detail-info-item">
+                <dt>Persona</dt>
+                <dd>Yes</dd>
+              </div>
+              <div v-if="skill.tags.length" class="detail-info-item">
+                <dt>Tags</dt>
+                <dd class="detail-tags">
+                  <span v-for="tag in skill.tags" :key="tag" class="detail-tag">{{ tag }}</span>
+                </dd>
+              </div>
+            </dl>
 
-          <div class="detail-more-info">
-            <h3 class="detail-more-info-title">More Info</h3>
-            <div class="detail-more-info-row">
-              <span>Released</span>
-              <span>{{ formatDate(skill.createdAt) }}</span>
+            <div class="detail-more-info">
+              <h3 class="detail-more-info-title">More Info</h3>
+              <div class="detail-more-info-row">
+                <span>Released</span>
+                <span>{{ formatDate(skill.createdAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Last Updated</span>
+                <span>{{ formatDate(skill.updatedAt) }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Version</span>
+                <span>v{{ skill.version }}</span>
+              </div>
+              <div class="detail-more-info-row">
+                <span>Identifier</span>
+                <span>{{ skill.id }}</span>
+              </div>
             </div>
-            <div class="detail-more-info-row">
-              <span>Last Updated</span>
-              <span>{{ formatDate(skill.updatedAt) }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Version</span>
-              <span>v{{ skill.version }}</span>
-            </div>
-            <div class="detail-more-info-row">
-              <span>Identifier</span>
-              <span>{{ skill.id }}</span>
-            </div>
-          </div>
-        </aside>
+          </aside>
+
+          <IntegrityCard :sha512="skill.sha512" />
+        </div>
       </div>
     </template>
   </main>
