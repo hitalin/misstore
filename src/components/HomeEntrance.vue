@@ -192,7 +192,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
   margin: 0 auto;
   padding: 20px 24px 8px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -278,6 +278,10 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
 .home-section-more:hover {
   color: var(--accent);
   background: var(--surface-hover);
+}
+
+@media (max-width: 900px) {
+  .home-cards { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (max-width: 800px) {
