@@ -1,0 +1,13 @@
+{
+  "id": "onedraw-timer",
+  "name": "ワンドロタイマー",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "description": "60分お絵描き (ワンドロ) 用カウントダウンタイマー。お題ガチャ付き、完走したらお題とタグ入りで投稿フォームを開ける。リロードしても続きから再開。API キー不要",
+  "icon": "ti-alarm",
+  "autoRun": true,
+  "category": "input",
+  "capabilities": [],
+  "license": "MIT",
+  "tags": ["artist", "onedraw", "timer", "drawing", "gacha"]
+}

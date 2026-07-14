@@ -1,0 +1,237 @@
+/// ワンドロタイマーウィジェット
+/// 60分お絵描き (ワンドロ) 用のカウントダウンタイマー + お題ガチャ。
+/// - スタートで DURATION_MIN 分のカウントダウン。30秒ごとに残り時間とメーターを更新
+/// - 終了時刻 (endAt) を Mk:save に保存するのでリロードしても続きから再開する
+/// - お題ガチャは モチーフ × スパイス をローカル生成 (API キー・トークン不要)
+/// - 完走すると投稿ボタンが現れ、お題とハッシュタグ入りで投稿フォームを開く
+/// 制限時間・タグを変えるには下の DURATION_MIN / HASHTAG を直接編集する。
+/// 注意: widget interpreter の maxStep は生涯累積 (100000)。UI 再構築 (Ui:render) は
+/// 画面遷移 (待機/計測/完走) のときだけ行い、30秒ごとのティックは捕捉済み
+/// コンポーネントの .update() に絞って歩数を節約する (wellbeing と同じ方式)。
+
+let DURATION_MIN = 60   // 制限時間 (分)。90分ドロなら 90 に
+let TICK_MS = 30000
+let HASHTAG = "#ワンドロ" // 完走投稿に入れるタグ
+
+let MUTED = "8a96a3"
+let LINE = "5a6573"
+let GREEN = "3dd68c"
+let YELLOW = "ffb300"
+let RED = "ff6961"
+
+let KEY = "onedraw:state"
+
+// お題ガチャ: モチーフ × スパイス の掛け合わせ
+let MOTIFS = [
+  "推しキャラ", "自分のオリキャラ", "けもみみ", "天使", "悪魔"
+  "魔法使い", "騎士", "メイド", "和装", "ゴスロリ"
+  "人魚", "ドラゴン", "猫", "ロボット", "吸血鬼"
+  "忍者", "アイドル", "探偵", "宇宙飛行士", "剣士"
+]
+let SPICES = [
+  "雨の中で", "夕焼けと", "モノクロ縛り", "3色縛り", "ローアングルで"
+  "俯瞰構図で", "満面の笑みで", "泣き顔で", "戦闘シーンで", "おやつと一緒に"
+  "傘を差して", "花に囲まれて", "夜の街で", "海辺で", "光と影を強調して"
+  "シルエット主体で", "ミニキャラで", "真横からの構図で", "風になびく髪で", "逆光で"
+]
+
+var mode = "idle"   // idle | run | done
+var endAt = 0
+var subject = ""
+var stopTick = null
+
+// 捕捉済みコンポーネント (計測画面)
+var heroC = null
+var meterC = null
+
+@pad(n) { if (n < 10) `0{n}` else `{n}` }
+
+/// ms → "42分" / "1分未満"
+@remainLabel(ms) {
+  let mins = Math:ceil(ms / 60000)
+  if (mins <= 1) "1分未満" else `{mins}分`
+}
+
+// 残量メーター (10 セル) は毎ティック描くので起動時に全パターン事前計算
+var METERS = []
+for (let filled, 11) {
+  var buf = ""
+  for (let i, 10) {
+    if (i < filled) { buf = `{buf}▰` } else { buf = `{buf}▱` }
+  }
+  METERS.push(buf)
+}
+
+@saveState() {
+  Mk:save(KEY, {
+    mode: mode
+    endAt: endAt
+    subject: subject
+  })
+}
+
+@subjectLine() {
+  if (subject == "") `$[fg.color={MUTED} お題なし (ガチャで引けます)]` else `🎨 **{subject}**`
+}
+
+// ─────────────────────────────
+// 計測画面
+// ─────────────────────────────
+@refreshRun() {
+  let remain = endAt - Date:now()
+  if (remain <= 0) {
+    finishRun()
+  } else {
+    let mins = Math:ceil(remain / 60000)
+    var col = GREEN
+    if (mins <= 5) { col = RED } elif (mins <= 15) { col = YELLOW }
+    var cells = Math:ceil(remain * 10 / (DURATION_MIN * 60000))
+    if (cells > 10) { cells = 10 }
+    heroC.update({ text: `<center>$[x2 $[fg.color={col} **残り {remainLabel(remain)}**]]</center>` })
+    meterC.update({ text: `<center>$[fg.color={col} {METERS[cells]}]</center>` })
+  }
+}
+
+@renderRun() {
+  heroC = Ui:C:mfm({ text: "" })
+  meterC = Ui:C:mfm({ text: "" })
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      padding: 10
+      children: [
+        Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>⏱ ワンドロ進行中</small>]</center>` })
+        heroC
+        meterC
+        Ui:C:mfm({ text: `<center>{subjectLine()}</center>` })
+        Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+        Ui:C:container({ align: "center", children: [
+          Ui:C:button({ text: "⏹ やめる", rounded: true, onClick: @() {
+            if (stopTick != null) {
+              stopTick()
+              stopTick = null
+            }
+            mode = "idle"
+            saveState()
+            renderIdle()
+          } })
+        ] })
+      ]
+    })
+  ])
+  refreshRun()
+}
+
+@finishRun() {
+  if (stopTick != null) {
+    stopTick()
+    stopTick = null
+  }
+  mode = "done"
+  saveState()
+  renderDone()
+}
+
+@startRun() {
+  endAt = Date:now() + (DURATION_MIN * 60000)
+  mode = "run"
+  saveState()
+  // renderRun 中にタイムアップ (finishRun) しても止められるよう、interval は先に登録する
+  stopTick = Async:interval(TICK_MS, refreshRun, false)
+  renderRun()
+}
+
+// ─────────────────────────────
+// 完走画面
+// ─────────────────────────────
+@renderDone() {
+  var formText = `{HASHTAG} 完走しました！`
+  if (subject != "") {
+    formText = `お題「{subject}」で{DURATION_MIN}分一本勝負！ {HASHTAG}`
+  }
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      padding: 10
+      children: [
+        Ui:C:mfm({ text: `<center>$[x2 🎉]</center>` })
+        Ui:C:mfm({ text: `<center>$[fg.color={GREEN} **{DURATION_MIN}分完走！おつかれさまでした**]</center>` })
+        Ui:C:mfm({ text: `<center>{subjectLine()}</center>` })
+        Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+        Ui:C:postFormButton({
+          text: "🖼 成果を投稿する"
+          rounded: true
+          primary: true
+          form: { text: formText }
+        })
+        Ui:C:container({ align: "center", children: [
+          Ui:C:button({ text: "🔁 もう一回", rounded: true, onClick: @() {
+            mode = "idle"
+            saveState()
+            renderIdle()
+          } })
+        ] })
+      ]
+    })
+  ])
+}
+
+// ─────────────────────────────
+// 待機画面
+// ─────────────────────────────
+@renderIdle() {
+  let subjectC = Ui:C:mfm({ text: `<center>{subjectLine()}</center>` })
+  Ui:render([
+    Ui:C:container({
+      align: "center"
+      padding: 10
+      children: [
+        Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>🖌 ワンドロタイマー</small>]</center>` })
+        Ui:C:mfm({ text: `<center>$[x2 **{DURATION_MIN}:00**]</center>` })
+        subjectC
+        Ui:C:mfm({ text: `<center>$[fg.color={LINE} ───────────────]</center>` })
+        Ui:C:container({ align: "center", children: [
+          Ui:C:button({ text: "🎲 お題ガチャ", rounded: true, onClick: @() {
+            subject = `{MOTIFS[Math:rnd(0, MOTIFS.len - 1)]}を{SPICES[Math:rnd(0, SPICES.len - 1)]}`
+            saveState()
+            subjectC.update({ text: `<center>{subjectLine()}</center>` })
+          } })
+          Ui:C:button({ text: "▶ スタート", rounded: true, primary: true, onClick: @() {
+            startRun()
+          } })
+        ] })
+        Ui:C:mfm({ text: `<center>$[fg.color={MUTED} <small>開始後はリロードしても続きから再開します</small>]</center>` })
+      ]
+    })
+  ])
+}
+
+// ─────────────────────────────
+// 起動: 前回状態の復元
+// ─────────────────────────────
+let saved = Mk:load(KEY)
+if (saved != null && Core:type(saved) == "obj") {
+  if (Obj:has(saved, "subject") && Core:type(saved.subject) == "str") {
+    subject = saved.subject
+  }
+  if (Obj:has(saved, "mode") && saved.mode == "run" && Obj:has(saved, "endAt") && Core:type(saved.endAt) == "num") {
+    if (saved.endAt > Date:now()) {
+      endAt = saved.endAt
+      mode = "run"
+    } else {
+      // 閉じている間にタイムアップしていた
+      mode = "done"
+    }
+  } elif (Obj:has(saved, "mode") && saved.mode == "done") {
+    mode = "done"
+  }
+}
+
+if (mode == "run") {
+  stopTick = Async:interval(TICK_MS, refreshRun, false)
+  renderRun()
+} elif (mode == "done") {
+  renderDone()
+} else {
+  renderIdle()
+}
