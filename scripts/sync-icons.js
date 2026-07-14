@@ -51,6 +51,7 @@ const ICON_MAP = {
   'skills/mfm-art': { pack: 'lucide', name: 'palette' },
   'skills/mfm-reference': { pack: 'lucide', name: 'book-open' },
   'skills/post-helper': { pack: 'lucide', name: 'wand-sparkles' },
+  'skills/repost-sentinel': { pack: 'lucide', name: 'radar' },
   'skills/summarizer': { pack: 'lucide', name: 'align-left' },
   'skills/translator': { pack: 'lucide', name: 'languages' },
 }
