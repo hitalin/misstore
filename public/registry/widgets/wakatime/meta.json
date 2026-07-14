@@ -8,7 +8,7 @@
   "icon": "ti-clock-code",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api","secret-vault"],
   "license": "MIT",
   "tags": ["wakatime", "vault", "coding", "developer", "stats"]
 }

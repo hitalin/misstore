@@ -8,7 +8,7 @@
   "icon": "ti-trending-up",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["stocks", "finance", "yahoo-finance", "nikkei", "forex"]
 }

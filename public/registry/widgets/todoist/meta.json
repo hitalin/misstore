@@ -8,7 +8,7 @@
   "icon": "ti-circle-check",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api","secret-vault"],
   "license": "MIT",
   "tags": ["todoist", "vault", "tasks", "todo", "productivity"]
 }

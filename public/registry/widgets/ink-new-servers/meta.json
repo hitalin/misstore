@@ -8,7 +8,7 @@
   "icon": "ti-seedling",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["misskey", "servers", "new", "discovery", "fediverse"]
 }

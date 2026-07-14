@@ -8,7 +8,7 @@
   "icon": "ti-user-check",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["misskey", "online", "status", "presence", "user"]
 }

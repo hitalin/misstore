@@ -8,7 +8,7 @@
   "icon": "ti-activity",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["earthquake", "jma", "wolfx", "disaster"]
 }

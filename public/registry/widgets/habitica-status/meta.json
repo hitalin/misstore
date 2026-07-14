@@ -8,7 +8,7 @@
   "icon": "ti-sword",
   "autoRun": true,
   "category": "stats",
-  "capabilities": [],
+  "capabilities": ["notedeck-api","secret-vault"],
   "license": "MIT",
   "tags": ["habitica", "vault", "stats", "rpg"]
 }

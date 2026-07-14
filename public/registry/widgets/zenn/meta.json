@@ -8,7 +8,7 @@
   "icon": "ti-article",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["zenn", "blog", "tech", "trending", "ranking"]
 }

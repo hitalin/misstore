@@ -8,7 +8,7 @@
   "icon": "ti-trophy",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["atcoder", "competitive-programming", "rating", "contest", "developer"]
 }

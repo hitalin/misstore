@@ -8,7 +8,7 @@
   "icon": "ti-cat",
   "autoRun": true,
   "category": "stats",
-  "capabilities": [],
+  "capabilities": ["notedeck-api","secret-vault"],
   "license": "MIT",
   "tags": ["mewk", "misskey", "question-box", "peing", "stats"]
 }

@@ -8,7 +8,7 @@
   "icon": "ti-currency-bitcoin",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["crypto", "cryptocurrency", "bitcoin", "coingecko"]
 }

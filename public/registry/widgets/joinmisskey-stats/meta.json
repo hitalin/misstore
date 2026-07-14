@@ -8,7 +8,7 @@
   "icon": "ti-planet",
   "autoRun": true,
   "category": "stats",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["fediverse", "federation", "misskey", "joinmisskey", "stats"]
 }

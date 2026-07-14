@@ -90,11 +90,13 @@ export type WidgetCapability =
   | 'misskey-api'
   | 'misskey-account'
   | 'notedeck-api'
+  | 'secret-vault'
 
 export const WIDGET_CAPABILITY_LABELS: Record<WidgetCapability, string> = {
   'misskey-api': 'Misskey API',
   'misskey-account': 'Account',
   'notedeck-api': 'NoteDeck API',
+  'secret-vault': 'Secret Vault',
 }
 
 export interface SkillEntry {

@@ -8,7 +8,7 @@
   "icon": "ti-rocket",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api"],
   "license": "MIT",
   "tags": ["github", "release", "changelog", "misskey"]
 }

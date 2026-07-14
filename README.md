@@ -146,6 +146,7 @@ public/registry/
 - `misskey-api` — `Mk:api` で Misskey REST API を呼ぶ
 - `misskey-account` — ログイン済みアカウントを前提とする（自分の情報の取得や投稿など）
 - `notedeck-api` — NoteDeck 独自の `Nd:*` API を使う（他クライアントでは動作しない）
+- `secret-vault` — NoteDeck の Secret Vault に外部サービスの API キー接続を登録しておく必要がある（`Nd:call`）
 
 空配列 `[]` は standalone（AiScript 標準機能のみ）を意味する。
 

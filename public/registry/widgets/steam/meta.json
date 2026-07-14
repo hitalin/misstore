@@ -8,7 +8,7 @@
   "icon": "ti-brand-steam",
   "autoRun": true,
   "category": "display",
-  "capabilities": [],
+  "capabilities": ["notedeck-api","secret-vault"],
   "license": "MIT",
   "tags": ["steam", "vault", "gaming", "status", "profile"]
 }
