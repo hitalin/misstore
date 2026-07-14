@@ -1,0 +1,197 @@
+/// @ 1.2.1
+
+// URL 安全チェック — ノート内の URL をキー不要の脅威 DB で照合
+//
+// ノートメニューから本文中の URL を抽出し、以下の 3 ソースで照合する。
+// いずれも API キー不要 (Vault 不要、vault.fetch の plugin 開放 #759 に依存しない):
+//   - Cloudflare Malware DNS (security.cloudflare-dns.com):
+//     脅威リスト掲載ドメインは 0.0.0.0 に censored されるのを判定に使う
+//   - PhishTank (checkurl.phishtank.com): フィッシング URL データベース照合
+//   - Sucuri SiteCheck (sitecheck.sucuri.net): ブラックリスト照合 + 総合評価
+//
+// Nd:http は呼び出しごとに確認ダイアログが出る (network.external)。
+// 「今後この操作を確認しない」で以降はスキップされる。
+// AiScript に try/catch は無いため、いずれかのサービスがネットワーク的に
+// 落ちている場合はハンドラごと停止する (HTTP エラーステータスは処理する)。
+
+### {
+	name: "URL 安全チェック"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノート本文の URL を Cloudflare Malware DNS / PhishTank / Sucuri SiteCheck で照合し、フィッシング・マルウェアの兆候を確認します。チェック時に URL が各サービスに送信されます。API キーは不要です"
+	permissions: ["network.external"]
+	config: {
+		checkSucuri: {
+			type: "boolean"
+			label: "Sucuri SiteCheck も実行する"
+			description: "ブラックリスト照合と総合評価。未スキャンのドメインは応答に時間がかかることがあります"
+			default: true
+		}
+		maxUrls: {
+			type: "number"
+			label: "1回にチェックする URL の上限"
+			default: 3
+		}
+	}
+}
+
+let trailingClosers = [")", "）", "」", "]", ",", "、", "。", "\"", ">"]
+
+// 文末で URL に括弧や句読点が続くケース (「(https://...)」等) の末尾記号を剥がす
+@stripTail(token) {
+	var body = token
+	loop {
+		if (body.len == 0) break
+		let last = body.slice(body.len - 1, body.len)
+		if (!trailingClosers.incl(last)) break
+		body = body.slice(0, body.len - 1)
+	}
+	body
+}
+
+@extractUrls(text) {
+	let normalized = text.replace(" ", Str:lf).replace("　", Str:lf)
+	var urls = []
+	each (let token, normalized.split(Str:lf)) {
+		var hIdx = token.index_of("https://")
+		if (hIdx == -1) hIdx = token.index_of("http://")
+		if (hIdx != -1) {
+			let url = stripTail(token.slice(hIdx, token.len))
+			if (url.index_of("://") != -1 && !urls.incl(url)) {
+				urls.push(url)
+			}
+		}
+	}
+	urls
+}
+
+@extractDomain(url) {
+	let idx = url.index_of("://")
+	if (idx == -1) return null
+	var rest = url.slice(idx + 3, url.len)
+	each (let sep, ["/", "?", "#"]) {
+		let i = rest.index_of(sep)
+		if (i != -1) rest = rest.slice(0, i)
+	}
+	let atIdx = rest.index_of("@")
+	if (atIdx != -1) rest = rest.slice(atIdx + 1, rest.len)
+	let colonIdx = rest.index_of(":")
+	if (colonIdx != -1) rest = rest.slice(0, colonIdx)
+	if (rest == "") return null
+	rest
+}
+
+// Cloudflare Malware DNS (1.1.1.2 相当の DoH)。脅威リスト掲載ドメインは
+// 0.0.0.0 への censored 応答になる
+@checkCloudflare(domain) {
+	let res = Nd:http(`https://security.cloudflare-dns.com/dns-query?name={Uri:encode_component(domain)}&type=A`, {
+		method: "GET"
+		headers: { "accept": "application/dns-json" }
+	})
+	if (res.status != 200) return `❓ 取得失敗 (HTTP {res.status})`
+	let data = Json:parse(res.body)
+	var blocked = false
+	if (data.Answer != null) {
+		each (let a, data.Answer) {
+			if (a.data == "0.0.0.0") blocked = true
+		}
+	}
+	if (blocked) return "🚫 危険 — 脅威リストでブロックされています"
+	if (data.Status == 3) return "❓ ドメインが存在しません"
+	"✅ 検出なし"
+}
+
+@checkPhishtank(url) {
+	// PhishTank は phishtank/ prefix の User-Agent を要求する (それ以外は 403)
+	let res = Nd:http("https://checkurl.phishtank.com/checkurl/", {
+		method: "POST"
+		headers: {
+			"content-type": "application/x-www-form-urlencoded"
+			"user-agent": "phishtank/notedeck"
+		}
+		body: `url={Uri:encode_component(url)}&format=json`
+	})
+	if (res.status != 200) return `❓ 取得失敗 (HTTP {res.status})`
+	let data = Json:parse(res.body)
+	if (data.results == null) return "❓ 応答を解釈できませんでした"
+	if (data.results.in_database == true && data.results.valid == true) {
+		return "🚨 危険 — フィッシングサイトとして登録済み"
+	}
+	"✅ 検出なし"
+}
+
+@checkSucuri(domain) {
+	let res = Nd:http(`https://sitecheck.sucuri.net/api/v3/?scan={Uri:encode_component(domain)}`, {
+		method: "GET"
+		timeoutMs: 60000
+	})
+	if (res.status != 200) return `❓ 取得失敗 (HTTP {res.status})`
+	let data = Json:parse(res.body)
+	var parts = []
+	if (data.ratings != null && data.ratings.total != null) {
+		parts.push(`総合評価 {data.ratings.total.rating}`)
+	}
+	if (data.warnings != null) {
+		each (let kv, Obj:kvs(data.warnings)) {
+			let key = kv[0]
+			let n = if (Core:type(kv[1]) == "arr") kv[1].len else 1
+			if (key == "blacklist") {
+				parts.push(`🚨 ブラックリスト掲載 {n}件`)
+			} elif (key == "scan_failed") {
+				parts.push("スキャン未完了")
+			} else {
+				parts.push(`⚠️ 警告 ({key}) {n}件`)
+			}
+		}
+	}
+	if (parts.len == 0) return "✅ 警告なし"
+	parts.join(" / ")
+}
+
+Plugin:register_note_action("URL の安全性をチェック", @(note) {
+	if (note.text == null) {
+		Mk:dialog("URL 安全チェック", "テキストのないノートです", "info")
+		return null
+	}
+	let urls = extractUrls(note.text)
+	if (urls.len == 0) {
+		Mk:dialog("URL 安全チェック", "ノートに URL が見つかりませんでした", "info")
+		return null
+	}
+	var targets = []
+	each (let url, urls) {
+		if (targets.len < Plugin:config.maxUrls) targets.push(url)
+	}
+
+	var lines = []
+	var flaggedDomain = null
+	each (let url, targets) {
+		let domain = extractDomain(url)
+		if (domain != null) {
+			lines.push(`🔗 {url}`)
+			let cf = checkCloudflare(domain)
+			lines.push(`Cloudflare DNS: {cf}`)
+			let pt = checkPhishtank(url)
+			lines.push(`PhishTank: {pt}`)
+			if (Plugin:config.checkSucuri) {
+				lines.push(`Sucuri: {checkSucuri(domain)}`)
+			}
+			if (cf.index_of("🚫") != -1 || pt.index_of("🚨") != -1) {
+				if (flaggedDomain == null) flaggedDomain = domain
+			}
+			lines.push("")
+		}
+	}
+	if (urls.len > targets.len) {
+		lines.push(`(URL {urls.len}件のうち先頭{targets.len}件をチェックしました)`)
+	}
+
+	let dtype = if (flaggedDomain != null) "warn" else "info"
+	Mk:dialog("URL 安全チェック結果", lines.join(Str:lf), dtype)
+
+	if (flaggedDomain != null) {
+		if (Mk:confirm("URL 安全チェック", `危険判定が出ました。urlscan.io で {flaggedDomain} を詳しく調べますか?`)) {
+			Plugin:open_url(`https://urlscan.io/domain/{flaggedDomain}`)
+		}
+	}
+})

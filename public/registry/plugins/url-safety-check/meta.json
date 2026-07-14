@@ -1,0 +1,13 @@
+{
+  "id": "url-safety-check",
+  "name": "URL 安全チェック",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ノート本文の URL を Cloudflare Malware DNS / PhishTank / Sucuri SiteCheck で照合し、フィッシング・マルウェアの兆候を確認。API キー不要",
+  "license": "MIT",
+  "category": "utility",
+  "tags": ["security", "phishing", "malware", "url-check"],
+  "permissions": ["network.external"],
+  "minNoteDeckVersion": "1.8.0"
+}
