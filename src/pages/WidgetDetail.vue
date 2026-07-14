@@ -69,7 +69,6 @@ const widget = findWidget(route.params.id as string)
           </div>
 
           <section class="detail-section">
-            <h2 class="detail-section-title">Source</h2>
             <CodeBlock
               :source="widget.sourceUrl"
               lang="js"

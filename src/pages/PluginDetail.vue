@@ -91,7 +91,6 @@ function openMisskeyInstall() {
           </div>
 
           <section class="detail-section">
-            <h2 class="detail-section-title">Source</h2>
             <CodeBlock
               :source="plugin.sourceUrl"
               lang="js"
