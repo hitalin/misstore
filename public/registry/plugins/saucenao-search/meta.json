@@ -1,0 +1,13 @@
+{
+  "id": "saucenao-search",
+  "name": "SauceNao 画像検索",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ノートメニューから添付画像の出典を SauceNao で逆検索。API キーはユーザー自身のものを設定",
+  "license": "MIT",
+  "category": "integration",
+  "tags": ["saucenao", "image-search", "reverse-search"],
+  "permissions": ["network.external"],
+  "minNoteDeckVersion": "1.8.0"
+}
