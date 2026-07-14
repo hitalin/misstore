@@ -7,6 +7,7 @@ import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
 import IntegrityCard from '@/components/IntegrityCard.vue'
+import PermissionsCard from '@/components/PermissionsCard.vue'
 
 const route = useRoute()
 const { loaded, findWidget } = useStore()
@@ -99,13 +100,6 @@ const widget = findWidget(route.params.id as string)
                 <dt>Auto Run</dt>
                 <dd>{{ widget.autoRun ? 'Yes' : 'No' }}</dd>
               </div>
-              <div class="detail-info-item">
-                <dt>Requires</dt>
-                <dd v-if="widget.capabilities.length" class="detail-tags">
-                  <span v-for="c in widget.capabilities" :key="c" class="detail-tag">{{ WIDGET_CAPABILITY_LABELS[c] || c }}</span>
-                </dd>
-                <dd v-else>Standalone</dd>
-              </div>
               <div v-if="widget.tags.length" class="detail-info-item">
                 <dt>Tags</dt>
                 <dd class="detail-tags">
@@ -134,6 +128,12 @@ const widget = findWidget(route.params.id as string)
               </div>
             </div>
           </aside>
+
+          <PermissionsCard
+            title="Requires"
+            :items="widget.capabilities.map((c) => WIDGET_CAPABILITY_LABELS[c] || c)"
+            empty-text="Standalone — 外部サービス連携なしで動作します"
+          />
 
           <IntegrityCard :sha512="widget.sha512" />
         </div>

@@ -1004,6 +1004,11 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   top: auto;
 }
 
+.detail-permissions-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
 .detail-integrity-note {
   font-size: 12px;
   color: var(--text-muted);

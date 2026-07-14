@@ -7,6 +7,7 @@ import { useStore } from '@/composables/useStore'
 import StoreHeader from '@/components/StoreHeader.vue'
 import CodeBlock from '@/components/CodeBlock.vue'
 import IntegrityCard from '@/components/IntegrityCard.vue'
+import PermissionsCard from '@/components/PermissionsCard.vue'
 
 const route = useRoute()
 const { loaded, findPlugin, buildInstallUrl, misskeyHost } = useStore()
@@ -145,6 +146,12 @@ function openMisskeyInstall() {
               </div>
             </div>
           </aside>
+
+          <PermissionsCard
+            title="Permissions"
+            :items="plugin.permissions || []"
+            empty-text="追加の権限要求はありません"
+          />
 
           <IntegrityCard :sha512="plugin.sha512" />
         </div>
