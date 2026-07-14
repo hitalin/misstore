@@ -41,49 +41,73 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
   </section>
 
   <section class="home-cards">
-    <button class="home-card" type="button" @click="go('plugins')">
-      <div class="home-card-icon" aria-hidden="true">🧩</div>
-      <div class="home-card-title">Plugins</div>
-      <div class="home-card-count">
-        <template v-if="loaded"><span class="home-card-count-num">{{ plugins.length }}</span> items</template>
-        <template v-else><span class="home-card-count-skel"></span></template>
+    <button class="vsx-card vsx-card-link home-card" type="button" @click="go('plugins')">
+      <div class="vsx-body">
+        <div class="vsx-icon-plain" aria-hidden="true">🧩</div>
+        <div class="vsx-details">
+          <div class="vsx-name">Plugins</div>
+          <div class="home-card-count">
+            <template v-if="loaded"><span class="home-card-count-num">{{ plugins.length }}</span> items</template>
+            <template v-else><span class="home-card-count-skel"></span></template>
+          </div>
+          <p class="vsx-desc">タイムラインや投稿を拡張する AiScript プラグイン。</p>
+        </div>
       </div>
-      <p class="home-card-desc">タイムラインや投稿を拡張する AiScript プラグイン。</p>
-      <span class="home-card-cta">Browse →</span>
+      <div class="vsx-footer home-card-footer">
+        <span class="home-card-cta">Browse →</span>
+      </div>
     </button>
-    <button class="home-card" type="button" @click="go('themes')">
-      <div class="home-card-icon" aria-hidden="true">🎨</div>
-      <div class="home-card-title">Themes</div>
-      <div class="home-card-count">
-        <template v-if="loaded"><span class="home-card-count-num">{{ themes.length }}</span> items</template>
-        <template v-else><span class="home-card-count-skel"></span></template>
+    <button class="vsx-card vsx-card-link home-card" type="button" @click="go('themes')">
+      <div class="vsx-body">
+        <div class="vsx-icon-plain" aria-hidden="true">🎨</div>
+        <div class="vsx-details">
+          <div class="vsx-name">Themes</div>
+          <div class="home-card-count">
+            <template v-if="loaded"><span class="home-card-count-num">{{ themes.length }}</span> items</template>
+            <template v-else><span class="home-card-count-skel"></span></template>
+          </div>
+          <p class="vsx-desc">配色を丸ごと入れ替える Misskey 互換テーマ。</p>
+        </div>
       </div>
-      <p class="home-card-desc">配色を丸ごと入れ替える Misskey 互換テーマ。</p>
-      <span class="home-card-cta">Browse →</span>
+      <div class="vsx-footer home-card-footer">
+        <span class="home-card-cta">Browse →</span>
+      </div>
     </button>
-    <button class="home-card" type="button" @click="go('widgets')">
-      <div class="home-card-icon" aria-hidden="true" style="color: var(--accent)">
-        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+    <button class="vsx-card vsx-card-link home-card" type="button" @click="go('widgets')">
+      <div class="vsx-body">
+        <div class="vsx-icon-plain" aria-hidden="true" style="color: var(--accent)">
+          <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+        </div>
+        <div class="vsx-details">
+          <div class="vsx-name">Widgets</div>
+          <div class="home-card-count">
+            <template v-if="loaded"><span class="home-card-count-num">{{ widgets.length }}</span> items</template>
+            <template v-else><span class="home-card-count-skel"></span></template>
+          </div>
+          <p class="vsx-desc">NoteDeck のカラムに追加できるウィジェット。</p>
+        </div>
       </div>
-      <div class="home-card-title">Widgets</div>
-      <div class="home-card-count">
-        <template v-if="loaded"><span class="home-card-count-num">{{ widgets.length }}</span> items</template>
-        <template v-else><span class="home-card-count-skel"></span></template>
+      <div class="vsx-footer home-card-footer">
+        <span class="home-card-cta">Browse →</span>
       </div>
-      <p class="home-card-desc">NoteDeck のカラムに追加できるウィジェット。</p>
-      <span class="home-card-cta">Browse →</span>
     </button>
-    <button class="home-card" type="button" @click="go('skills')">
-      <div class="home-card-icon" aria-hidden="true" style="color: var(--accent)">
-        <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M5 16l.75 2.25L8 19l-2.25.75L5 22l-.75-2.25L2 19l2.25-.75z"/><path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75z"/></svg>
+    <button class="vsx-card vsx-card-link home-card" type="button" @click="go('skills')">
+      <div class="vsx-body">
+        <div class="vsx-icon-plain" aria-hidden="true" style="color: var(--accent)">
+          <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.5 4.5L18 8l-4.5 1.5L12 14l-1.5-4.5L6 8l4.5-1.5z"/><path d="M5 16l.75 2.25L8 19l-2.25.75L5 22l-.75-2.25L2 19l2.25-.75z"/><path d="M19 14l.75 2.25L22 17l-2.25.75L19 20l-.75-2.25L16 17l2.25-.75z"/></svg>
+        </div>
+        <div class="vsx-details">
+          <div class="vsx-name">Skills</div>
+          <div class="home-card-count">
+            <template v-if="loaded"><span class="home-card-count-num">{{ skills.length }}</span> items</template>
+            <template v-else><span class="home-card-count-skel"></span></template>
+          </div>
+          <p class="vsx-desc">NoteDeck の AI に持たせるシステムプロンプト。</p>
+        </div>
       </div>
-      <div class="home-card-title">Skills</div>
-      <div class="home-card-count">
-        <template v-if="loaded"><span class="home-card-count-num">{{ skills.length }}</span> items</template>
-        <template v-else><span class="home-card-count-skel"></span></template>
+      <div class="vsx-footer home-card-footer">
+        <span class="home-card-cta">Browse →</span>
       </div>
-      <p class="home-card-desc">NoteDeck の AI に持たせるシステムプロンプト。</p>
-      <span class="home-card-cta">Browse →</span>
     </button>
   </section>
 
@@ -169,55 +193,20 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
   padding: 20px 24px 8px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
+/* ボタン要素の UA スタイルをリセットしつつ vsx-card に乗せる */
 .home-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 18px 18px 16px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
+  width: 100%;
+  padding: 0;
   text-align: left;
   font-family: var(--font-body);
-  transition: background var(--duration-base) var(--ease-decel),
-              border-color var(--duration-base) var(--ease-decel),
-              box-shadow var(--duration-base) var(--ease-decel),
-              transform var(--duration-base) var(--ease-decel);
-}
-
-.home-card:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
-}
-
-.home-card-icon {
-  height: 34px;
-  display: flex;
-  align-items: center;
-  font-size: 26px;
-  line-height: 1;
-}
-
-.home-card-icon svg {
-  width: 30px;
-  height: 30px;
-}
-
-.home-card-title {
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .home-card-count {
+  margin-top: 4px;
   font-size: 12px;
   color: var(--text-muted);
   min-height: 22px;
@@ -242,18 +231,16 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
   background: var(--surface-active);
 }
 
-.home-card-desc {
-  font-size: 12px;
-  color: var(--text-sub);
-  line-height: 1.5;
-  flex: 1;
+.home-card-footer {
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .home-card-cta {
+  padding: 8px 14px;
   font-size: 12px;
   font-weight: 600;
   color: var(--accent);
-  margin-top: 2px;
 }
 
 .home-section {
@@ -296,7 +283,7 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
 @media (max-width: 800px) {
   .home-hero { padding: 28px 16px 8px; }
   .home-hero-title { font-size: 34px; }
-  .home-cards { padding: 14px 16px 4px; grid-template-columns: 1fr; gap: 10px; }
+  .home-cards { padding: 14px 16px 4px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .home-section { padding: 12px 16px 4px; }
 }
 </style>
