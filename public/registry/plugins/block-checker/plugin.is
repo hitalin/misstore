@@ -26,7 +26,7 @@
 
 ### {
 	name: "ブロック確認"
-	version: "1.1.0"
+	version: "1.2.0"
 	author: "@hitalin"
 	description: "ユーザーメニューから相手にブロックされているかを確認します。フォロー関係と自分からのブロック・ミュート状態もまとめて表示します。相手からのミュートは Misskey の仕様上確認できません"
 	permissions: ["read:account"]
@@ -42,42 +42,45 @@ Plugin:register_user_action("ブロックされているか確認", @(target) {
 
 	// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
 	if (Core:type(user) != "obj") {
-		Mk:dialog("ブロック確認", "ユーザー情報の取得に失敗しました (サーバーの閲覧制限や権限不足の可能性があります)", "warn")
+		Mk:dialog("ブロック確認", "取得に失敗しました (閲覧制限か権限不足の可能性)", "warn")
 		return null
 	}
 
 	// リレーションは認証済みかつ自分以外のユーザーに対してのみ返る
 	if (!Obj:has(user, "isBlocked")) {
-		Mk:dialog("ブロック確認", "リレーション情報を取得できませんでした。自分自身が対象か、プラグインにアカウント読み取りのアクセス許可が付与されていない可能性があります (再インストールで許可を求められます)", "info")
+		Mk:dialog("ブロック確認", "リレーションを取得できません (自分自身が対象か、アクセス許可が未付与 — 再インストールで許可できます)", "info")
 		return null
 	}
 
+	// 表示は要点のみ。絵文字は単一コードポイントの ✅ 🚫 🔇 に限定
+	// (ℹ️ や矢印は異体字セレクタ等で環境により崩れる)
 	var lines = []
 
 	if (user.isBlocked == true) {
-		lines.push("🚫 あなたはこのユーザーにブロックされています")
+		lines.push("🚫 ブロックされています")
 	} else {
 		lines.push("✅ ブロックされていません")
 		if (user.host != null) {
-			lines.push("(リモートユーザーのブロックは連合で届いた場合のみ反映されます)")
+			lines.push("(リモートは連合で届いた分のみ)")
 		}
 	}
 
-	var relations = []
-	if (rel(user, "isBlocking")) { relations.push("🚫 あなたがブロック中") }
-	if (rel(user, "isMuted")) { relations.push("🔇 あなたがミュート中") }
-	if (rel(user, "isRenoteMuted")) { relations.push("🔇 あなたがリノートをミュート中") }
-	if (rel(user, "isFollowing")) { relations.push("→ フォロー中") }
-	elif (rel(user, "hasPendingFollowRequestFromYou")) { relations.push("→ フォロー申請中") }
-	if (rel(user, "isFollowed")) { relations.push("← フォローされています") }
-	if (relations.len > 0) {
-		lines.push("")
-		lines.push(relations.join(Str:lf))
+	if (rel(user, "isBlocking")) { lines.push("🚫 自分がブロック中") }
+	if (rel(user, "isMuted")) { lines.push("🔇 自分がミュート中") }
+	if (rel(user, "isRenoteMuted")) { lines.push("🔇 リノートミュート中") }
+
+	if (rel(user, "isFollowing") && rel(user, "isFollowed")) {
+		lines.push("フォロー: 相互")
+	} else {
+		var f = []
+		if (rel(user, "isFollowing")) { f.push("している") }
+		elif (rel(user, "hasPendingFollowRequestFromYou")) { f.push("申請中") }
+		if (rel(user, "isFollowed")) { f.push("されている") }
+		if (f.len > 0) { lines.push(`フォロー: {f.join("・")}`) }
 	}
 
-	lines.push("")
-	lines.push("ℹ️ 相手からのミュートは、ミュートした本人以外には見えない仕様のため確認できません")
+	lines.push("(被ミュートは仕様上確認不可)")
 
 	let dtype = if (user.isBlocked == true) "warn" else "info"
-	Mk:dialog(`ブロック確認: @{target.username}`, lines.join(Str:lf), dtype)
+	Mk:dialog(`@{target.username}`, lines.join(Str:lf), dtype)
 })
