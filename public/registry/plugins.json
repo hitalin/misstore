@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-15T22:00:14.525Z",
+  "updatedAt": "2026-07-15T22:05:28.252Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -289,6 +289,31 @@
       "iconUrl": "https://misstore.hital.in/registry/plugins/pakuru/icon.svg"
     },
     {
+      "id": "block-checker",
+      "name": "ブロック確認",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "ユーザーメニューから相手にブロックされているかを確認。フォロー関係と自分からのブロック・ミュート状態もまとめて表示する。相手からのミュートは Misskey の仕様上確認不可",
+      "category": "moderation",
+      "capabilities": [
+        "misskey-api"
+      ],
+      "tags": [
+        "block",
+        "mute",
+        "relation",
+        "moderation"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/block-checker/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/block-checker/api.json",
+      "sha512": "42c504add3bb3c1ffcb095ac578117a79a0fab91ed669cbc7f89baa80a9e901cf20773b4d70a731619838b062ddd07e0a38bbf4aaac1e70774dca4864e103f13",
+      "createdAt": "2026-07-15T22:05:28.253Z",
+      "updatedAt": "2026-07-15T22:05:28.253Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "iconUrl": "https://misstore.hital.in/registry/plugins/block-checker/icon.svg"
+    },
+    {
       "id": "snippet-palette",
       "name": "定型文パレット",
       "version": "1.0.0",
@@ -326,8 +351,8 @@
       "sourceUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/api.json",
       "sha512": "52e333bbfca006603fb89ee419e1db9e84a2baba598b0aa82dbb32e74435ef687d0178f4f10995b2ea9ea45c24def4b4b11aa1a283378ab4ab71211ef599088d",
-      "createdAt": "2026-07-15T22:00:15.046Z",
-      "updatedAt": "2026-07-15T22:00:15.046Z",
+      "createdAt": "2026-07-16T07:01:29+09:00",
+      "updatedAt": "2026-07-16T07:01:29+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "iconUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/icon.svg"

@@ -1,0 +1,14 @@
+{
+  "id": "block-checker",
+  "name": "ブロック確認",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ユーザーメニューから相手にブロックされているかを確認。フォロー関係と自分からのブロック・ミュート状態もまとめて表示する。相手からのミュートは Misskey の仕様上確認不可",
+  "license": "MIT",
+  "category": "moderation",
+  "capabilities": ["misskey-api"],
+  "tags": ["block", "mute", "relation", "moderation"],
+  "permissions": [],
+  "minNoteDeckVersion": "1.8.0"
+}

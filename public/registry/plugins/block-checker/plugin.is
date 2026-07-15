@@ -1,0 +1,69 @@
+/// @ 1.2.1
+
+// ブロック確認 — 相手にブロックされているかをユーザーメニューから確認
+//
+// notedeck#631 のプラグイン化。Misskey の users/show は認証時に
+// リレーション (isBlocked = 相手が自分をブロックしているか) を返すので、
+// それを他の関係 (フォロー・自分からのブロック/ミュート) とまとめて
+// ダイアログ表示する。本家 Misskey Web がプロフィールに出す
+// 「ブロックされています」バナーと同じ情報源。
+//
+// できないこと: 相手にミュートされているかの確認。ミュートはミュートした
+// 本人にしか見えない設計で、API にいっさい露出しない (isMuted は
+// 「自分が相手をミュートしているか」)。
+//
+// リモートユーザーのブロックは連合 (Block アクティビティ) で自サーバーに
+// 届いている場合のみ反映される。届かないサーバー・ソフトでは
+// ブロックされていても「されていない」と表示されうる。
+
+### {
+	name: "ブロック確認"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ユーザーメニューから相手にブロックされているかを確認します。フォロー関係と自分からのブロック・ミュート状態もまとめて表示します。相手からのミュートは Misskey の仕様上確認できません"
+	permissions: []
+}
+
+// リレーション項目は古いサーバーで欠けることがあるので Obj:has で守る
+@rel(user, key) {
+	Obj:has(user, key) && Obj:get(user, key) == true
+}
+
+Plugin:register_user_action("ブロックされているか確認", @(target) {
+	let user = Mk:api("users/show", { userId: target.id })
+
+	// リレーションは自分以外のユーザーに対してのみ返る
+	if (!Obj:has(user, "isBlocked")) {
+		Mk:dialog("ブロック確認", "リレーション情報を取得できませんでした (自分自身のアカウントではありませんか?)", "info")
+		return null
+	}
+
+	var lines = []
+
+	if (user.isBlocked == true) {
+		lines.push("🚫 あなたはこのユーザーにブロックされています")
+	} else {
+		lines.push("✅ ブロックされていません")
+		if (user.host != null) {
+			lines.push("(リモートユーザーのブロックは連合で届いた場合のみ反映されます)")
+		}
+	}
+
+	var relations = []
+	if (rel(user, "isBlocking")) { relations.push("🚫 あなたがブロック中") }
+	if (rel(user, "isMuted")) { relations.push("🔇 あなたがミュート中") }
+	if (rel(user, "isRenoteMuted")) { relations.push("🔇 あなたがリノートをミュート中") }
+	if (rel(user, "isFollowing")) { relations.push("→ フォロー中") }
+	elif (rel(user, "hasPendingFollowRequestFromYou")) { relations.push("→ フォロー申請中") }
+	if (rel(user, "isFollowed")) { relations.push("← フォローされています") }
+	if (relations.len > 0) {
+		lines.push("")
+		lines.push(relations.join(Str:lf))
+	}
+
+	lines.push("")
+	lines.push("ℹ️ 相手からのミュートは、ミュートした本人以外には見えない仕様のため確認できません")
+
+	let dtype = if (user.isBlocked == true) "warn" else "info"
+	Mk:dialog(`ブロック確認: @{target.username}`, lines.join(Str:lf), dtype)
+})
