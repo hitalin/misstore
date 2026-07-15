@@ -15,11 +15,13 @@
 //   ブロック/配信停止していても自サーバーの API には出ないため、
 //   最終受信からの経過時間で推測する
 //
-// 逆方向 (相手側の措置) の確認は misspace の双方向チェック
-// (両サーバーの公開 federation/show-instance を突き合わせる) と同じ
-// 発想だが、プラグインの Mk:api は自サーバーにしか届かない。代わりに
-// Misskey 系サーバーの公開ページ /instance-info/{host} を開いて、
-// 相手サーバーから見た自サーバーのレコードを目視確認できるようにする。
+// 逆方向 (相手側の措置) はプラグインの Mk:api が自サーバーにしか
+// 届かないため直接確認できない。代わりに misspace の双方向チェック
+// (両サーバーの公開 federation/show-instance をサーバーサイドで
+// 突き合わせ、BLOCKED/SUSPENDED/TIMEOUT を判別) に飛ばす:
+// https://misspace.hital.in/?from=A&from=B は視点サーバーが2つ以上
+// あると疎通チェックが自動実行される (FederationGraph.svelte)。
+// 手動の代替は相手サーバーの公開ページ /instance-info/{自ホスト}。
 //
 // suspensionState は 2024.3 以降。それ以前のサーバーは isSuspended に
 // フォールバックする。latestRequestSentAt / latestStatus は v13 で
@@ -34,9 +36,9 @@
 
 ### {
 	name: "疎通確認"
-	version: "1.0.0"
+	version: "1.1.0"
 	author: "@hitalin"
-	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、相手サーバー側から見た状態の確認ページも開けます"
+	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開けます"
 	permissions: ["read:account"]
 }
 
@@ -132,14 +134,14 @@ Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
 	let dtype = if (bad) "warn" else "info"
 	Mk:dialog(target.host, lines.join(Str:lf), dtype)
 
-	// 逆方向: 相手サーバーから見た自サーバーの状態は、相手の
-	// /instance-info ページ (Misskey 系なら公開) で確認できる
-	let go = Mk:confirm("逆方向の確認", "相手サーバー側から見た自サーバーの連合状態をブラウザで開きますか? (相手が Misskey 系の場合のみ表示できます)")
+	// 逆方向を含む双方向チェックは misspace に飛ばす (from を2つ渡すと
+	// 視点サーバー間の疎通チェックが自動実行され、連合マップも見られる)
+	let go = Mk:confirm("双方向チェック", "misspace で両サーバー間の疎通チェックと連合マップを開きますか?")
 	if (go == true) {
 		let server_meta = Mk:api("meta", {})
 		if (Core:type(server_meta) == "obj" && Obj:has(server_meta, "uri")) {
 			let my_host = server_meta.uri.replace("https://", "").replace("http://", "")
-			Plugin:open_url(`https://{target.host}/instance-info/{my_host}`)
+			Plugin:open_url(`https://misspace.hital.in/?from={my_host}&from={target.host}`)
 		} else {
 			Mk:dialog("疎通確認", "自サーバーのホスト名を取得できませんでした", "warn")
 		}
