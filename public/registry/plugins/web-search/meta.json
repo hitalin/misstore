@@ -7,6 +7,7 @@
   "description": "ノート本文を Web 検索、ユーザーの表示名と username でエゴサ。検索エンジンは brave / startpage / searxng / google / duckduckgo から選択",
   "license": "MIT",
   "category": "utility",
+  "capabilities": [],
   "tags": ["search", "egosearch", "classic"],
   "minNoteDeckVersion": "1.8.0"
 }

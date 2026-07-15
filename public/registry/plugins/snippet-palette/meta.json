@@ -7,6 +7,7 @@
   "description": "投稿フォームに定型文や MFM スニペットの挿入ボタンを追加。設定の 1 行が 1 ボタンに",
   "license": "MIT",
   "category": "posting",
+  "capabilities": [],
   "tags": ["mfm", "template", "snippet"],
   "permissions": [],
   "minNoteDeckVersion": "1.8.0"

@@ -7,6 +7,7 @@
   "description": "投稿時に URL から utm_* や fbclid などのトラッキングパラメータを自動削除",
   "license": "MIT",
   "category": "posting",
+  "capabilities": [],
   "tags": ["url", "privacy", "cleanup"],
   "permissions": [],
   "minNoteDeckVersion": "1.8.0"

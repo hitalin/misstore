@@ -149,6 +149,7 @@ function buildPlugins() {
         author: meta.author,
         description: meta.description,
         category: meta.category || 'utility',
+        capabilities: meta.capabilities || [],
         tags: meta.tags || [],
         sourceUrl: `${SITE_URL}/registry/plugins/${id}/plugin.is`,
         apiUrl: `${SITE_URL}/registry/plugins/${id}/api.json`,

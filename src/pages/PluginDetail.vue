@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { PLUGIN_CATEGORY_LABELS } from '@/types'
+import { CAPABILITY_LABELS, PLUGIN_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
 import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
@@ -146,6 +146,12 @@ function openMisskeyInstall() {
               </div>
             </div>
           </aside>
+
+          <PermissionsCard
+            title="Requires"
+            :items="(plugin.capabilities || []).map((c) => CAPABILITY_LABELS[c] || c)"
+            empty-text="Standalone — 外部サービス連携なしで動作します"
+          />
 
           <PermissionsCard
             title="Permissions"

@@ -7,6 +7,7 @@
   "description": "ノートやユーザーを所属サーバーの Misskey Web UI でブラウザで開く。リモートノートは発信元サーバーで開くことも可能",
   "license": "MIT",
   "category": "utility",
+  "capabilities": ["misskey-api"],
   "tags": ["browser", "web", "escape-hatch"],
   "minNoteDeckVersion": "1.8.0"
 }

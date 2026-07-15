@@ -7,6 +7,7 @@
   "description": "ノートを作者・日時・URL 付きの引用形式でコピー。markdown / plain / biblatex の3形式に対応",
   "license": "MIT",
   "category": "utility",
+  "capabilities": ["misskey-api", "notedeck-api"],
   "tags": ["quote", "citation", "clipboard", "biblatex"],
   "permissions": ["clipboard"],
   "minNoteDeckVersion": "1.8.0"

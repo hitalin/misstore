@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { WIDGET_CAPABILITY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
+import { CAPABILITY_LABELS, WIDGET_CATEGORY_LABELS } from '@/types'
 import { useCopySource } from '@/composables/useCopySource'
 import { formatDate } from '@/utils/format'
 import { useStore } from '@/composables/useStore'
@@ -131,7 +131,7 @@ const widget = findWidget(route.params.id as string)
 
           <PermissionsCard
             title="Requires"
-            :items="widget.capabilities.map((c) => WIDGET_CAPABILITY_LABELS[c] || c)"
+            :items="widget.capabilities.map((c) => CAPABILITY_LABELS[c] || c)"
             empty-text="Standalone — 外部サービス連携なしで動作します"
           />
 

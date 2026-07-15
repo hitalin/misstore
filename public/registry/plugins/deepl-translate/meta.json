@@ -7,6 +7,7 @@
   "description": "ノートメニューから DeepL API で本文を翻訳してダイアログ表示。API キーは Secret Vault の接続で管理",
   "license": "MIT",
   "category": "integration",
+  "capabilities": ["notedeck-api", "secret-vault"],
   "tags": ["translate", "deepl", "i18n"],
   "permissions": ["vault.use"],
   "minNoteDeckVersion": "1.9.1"

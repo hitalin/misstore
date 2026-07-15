@@ -7,6 +7,7 @@
   "description": "ノート内のカスタム絵文字が自分のサーバーにあるか照合し、無ければ類似候補を提示。自鯖で使える形に変換した本文をコピーできる",
   "license": "MIT",
   "category": "utility",
+  "capabilities": ["misskey-api", "notedeck-api"],
   "tags": ["emoji", "custom-emoji", "converter"],
   "permissions": ["clipboard"],
   "minNoteDeckVersion": "1.8.0"

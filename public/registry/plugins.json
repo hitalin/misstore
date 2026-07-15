@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-14T22:40:06.028Z",
+  "updatedAt": "2026-07-15T05:26:56.416Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -9,6 +9,9 @@
       "author": "@hitalin",
       "description": "「こういうプラグインが欲しい」をクリップボードに書いて呼ぶと、AI が AiScript ソースを生成し、plugins.create の確認ダイアログにソース全文を表示する。必ず無効状態 (active:false) で作られ、有効化はユーザーが手動で行う (= 二重承認)。",
       "category": "developer",
+      "capabilities": [
+        "notedeck-api"
+      ],
       "tags": [
         "plugin",
         "code-gen",
@@ -37,6 +40,10 @@
       "author": "hitalin",
       "description": "ノートメニューから添付画像の出典を SauceNao で逆検索。API キーは Secret Vault の接続で管理",
       "category": "integration",
+      "capabilities": [
+        "notedeck-api",
+        "secret-vault"
+      ],
       "tags": [
         "saucenao",
         "image-search",
@@ -61,6 +68,7 @@
       "author": "hitalin",
       "description": "投稿時に URL から utm_* や fbclid などのトラッキングパラメータを自動削除",
       "category": "posting",
+      "capabilities": [],
       "tags": [
         "url",
         "privacy",
@@ -82,6 +90,7 @@
       "author": "hitalin",
       "description": "投稿時に x.com / twitter.com のポスト URL を fxtwitter などの埋め込み対応プロキシ URL に自動変換。変換先は設定で選択可能",
       "category": "posting",
+      "capabilities": [],
       "tags": [
         "url",
         "twitter",
@@ -104,6 +113,9 @@
       "author": "hitalin",
       "description": "ノート本文の URL を Cloudflare Malware DNS / PhishTank / Sucuri SiteCheck で照合し、フィッシング・マルウェアの兆候を確認。API キー不要",
       "category": "utility",
+      "capabilities": [
+        "notedeck-api"
+      ],
       "tags": [
         "security",
         "phishing",
@@ -129,6 +141,7 @@
       "author": "hitalin",
       "description": "ノート本文を Web 検索、ユーザーの表示名と username でエゴサ。検索エンジンは brave / startpage / searxng / google / duckduckgo から選択",
       "category": "utility",
+      "capabilities": [],
       "tags": [
         "search",
         "egosearch",
@@ -150,6 +163,7 @@
       "author": "@jj1guj",
       "description": "投稿時に YouTube URL の追跡クエリを自動削除",
       "category": "posting",
+      "capabilities": [],
       "tags": [
         "youtube",
         "url",
@@ -172,6 +186,9 @@
       "author": "hitalin",
       "description": "ユーザーメニューから犯罪係数 (スパム傾向・信頼度スコア) をスキャンして判定内訳を表示。X の公開アルゴリズム tweepcred を Misskey に写像したスコアリングで、算出はクライアント内で完結し外部送信や公開は行わない",
       "category": "moderation",
+      "capabilities": [
+        "misskey-api"
+      ],
       "tags": [
         "score",
         "spam",
@@ -195,6 +212,9 @@
       "author": "hitalin",
       "description": "ノートメニューから本文と作者情報を NoteDeck のメモに保存。PKM 連携の入口に",
       "category": "utility",
+      "capabilities": [
+        "notedeck-api"
+      ],
       "tags": [
         "memo",
         "pkm",
@@ -219,6 +239,10 @@
       "author": "hitalin",
       "description": "ノートメニューから DeepL API で本文を翻訳してダイアログ表示。API キーは Secret Vault の接続で管理",
       "category": "integration",
+      "capabilities": [
+        "notedeck-api",
+        "secret-vault"
+      ],
       "tags": [
         "translate",
         "deepl",
@@ -243,6 +267,9 @@
       "author": "hitalin",
       "description": "本文をそのまま自分の投稿として送る「パクる」と、末尾の数字を +1 して引用する「数字引用」。Misskey プラグイン文化の古典の再実装",
       "category": "other",
+      "capabilities": [
+        "misskey-api"
+      ],
       "tags": [
         "fun",
         "classic",
@@ -268,6 +295,7 @@
       "author": "hitalin",
       "description": "投稿フォームに定型文や MFM スニペットの挿入ボタンを追加。設定の 1 行が 1 ボタンに",
       "category": "posting",
+      "capabilities": [],
       "tags": [
         "mfm",
         "template",
@@ -289,6 +317,10 @@
       "author": "hitalin",
       "description": "ノートを作者・日時・URL 付きの引用形式でコピー。markdown / plain / biblatex の3形式に対応",
       "category": "utility",
+      "capabilities": [
+        "misskey-api",
+        "notedeck-api"
+      ],
       "tags": [
         "quote",
         "citation",
@@ -314,6 +346,7 @@
       "author": "hitalin",
       "description": "設定したワードを含む投稿に自動で CW を付け、公開範囲をホームに下げるうっかり防止プラグイン",
       "category": "posting",
+      "capabilities": [],
       "tags": [
         "safety",
         "cw",
@@ -335,6 +368,9 @@
       "author": "hitalin",
       "description": "ノートやユーザーを所属サーバーの Misskey Web UI でブラウザで開く。リモートノートは発信元サーバーで開くことも可能",
       "category": "utility",
+      "capabilities": [
+        "misskey-api"
+      ],
       "tags": [
         "browser",
         "web",
@@ -356,6 +392,10 @@
       "author": "hitalin",
       "description": "ノート内のカスタム絵文字が自分のサーバーにあるか照合し、無ければ類似候補を提示。自鯖で使える形に変換した本文をコピーできる",
       "category": "utility",
+      "capabilities": [
+        "misskey-api",
+        "notedeck-api"
+      ],
       "tags": [
         "emoji",
         "custom-emoji",

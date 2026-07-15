@@ -7,6 +7,7 @@
   "description": "ノートメニューから添付画像の出典を SauceNao で逆検索。API キーは Secret Vault の接続で管理",
   "license": "MIT",
   "category": "integration",
+  "capabilities": ["notedeck-api", "secret-vault"],
   "tags": ["saucenao", "image-search", "reverse-search"],
   "permissions": ["vault.use"],
   "minNoteDeckVersion": "1.9.1"

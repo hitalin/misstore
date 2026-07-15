@@ -15,6 +15,7 @@ export interface PluginEntry {
   license?: string
   repository?: string
   permissions?: string[]
+  capabilities?: StoreCapability[]
   iconUrl?: string
 }
 
@@ -65,7 +66,7 @@ export interface WidgetEntry {
   icon: string
   autoRun: boolean
   category: WidgetCategory
-  capabilities: WidgetCapability[]
+  capabilities: StoreCapability[]
   tags: string[]
   sourceUrl: string
   apiUrl: string
@@ -86,13 +87,14 @@ export const WIDGET_CATEGORY_LABELS: Record<WidgetCategory, string> = {
   stats: 'Stats',
 }
 
-export type WidgetCapability =
+// widget / plugin 共通。NoteDeck 側の install 互換判定と対応 (checkWidgetCapabilities 参照)
+export type StoreCapability =
   | 'misskey-api'
   | 'misskey-account'
   | 'notedeck-api'
   | 'secret-vault'
 
-export const WIDGET_CAPABILITY_LABELS: Record<WidgetCapability, string> = {
+export const CAPABILITY_LABELS: Record<StoreCapability, string> = {
   'misskey-api': 'Misskey API',
   'misskey-account': 'Account',
   'notedeck-api': 'NoteDeck API',
