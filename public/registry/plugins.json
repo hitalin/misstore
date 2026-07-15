@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-15T22:52:44.021Z",
+  "updatedAt": "2026-07-15T23:00:36.566Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -438,7 +438,7 @@
     {
       "id": "federation-checker",
       "name": "疎通確認",
-      "version": "1.1.0",
+      "version": "1.1.1",
       "author": "hitalin",
       "description": "ユーザーメニューから相手のサーバーとの連合疎通状況を確認。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開ける",
       "category": "moderation",
@@ -453,9 +453,9 @@
       ],
       "sourceUrl": "https://misstore.hital.in/registry/plugins/federation-checker/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/federation-checker/api.json",
-      "sha512": "58e933ff1c8a756ca1348611c25b0609155086c3800714e7ea31e3830df6b62ab46cb191b24246026bacfc65f4d17ecfceacac8982ea278a74b1151172ebdb95",
+      "sha512": "da1cf4f4957277c9c1490285af28aaa8aa202ef4860867cbc7ddb527614c7506af11a587943d63f11577d85489ed3b1957938acd98374d93cdbbcbc52c55b57e",
       "createdAt": "2026-07-16T07:49:09+09:00",
-      "updatedAt": "2026-07-16T07:49:09+09:00",
+      "updatedAt": "2026-07-16T07:53:54+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [

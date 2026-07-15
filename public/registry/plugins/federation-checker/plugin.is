@@ -33,10 +33,16 @@
 // 認証必須に絞ったフォーク (yamisskey 系) があるため、トークンを
 // 発行させて認証付きで呼ぶ。NoteDeck は endpoint テーブルで
 // federation/show-instance = allow なので宣言しても無害。
+//
+// 本家 Misskey Web (AiScript 1.2.0) 互換: 使用 API はすべて本家にも
+// 存在する (frontend/src/aiscript/api.ts の Mk:dialog 3引数・
+// Mk:confirm、plugin.ts の Plugin:open_url。show-instance / meta は
+// requireCredential: false)。バージョン検証は >= 0.12.0 なので
+// /// @ 1.2.1 宣言のまま通る。
 
 ### {
 	name: "疎通確認"
-	version: "1.1.0"
+	version: "1.1.1"
 	author: "@hitalin"
 	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開けます"
 	permissions: ["read:account"]
@@ -118,7 +124,10 @@ Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
 	if (recv == null) {
 		lines.push("受信: 記録なし")
 	} else {
-		let diff = Date:now() - Date:parse(recv)
+		// AiScript 1.x の Date:parse は失敗時に error 値を返し、
+		// 数値演算に混ぜると即死するので型を確認してから引く
+		let ts = Date:parse(recv)
+		let diff = if (Core:type(ts) == "num") Date:now() - ts else -1
 		lines.push(`受信: {ago(diff)}`)
 		// 604800000ms = 7日。送信が正常なのに長期間受信がないのは
 		// 相手側で切られているサイン
