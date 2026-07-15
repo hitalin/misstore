@@ -1,0 +1,147 @@
+/// @ 1.2.1
+
+// 疎通確認 — 相手のサーバーとの連合状況をユーザーメニューから確認
+//
+// block-checker の補完。ユーザー単位のブロック確認は、そもそもサーバー
+// 同士の連合が切れていると意味をなさない (Block アクティビティが届かない)。
+// federation/show-instance が返す自サーバー視点の連合レコードから
+// 以下をまとめてダイアログ表示する:
+//
+// - 自サーバー側の措置: isBlocked (ブロック) / suspensionState (配信停止)
+//   / isSilenced (サイレンス)
+// - 送信 (自分 → 相手): isNotResponding。配送失敗が続いていると true に
+//   なるので、相手のダウン・WAF/DNS での遮断はここに現れる
+// - 受信 (相手 → 自分): latestRequestReceivedAt。相手側が自サーバーを
+//   ブロック/配信停止していても自サーバーの API には出ないため、
+//   最終受信からの経過時間で推測する
+//
+// 逆方向 (相手側の措置) の確認は misspace の双方向チェック
+// (両サーバーの公開 federation/show-instance を突き合わせる) と同じ
+// 発想だが、プラグインの Mk:api は自サーバーにしか届かない。代わりに
+// Misskey 系サーバーの公開ページ /instance-info/{host} を開いて、
+// 相手サーバーから見た自サーバーのレコードを目視確認できるようにする。
+//
+// suspensionState は 2024.3 以降。それ以前のサーバーは isSuspended に
+// フォールバックする。latestRequestSentAt / latestStatus は v13 で
+// 廃止されたので使わない。
+//
+// permissions の "read:account" は block-checker と同じ理由:
+// Misskey Web は permissions が空だとプラグイントークンを発行せず
+// 匿名 (i: null) で送る。本家の federation/show-instance は匿名可だが、
+// 認証必須に絞ったフォーク (yamisskey 系) があるため、トークンを
+// 発行させて認証付きで呼ぶ。NoteDeck は endpoint テーブルで
+// federation/show-instance = allow なので宣言しても無害。
+
+### {
+	name: "疎通確認"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、相手サーバー側から見た状態の確認ページも開けます"
+	permissions: ["read:account"]
+}
+
+// フィールドはサーバーのバージョンで欠けることがあるので Obj:has で守る
+@field(o, key) {
+	if (Obj:has(o, key)) Obj:get(o, key) else null
+}
+
+// 経過ミリ秒を相対時刻に。Date:parse 失敗 (NaN) や負値は "不明"
+@ago(diff) {
+	if (!(diff >= 0)) return "不明"
+	let mins = Math:floor(diff / 60000)
+	if (mins < 1) return "1分以内"
+	if (mins < 60) return `{mins}分前`
+	let hours = Math:floor(mins / 60)
+	if (hours < 24) return `{hours}時間前`
+	return `{Math:floor(hours / 24)}日前`
+}
+
+Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
+	if (target.host == null) {
+		Mk:dialog("疎通確認", "自分と同じサーバーのユーザーです (連合を経由しません)", "info")
+		return null
+	}
+
+	let ins = Mk:api("federation/show-instance", { host: target.host })
+
+	// 一度も連合したことがないとレコード自体が null で返る
+	if (Core:type(ins) == "null") {
+		Mk:dialog(target.host, "連合レコードがありません (このサーバーとまだ一度も通信していない可能性)", "warn")
+		return null
+	}
+
+	// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
+	if (Core:type(ins) != "obj") {
+		Mk:dialog("疎通確認", "取得に失敗しました (サーバーが連合情報を公開していない可能性)", "warn")
+		return null
+	}
+
+	// 表示は要点のみ。絵文字は単一コードポイントの ✅ ❌ 🚫 ⛔ 🔇 に限定
+	// (⚠️ や ℹ️ は異体字セレクタで環境により崩れる)
+	var lines = []
+	var bad = false
+
+	// 自サーバー側の措置 (該当するものだけ表示)
+	if (field(ins, "isBlocked") == true) {
+		lines.push("🚫 自サーバーがブロック中 (連合を完全遮断)")
+		bad = true
+	}
+	let state = field(ins, "suspensionState")
+	if (state == "manuallySuspended") {
+		lines.push("⛔ 自サーバーが配信停止中 (手動)")
+		bad = true
+	} elif (state == "goneSuspended") {
+		lines.push("⛔ 自サーバーが配信停止中 (サーバー消滅と判定)")
+		bad = true
+	} elif (state == "autoSuspendedForNotResponding") {
+		lines.push("⛔ 自サーバーが配信停止中 (長期間応答なしで自動停止)")
+		bad = true
+	} elif (state == null && field(ins, "isSuspended") == true) {
+		lines.push("⛔ 自サーバーが配信停止中")
+		bad = true
+	}
+	if (field(ins, "isSilenced") == true) { lines.push("🔇 自サーバーがサイレンス中") }
+	if (field(ins, "isMediaSilenced") == true) { lines.push("🔇 メディアサイレンス中") }
+
+	// 送信 (自分 → 相手): 配送失敗の継続で isNotResponding が立つ
+	if (field(ins, "isNotResponding") == true) {
+		lines.push("❌ 送信: 失敗が継続中 (ダウンか WAF/DNS 遮断の可能性)")
+		bad = true
+	} else {
+		lines.push("✅ 送信: 正常 (相手サーバーは応答)")
+	}
+
+	// 受信 (相手 → 自分): 相手側の措置は API に出ないため時刻から推測
+	let recv = field(ins, "latestRequestReceivedAt")
+	if (recv == null) {
+		lines.push("受信: 記録なし")
+	} else {
+		let diff = Date:now() - Date:parse(recv)
+		lines.push(`受信: {ago(diff)}`)
+		// 604800000ms = 7日。送信が正常なのに長期間受信がないのは
+		// 相手側で切られているサイン
+		if (diff >= 604800000 && !bad) {
+			lines.push("(7日以上受信なし — 相手側で配信停止/ブロックの可能性)")
+		}
+	}
+
+	let sw = field(ins, "softwareName")
+	let swv = field(ins, "softwareVersion")
+	if (sw != null && swv != null) { lines.push(`({sw} {swv})`) }
+
+	let dtype = if (bad) "warn" else "info"
+	Mk:dialog(target.host, lines.join(Str:lf), dtype)
+
+	// 逆方向: 相手サーバーから見た自サーバーの状態は、相手の
+	// /instance-info ページ (Misskey 系なら公開) で確認できる
+	let go = Mk:confirm("逆方向の確認", "相手サーバー側から見た自サーバーの連合状態をブラウザで開きますか? (相手が Misskey 系の場合のみ表示できます)")
+	if (go == true) {
+		let server_meta = Mk:api("meta", {})
+		if (Core:type(server_meta) == "obj" && Obj:has(server_meta, "uri")) {
+			let my_host = server_meta.uri.replace("https://", "").replace("http://", "")
+			Plugin:open_url(`https://{target.host}/instance-info/{my_host}`)
+		} else {
+			Mk:dialog("疎通確認", "自サーバーのホスト名を取得できませんでした", "warn")
+		}
+	}
+})
