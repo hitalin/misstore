@@ -1,0 +1,14 @@
+{
+  "id": "live-hashtag",
+  "name": "実況モード",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ON の間、投稿の末尾に指定したハッシュタグを自動挿入。投稿フォームのプラグインメニューから切り替え",
+  "license": "MIT",
+  "category": "posting",
+  "capabilities": [],
+  "tags": ["hashtag", "live", "posting"],
+  "permissions": [],
+  "minNoteDeckVersion": "1.8.0"
+}

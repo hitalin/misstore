@@ -1,0 +1,73 @@
+/// @ 1.2.1
+
+// 実況モード — 指定したハッシュタグを投稿に自動挿入
+//
+// misskey-dev/misskey#628 相当。投稿フォームのプラグインメニューから
+// ON/OFF を切り替え、ON の間は投稿本文の末尾に設定したハッシュタグを
+// 自動で追記する。状態は Mk:save で永続化され、再起動後も維持される。
+
+### {
+	name: "実況モード"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ON の間、投稿の末尾に指定したハッシュタグを自動挿入する実況モード。投稿フォームのプラグインメニューから切り替え"
+	config: {
+		hashtags: {
+			type: "string"
+			label: "挿入するハッシュタグ (スペース区切りで複数可)"
+			description: "# は省略可。例: #NHK紅白 実況"
+			default: "#実況"
+		}
+		skipReply: {
+			type: "boolean"
+			label: "リプライには挿入しない"
+			default: true
+		}
+	}
+}
+
+@parseTags(raw) {
+	var tags = []
+	each (let part, raw.replace(",", " ").split(" ")) {
+		let w = part.trim()
+		if (w != "" && w != "#") {
+			if (w.index_of("#") == 0) {
+				tags.push(w)
+			} else {
+				tags.push(`#{w}`)
+			}
+		}
+	}
+	tags
+}
+
+let tags = parseTags(Plugin:config.hashtags)
+
+var liveMode = Mk:load("liveMode") == true
+
+Plugin:register_post_form_action("実況モード ON/OFF", @(form, update) {
+	liveMode = !liveMode
+	Mk:save("liveMode", liveMode)
+	if (liveMode) {
+		Mk:toast(`実況モード ON: {tags.join(" ")}`)
+	} else {
+		Mk:toast("実況モード OFF")
+	}
+})
+
+Plugin:register_note_post_interruptor(@(note) {
+	if (!liveMode) return note
+	if (tags.len == 0) return note
+	if (Plugin:config.skipReply && note.replyId != null) return note
+	let text = if (note.text == null) "" else note.text
+	var missing = []
+	each (let t, tags) {
+		if (text.index_of(t) == -1) {
+			missing.push(t)
+		}
+	}
+	if (missing.len == 0) return note
+	let suffix = missing.join(" ")
+	note.text = if (text == "") suffix else `{text}{Str:lf}{suffix}`
+	note
+})
