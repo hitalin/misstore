@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-15T22:05:28.252Z",
+  "updatedAt": "2026-07-15T22:21:30.494Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -291,7 +291,7 @@
     {
       "id": "block-checker",
       "name": "ブロック確認",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": "hitalin",
       "description": "ユーザーメニューから相手にブロックされているかを確認。フォロー関係と自分からのブロック・ミュート状態もまとめて表示する。相手からのミュートは Misskey の仕様上確認不可",
       "category": "moderation",
@@ -306,11 +306,14 @@
       ],
       "sourceUrl": "https://misstore.hital.in/registry/plugins/block-checker/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/block-checker/api.json",
-      "sha512": "42c504add3bb3c1ffcb095ac578117a79a0fab91ed669cbc7f89baa80a9e901cf20773b4d70a731619838b062ddd07e0a38bbf4aaac1e70774dca4864e103f13",
-      "createdAt": "2026-07-15T22:05:28.253Z",
-      "updatedAt": "2026-07-15T22:05:28.253Z",
+      "sha512": "9d5f8c5e2f58405a251e2d5be87cd9565c3d70c9af314c757831390d0feae28a1057c29982d43868dcd42b8e9772927a200e3a5ac9609d9716caf1e9ab3a761e",
+      "createdAt": "2026-07-16T07:08:20+09:00",
+      "updatedAt": "2026-07-16T07:08:20+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
+      "permissions": [
+        "read:account"
+      ],
       "iconUrl": "https://misstore.hital.in/registry/plugins/block-checker/icon.svg"
     },
     {
