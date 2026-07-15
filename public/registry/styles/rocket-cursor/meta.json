@@ -1,0 +1,11 @@
+{
+  "id": "rocket-cursor",
+  "name": "ロケットカーソル",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "マウスカーソルをロケット 🚀 に変える遊び心 CSS。NoteDeck のカスタム CSS プリセットから移行",
+  "license": "MIT",
+  "target": "notedeck",
+  "tags": ["cursor", "fun", "rocket"]
+}

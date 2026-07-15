@@ -1,0 +1,1 @@
+{"type":"style","data":"/* prefers-reduced-motion の定番パターンを常時適用する */\n*,\n*::before,\n*::after {\n  animation-duration: 0.01ms !important;\n  animation-iteration-count: 1 !important;\n  transition-duration: 0.01ms !important;\n}\n\nhtml {\n  scroll-behavior: auto !important;\n}\n"}

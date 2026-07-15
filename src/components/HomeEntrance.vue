@@ -5,8 +5,9 @@ import PluginItem from '@/components/PluginItem.vue'
 import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
 import SkillItem from '@/components/SkillItem.vue'
+import StyleItem from '@/components/StyleItem.vue'
 
-const { plugins, themes, widgets, skills, loaded, activeTab } = useStore()
+const { plugins, themes, widgets, skills, styles, loaded, activeTab } = useStore()
 
 const RECENT_COUNT = 5
 
@@ -20,8 +21,9 @@ const recentPlugins = computed(() => pickRecent(plugins.value))
 const recentThemes = computed(() => pickRecent(themes.value))
 const recentWidgets = computed(() => pickRecent(widgets.value))
 const recentSkills = computed(() => pickRecent(skills.value))
+const recentStyles = computed(() => pickRecent(styles.value))
 
-function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
+function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills' | 'styles') {
   activeTab.value = tab
 }
 </script>
@@ -109,6 +111,24 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
         <span class="home-card-cta">Browse →</span>
       </div>
     </button>
+    <button class="vsx-card vsx-card-link home-card" type="button" @click="go('styles')">
+      <div class="vsx-body">
+        <div class="vsx-icon-plain" aria-hidden="true" style="color: var(--accent)">
+          <svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>
+        </div>
+        <div class="vsx-details">
+          <div class="vsx-name">Styles</div>
+          <div class="home-card-count">
+            <template v-if="loaded"><span class="home-card-count-num">{{ styles.length }}</span> items</template>
+            <template v-else><span class="home-card-count-skel"></span></template>
+          </div>
+          <p class="vsx-desc">見た目を微調整するカスタム CSS スニペット。</p>
+        </div>
+      </div>
+      <div class="vsx-footer home-card-footer">
+        <span class="home-card-cta">Browse →</span>
+      </div>
+    </button>
   </section>
 
   <template v-if="loaded">
@@ -149,6 +169,16 @@ function go(tab: 'plugins' | 'themes' | 'widgets' | 'skills') {
       </header>
       <div class="store-grid">
         <SkillItem v-for="s in recentSkills" :key="s.id" :skill="s" />
+      </div>
+    </section>
+
+    <section v-if="recentStyles.length" class="home-section">
+      <header class="home-section-head">
+        <h2 class="home-section-title">New in Styles</h2>
+        <button class="home-section-more" type="button" @click="go('styles')">See all →</button>
+      </header>
+      <div class="store-grid">
+        <StyleItem v-for="s in recentStyles" :key="s.id" :entry="s" />
       </div>
     </section>
   </template>

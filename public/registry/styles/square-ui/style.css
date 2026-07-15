@@ -1,0 +1,5 @@
+/* カスタム CSS は本体 CSS より先に読み込まれるため !important が必要 */
+:root {
+  --MI-radius: 0px !important; /* Misskey 2024.9 以降 */
+  --radius: 0px !important; /* それ以前のバージョン */
+}

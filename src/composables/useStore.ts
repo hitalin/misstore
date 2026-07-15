@@ -3,6 +3,7 @@ import type {
   PluginEntry,
   SkillEntry,
   StoreTab,
+  StyleEntry,
   ThemeEntry,
   WidgetEntry,
 } from '@/types'
@@ -11,6 +12,7 @@ const plugins = ref<PluginEntry[]>([])
 const themes = ref<ThemeEntry[]>([])
 const widgets = ref<WidgetEntry[]>([])
 const skills = ref<SkillEntry[]>([])
+const styles = ref<StyleEntry[]>([])
 const loaded = ref(false)
 const error = ref(false)
 const activeTab = ref<StoreTab>('home')
@@ -41,20 +43,23 @@ function rebaseIconUrl<T extends { iconUrl?: string }>(item: T): T {
 
 async function load() {
   try {
-    const [pRes, tRes, wRes, sRes] = await Promise.all([
+    const [pRes, tRes, wRes, sRes, cRes] = await Promise.all([
       fetch('/registry/plugins.json'),
       fetch('/registry/themes.json'),
       fetch('/registry/widgets.json'),
       fetch('/registry/skills.json'),
+      fetch('/registry/styles.json'),
     ])
     const pData = await pRes.json()
     const tData = await tRes.json()
     const wData = await wRes.json()
     const sData = sRes.ok ? await sRes.json() : { skills: [] }
+    const cData = cRes.ok ? await cRes.json() : { styles: [] }
     plugins.value = (pData.plugins ?? []).map(rebaseIconUrl)
     themes.value = tData.themes ?? []
     widgets.value = (wData.widgets ?? []).map(rebaseIconUrl)
     skills.value = (sData.skills ?? []).map(rebaseIconUrl)
+    styles.value = (cData.styles ?? []).map(rebaseIconUrl)
     loaded.value = true
   } catch {
     error.value = true
@@ -142,6 +147,24 @@ const filteredSkills = computed(() => {
   return sortItems(items)
 })
 
+const filteredStyles = computed(() => {
+  let items = [...styles.value]
+  const q = query.value.toLowerCase().trim()
+  if (q) {
+    items = items.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.description.toLowerCase().includes(q) ||
+        s.author.toLowerCase().includes(q) ||
+        s.tags.some((tag) => tag.toLowerCase().includes(q)),
+    )
+  }
+  if (category.value) {
+    items = items.filter((s) => s.target === category.value)
+  }
+  return sortItems(items)
+})
+
 const pluginCategories = computed(() => [
   ...new Set(plugins.value.map((p) => p.category)),
 ])
@@ -151,10 +174,14 @@ const widgetCategories = computed(() => [
 const skillCategories = computed(() => [
   ...new Set(skills.value.map((s) => s.category)),
 ])
+const styleTargets = computed(() => [
+  ...new Set(styles.value.map((s) => s.target)),
+])
 const resultCount = computed(() => {
   if (activeTab.value === 'plugins') return filteredPlugins.value.length
   if (activeTab.value === 'themes') return filteredThemes.value.length
   if (activeTab.value === 'skills') return filteredSkills.value.length
+  if (activeTab.value === 'styles') return filteredStyles.value.length
   return filteredWidgets.value.length
 })
 
@@ -192,6 +219,10 @@ function findSkill(id: string) {
   return computed(() => skills.value.find((s) => s.id === id) ?? null)
 }
 
+function findStyle(id: string) {
+  return computed(() => styles.value.find((s) => s.id === id) ?? null)
+}
+
 export function useStore() {
   if (!loaded.value && !error.value) load()
   return {
@@ -199,6 +230,7 @@ export function useStore() {
     themes,
     widgets,
     skills,
+    styles,
     loaded,
     error,
     activeTab,
@@ -210,14 +242,17 @@ export function useStore() {
     filteredThemes,
     filteredWidgets,
     filteredSkills,
+    filteredStyles,
     pluginCategories,
     widgetCategories,
     skillCategories,
+    styleTargets,
     resultCount,
     buildInstallUrl,
     findPlugin,
     findTheme,
     findWidget,
     findSkill,
+    findStyle,
   }
 }

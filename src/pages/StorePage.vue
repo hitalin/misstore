@@ -4,20 +4,22 @@ import PluginItem from '@/components/PluginItem.vue'
 import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
 import SkillItem from '@/components/SkillItem.vue'
+import StyleItem from '@/components/StyleItem.vue'
 import StoreEmpty from '@/components/StoreEmpty.vue'
 import StoreSkeleton from '@/components/StoreSkeleton.vue'
 import HomeEntrance from '@/components/HomeEntrance.vue'
 import {
   PLUGIN_CATEGORY_LABELS,
   SKILL_CATEGORY_LABELS,
+  STYLE_TARGET_LABELS,
   WIDGET_CATEGORY_LABELS,
 } from '@/types'
 import { useStore } from '@/composables/useStore'
 
 const {
   activeTab, category, sort, misskeyHost,
-  filteredPlugins, filteredThemes, filteredWidgets, filteredSkills,
-  loaded, pluginCategories, widgetCategories, skillCategories, resultCount,
+  filteredPlugins, filteredThemes, filteredWidgets, filteredSkills, filteredStyles,
+  loaded, pluginCategories, widgetCategories, skillCategories, styleTargets, resultCount,
 } = useStore()
 </script>
 
@@ -70,6 +72,17 @@ const {
             {{ SKILL_CATEGORY_LABELS[c] || c }}
           </button>
         </template>
+        <template v-else-if="activeTab === 'styles'">
+          <button
+            v-for="c in styleTargets"
+            :key="c"
+            class="pill"
+            :class="{ active: category === c }"
+            @click="category = c"
+          >
+            {{ STYLE_TARGET_LABELS[c] || c }}
+          </button>
+        </template>
         <template v-else>
           <button
             v-for="c in widgetCategories"
@@ -108,6 +121,12 @@ const {
         <template v-else-if="activeTab === 'skills'">
           <div v-if="filteredSkills.length" class="store-grid">
             <SkillItem v-for="s in filteredSkills" :key="s.id" :skill="s" />
+          </div>
+          <StoreEmpty v-else />
+        </template>
+        <template v-else-if="activeTab === 'styles'">
+          <div v-if="filteredStyles.length" class="store-grid">
+            <StyleItem v-for="s in filteredStyles" :key="s.id" :entry="s" />
           </div>
           <StoreEmpty v-else />
         </template>

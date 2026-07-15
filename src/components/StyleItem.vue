@@ -1,0 +1,39 @@
+<script setup lang="ts">
+import type { StyleEntry } from '@/types'
+import { STYLE_TARGET_LABELS } from '@/types'
+import CopyButton from '@/components/CopyButton.vue'
+
+// prop 名 style は Vue のスタイルバインディングと衝突するため entry
+defineProps<{ entry: StyleEntry }>()
+</script>
+
+<template>
+  <router-link :to="`/styles/${entry.id}`" class="vsx-card vsx-card-link">
+    <div class="vsx-body">
+      <div class="vsx-icon-plain" style="color: var(--accent)">
+        <span
+          v-if="entry.iconUrl"
+          class="vsx-icon-img"
+          :style="{ '--icon-url': `url(${entry.iconUrl})` }"
+          role="img"
+          :aria-label="entry.name"
+        ></span>
+        <svg v-else width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>
+      </div>
+      <div class="vsx-details">
+        <div class="vsx-name">{{ entry.name }}</div>
+        <div class="vsx-author vsx-author-stack">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          {{ entry.author }}
+        </div>
+        <p class="vsx-desc">{{ entry.description }}</p>
+      </div>
+    </div>
+    <div class="vsx-footer">
+      <span class="vsx-category">{{ STYLE_TARGET_LABELS[entry.target] || entry.target }}</span>
+      <div class="vsx-actions">
+        <CopyButton :source-url="entry.sourceUrl" :id="entry.id" />
+      </div>
+    </div>
+  </router-link>
+</template>

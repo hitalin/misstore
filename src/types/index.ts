@@ -101,6 +101,33 @@ export const CAPABILITY_LABELS: Record<StoreCapability, string> = {
   'secret-vault': 'Secret Vault',
 }
 
+export interface StyleEntry {
+  id: string
+  name: string
+  version: string
+  author: string
+  description: string
+  target: StyleTarget
+  tags: string[]
+  sourceUrl: string
+  apiUrl: string
+  sha512: string
+  createdAt: string
+  updatedAt: string
+  authorUrl?: string
+  license?: string
+  repository?: string
+  iconUrl?: string
+}
+
+// カスタム CSS は適用先の DOM 構造に依存するため target で対象クライアントを明示する
+export type StyleTarget = 'misskey' | 'notedeck'
+
+export const STYLE_TARGET_LABELS: Record<StyleTarget, string> = {
+  misskey: 'Misskey Web',
+  notedeck: 'NoteDeck',
+}
+
 export interface SkillEntry {
   id: string
   name: string
@@ -163,6 +190,13 @@ export interface RegistryIndex<T> {
   themes?: T[]
   widgets?: T[]
   skills?: T[]
+  styles?: T[]
 }
 
-export type StoreTab = 'home' | 'plugins' | 'themes' | 'widgets' | 'skills'
+export type StoreTab =
+  | 'home'
+  | 'plugins'
+  | 'themes'
+  | 'widgets'
+  | 'skills'
+  | 'styles'

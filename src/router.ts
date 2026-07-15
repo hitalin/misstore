@@ -21,6 +21,10 @@ const router = createRouter({
       path: '/skills/:id',
       component: () => import('@/pages/SkillDetail.vue'),
     },
+    {
+      path: '/styles/:id',
+      component: () => import('@/pages/StyleDetail.vue'),
+    },
   ],
 })
 

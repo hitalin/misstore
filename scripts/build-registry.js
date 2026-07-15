@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-// Scans public/registry/{plugins,themes,widgets,skills}/*/<source> and generates:
+// Scans public/registry/{plugins,themes,widgets,skills,styles}/*/<source> and generates:
 // - api.json per item (Misskey-compatible distribution endpoint)
-// - plugins.json / themes.json / widgets.json / skills.json (registry indexes)
+// - plugins.json / themes.json / widgets.json / skills.json / styles.json (registry indexes)
 // - index.json (master index)
 
 import { execFileSync } from 'node:child_process'
@@ -372,6 +372,76 @@ function buildSkills() {
   })
 }
 
+// --- Styles (custom CSS) ---
+
+function buildStyles() {
+  const dir = join(REGISTRY_DIR, 'styles')
+  return scanDirs(dir).flatMap((id) => {
+    const metaPath = join(dir, id, 'meta.json')
+    const srcPath = join(dir, id, 'style.css')
+
+    if (!existsSync(metaPath)) {
+      errors.push(`[${id}] missing meta.json`)
+      return []
+    }
+    if (!existsSync(srcPath)) {
+      errors.push(`[${id}] missing style.css`)
+      return []
+    }
+
+    const meta = readJson(metaPath)
+    validateRequired(meta, id, [
+      'name',
+      'version',
+      'author',
+      'description',
+      'target',
+    ])
+
+    const validTargets = ['misskey', 'notedeck']
+    if (meta.target && !validTargets.includes(meta.target)) {
+      errors.push(
+        `[${id}] invalid target: ${meta.target} (expected one of ${validTargets.join(', ')})`,
+      )
+    }
+
+    const source = readFileSync(srcPath, 'utf-8')
+    const normalized = normalizeLF(source)
+    const sha512 = computeSha512(source)
+
+    const apiJson = { type: 'style', data: normalized }
+    writeFileSync(
+      join(dir, id, 'api.json'),
+      JSON.stringify(apiJson) + '\n',
+    )
+
+    const now = new Date().toISOString()
+    const git = gitDates(join(dir, id))
+    const iconUrl = resolveIconUrl(join(dir, id), 'styles', id)
+
+    return [
+      {
+        id: meta.id || id,
+        name: meta.name,
+        version: meta.version,
+        author: meta.author,
+        description: meta.description,
+        target: meta.target,
+        tags: meta.tags || [],
+        sourceUrl: `${SITE_URL}/registry/styles/${id}/style.css`,
+        apiUrl: `${SITE_URL}/registry/styles/${id}/api.json`,
+        sha512,
+        createdAt: meta.createdAt || git.createdAt || now,
+        updatedAt: meta.updatedAt || git.updatedAt || meta.createdAt || now,
+        ...(meta.authorUrl && { authorUrl: meta.authorUrl }),
+        ...(meta.license && { license: meta.license }),
+        ...(meta.repository && { repository: meta.repository }),
+        ...(iconUrl && { iconUrl }),
+      },
+    ]
+  })
+}
+
 // --- Build ---
 
 const now = new Date().toISOString()
@@ -379,6 +449,7 @@ const plugins = buildPlugins().sort((a, b) => a.name.localeCompare(b.name))
 const themes = buildThemes().sort((a, b) => a.name.localeCompare(b.name))
 const widgets = buildWidgets().sort((a, b) => a.name.localeCompare(b.name))
 const skills = buildSkills().sort((a, b) => a.name.localeCompare(b.name))
+const styles = buildStyles().sort((a, b) => a.name.localeCompare(b.name))
 
 // Write indexes
 writeFileSync(
@@ -401,6 +472,11 @@ writeFileSync(
   JSON.stringify({ version: 1, updatedAt: now, skills }, null, 2) + '\n',
 )
 
+writeFileSync(
+  join(REGISTRY_DIR, 'styles.json'),
+  JSON.stringify({ version: 1, updatedAt: now, styles }, null, 2) + '\n',
+)
+
 // Write master index
 writeFileSync(
   join(REGISTRY_DIR, 'index.json'),
@@ -412,6 +488,7 @@ writeFileSync(
       themes: { count: themes.length, updatedAt: now },
       widgets: { count: widgets.length, updatedAt: now },
       skills: { count: skills.length, updatedAt: now },
+      styles: { count: styles.length, updatedAt: now },
     },
     null,
     2,
@@ -420,7 +497,7 @@ writeFileSync(
 
 // Report
 console.log(
-  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s), skills.json: ${skills.length} skill(s)`,
+  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s), skills.json: ${skills.length} skill(s), styles.json: ${styles.length} style(s)`,
 )
 
 if (errors.length > 0) {

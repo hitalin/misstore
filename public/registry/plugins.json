@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-15T23:00:36.566Z",
+  "updatedAt": "2026-07-15T23:25:20.893Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -455,7 +455,7 @@
       "apiUrl": "https://misstore.hital.in/registry/plugins/federation-checker/api.json",
       "sha512": "da1cf4f4957277c9c1490285af28aaa8aa202ef4860867cbc7ddb527614c7506af11a587943d63f11577d85489ed3b1957938acd98374d93cdbbcbc52c55b57e",
       "createdAt": "2026-07-16T07:49:09+09:00",
-      "updatedAt": "2026-07-16T07:53:54+09:00",
+      "updatedAt": "2026-07-16T08:01:18+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [

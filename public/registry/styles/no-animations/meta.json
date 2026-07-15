@@ -1,0 +1,11 @@
+{
+  "id": "no-animations",
+  "name": "アニメーションオフ",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "アニメーション・トランジション・スムーズスクロールを一括で無効化する。低スペック端末の負荷軽減や視差効果が苦手な人向け",
+  "license": "MIT",
+  "target": "misskey",
+  "tags": ["performance", "accessibility", "motion"]
+}
