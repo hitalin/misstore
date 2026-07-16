@@ -16,7 +16,7 @@
 
 ### {
 	name: "URL 安全チェック"
-	version: "1.0.0"
+	version: "1.0.1"
 	author: "@hitalin"
 	description: "ノート本文の URL を Cloudflare Malware DNS / PhishTank / Sucuri SiteCheck で照合し、フィッシング・マルウェアの兆候を確認します。チェック時に URL が各サービスに送信されます。API キーは不要です"
 	permissions: ["network.external"]
@@ -186,7 +186,7 @@ Plugin:register_note_action("URL の安全性をチェック", @(note) {
 		lines.push(`(URL {urls.len}件のうち先頭{targets.len}件をチェックしました)`)
 	}
 
-	let dtype = if (flaggedDomain != null) "warn" else "info"
+	let dtype = if (flaggedDomain != null) "warning" else "info"
 	Mk:dialog("URL 安全チェック結果", lines.join(Str:lf), dtype)
 
 	if (flaggedDomain != null) {

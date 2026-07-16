@@ -39,10 +39,15 @@
 // Mk:confirm、plugin.ts の Plugin:open_url。show-instance / meta は
 // requireCredential: false)。バージョン検証は >= 0.12.0 なので
 // /// @ 1.2.1 宣言のまま通る。
+//
+// ダイアログの type は本家が allowlist (error/info/success/warning/
+// waiting/question) を assertStringAndIsIn で検証しており、"warn" は
+// throw して警告パスが全滅する。必ず "warning" を使う (NoteDeck も
+// 'warning' を受け付ける)。
 
 ### {
 	name: "疎通確認"
-	version: "1.1.1"
+	version: "1.1.2"
 	author: "@hitalin"
 	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開けます"
 	permissions: ["read:account"]
@@ -74,13 +79,13 @@ Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
 
 	// 一度も連合したことがないとレコード自体が null で返る
 	if (Core:type(ins) == "null") {
-		Mk:dialog(target.host, "連合レコードがありません (このサーバーとまだ一度も通信していない可能性)", "warn")
+		Mk:dialog(target.host, "連合レコードがありません (このサーバーとまだ一度も通信していない可能性)", "warning")
 		return null
 	}
 
 	// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
 	if (Core:type(ins) != "obj") {
-		Mk:dialog("疎通確認", "取得に失敗しました (サーバーが連合情報を公開していない可能性)", "warn")
+		Mk:dialog("疎通確認", "取得に失敗しました (サーバーが連合情報を公開していない可能性)", "warning")
 		return null
 	}
 
@@ -140,7 +145,7 @@ Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
 	let swv = field(ins, "softwareVersion")
 	if (sw != null && swv != null) { lines.push(`({sw} {swv})`) }
 
-	let dtype = if (bad) "warn" else "info"
+	let dtype = if (bad) "warning" else "info"
 	Mk:dialog(target.host, lines.join(Str:lf), dtype)
 
 	// 逆方向を含む双方向チェックは misspace に飛ばす (from を2つ渡すと
@@ -152,7 +157,7 @@ Plugin:register_user_action("サーバーとの疎通を確認", @(target) {
 			let my_host = server_meta.uri.replace("https://", "").replace("http://", "")
 			Plugin:open_url(`https://misspace.hital.in/?from={my_host}&from={target.host}`)
 		} else {
-			Mk:dialog("疎通確認", "自サーバーのホスト名を取得できませんでした", "warn")
+			Mk:dialog("疎通確認", "自サーバーのホスト名を取得できませんでした", "warning")
 		}
 	}
 })

@@ -26,7 +26,7 @@
 
 ### {
 	name: "ブロック確認"
-	version: "1.2.0"
+	version: "1.2.1"
 	author: "@hitalin"
 	description: "ユーザーメニューから相手にブロックされているかを確認します。フォロー関係と自分からのブロック・ミュート状態もまとめて表示します。相手からのミュートは Misskey の仕様上確認できません"
 	permissions: ["read:account"]
@@ -42,7 +42,7 @@ Plugin:register_user_action("ブロックされているか確認", @(target) {
 
 	// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
 	if (Core:type(user) != "obj") {
-		Mk:dialog("ブロック確認", "取得に失敗しました (閲覧制限か権限不足の可能性)", "warn")
+		Mk:dialog("ブロック確認", "取得に失敗しました (閲覧制限か権限不足の可能性)", "warning")
 		return null
 	}
 
@@ -81,6 +81,6 @@ Plugin:register_user_action("ブロックされているか確認", @(target) {
 
 	lines.push("(被ミュートは仕様上確認不可)")
 
-	let dtype = if (user.isBlocked == true) "warn" else "info"
+	let dtype = if (user.isBlocked == true) "warning" else "info"
 	Mk:dialog(`@{target.username}`, lines.join(Str:lf), dtype)
 })

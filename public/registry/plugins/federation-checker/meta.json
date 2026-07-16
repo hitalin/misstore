@@ -1,7 +1,7 @@
 {
   "id": "federation-checker",
   "name": "疎通確認",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "hitalin",
   "authorUrl": "https://github.com/hitalin",
   "description": "ユーザーメニューから相手のサーバーとの連合疎通状況を確認。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開ける",
