@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-16T10:37:47.897Z",
+  "updatedAt": "2026-07-16T22:02:16.615Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -315,6 +315,37 @@
         "read:account"
       ],
       "iconUrl": "https://misstore.hital.in/registry/plugins/block-checker/icon.svg"
+    },
+    {
+      "id": "block-combo",
+      "name": "ブロ解・ブロミュ",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "定番のブロック複合操作をユーザーメニューからワンクリックで。フォロー関係だけを解消する「ブロ解」(一瞬ブロック→即解除) と、ブロックとミュートを同時に行う「ブロミュ」。実行前に確認ダイアログあり",
+      "category": "moderation",
+      "capabilities": [
+        "misskey-api"
+      ],
+      "tags": [
+        "block",
+        "mute",
+        "unfollow",
+        "burokai",
+        "moderation"
+      ],
+      "sourceUrl": "https://misstore.hital.in/registry/plugins/block-combo/plugin.is",
+      "apiUrl": "https://misstore.hital.in/registry/plugins/block-combo/api.json",
+      "sha512": "2af88eca65cd26993f5326d8f1c279d0b5bc2eff083be24114b6d345a594e894f6c405d6fbff6dbd0930c7c8bcc21272354adff15de9107daaf12a28bf946c39",
+      "createdAt": "2026-07-16T22:02:16.728Z",
+      "updatedAt": "2026-07-16T22:02:16.728Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "read:account",
+        "write:blocks",
+        "write:mutes"
+      ],
+      "iconUrl": "https://misstore.hital.in/registry/plugins/block-combo/icon.svg"
     },
     {
       "id": "snippet-palette",

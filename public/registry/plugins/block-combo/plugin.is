@@ -1,0 +1,145 @@
+/// @ 1.2.1
+
+// ブロ解・ブロミュ — 定番のブロック複合操作をユーザーメニューから
+//
+// Misskey で関係を整理するときの定番 2 操作をワンクリック化する。
+// - ブロ解: 一瞬ブロックして即解除。ブロック時にサーバーが相互の
+//   フォロー (とフォロー申請) を強制解除する仕様を利用し、ブロックを
+//   残さずフォロー関係だけを解消する
+// - ブロミュ: ブロックとミュートを同時に実行。Misskey のブロックは
+//   相手からの接触を絶つだけで相手の投稿は自分に見えたままなので、
+//   視界からも消すにはミュート併用が定番
+//
+// どちらも実行前に Mk:confirm で確認を挟む。リレーションを先に
+// users/show で読み、済んでいる操作はスキップする (blocking/create は
+// 既ブロック時にエラーを返すため)。
+//
+// リモートユーザーへのブロ解は、Block → Undo Block が連合で相手側
+// サーバーに順に届く前提。自サーバー側のフォロー解除は即時だが、
+// 相手側サーバーの実装次第では相手側に「フォローしたまま」の表示が
+// 残ることがある。
+//
+// permissions はプラグイントークンの kind チェック用 (Misskey Web は
+// blocking/* = write:blocks, mute/create = write:mutes を要求)。
+// NoteDeck では write 系 endpoint の実行にプラグインプロファイル
+// full が必要。
+
+### {
+	name: "ブロ解・ブロミュ"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ユーザーメニューに、フォロー関係だけを解消する「ブロ解」(一瞬ブロック→即解除) と、ブロックとミュートを同時に行う「ブロミュ」を追加します。実行前に確認ダイアログを表示します"
+	permissions: ["read:account", "write:blocks", "write:mutes"]
+}
+
+// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
+@failed(res) {
+	Core:type(res) == "error"
+}
+
+// リレーション項目は古いサーバーで欠けることがあるので Obj:has で守る
+@rel(user, key) {
+	Obj:has(user, key) && Obj:get(user, key) == true
+}
+
+@acctOf(user) {
+	if (user.host != null) `@{user.username}@{user.host}` else `@{user.username}`
+}
+
+// リレーション付きでユーザーを取得。続行不能なら通知して null
+@fetchUser(target, title) {
+	let user = Mk:api("users/show", { userId: target.id })
+	if (Core:type(user) != "obj") {
+		Mk:dialog(title, "ユーザー情報の取得に失敗しました", "error")
+		return null
+	}
+	// リレーションは認証済みかつ自分以外のユーザーに対してのみ返る
+	if (!Obj:has(user, "isBlocking")) {
+		Mk:dialog(title, "リレーションを取得できません (自分自身が対象か、アクセス許可が未付与 — 再インストールで許可できます)", "info")
+		return null
+	}
+	user
+}
+
+Plugin:register_user_action("ブロ解 (フォロー関係を解消)", @(target) {
+	let title = "ブロ解"
+	let user = fetchUser(target, title)
+	if (user == null) return null
+	let acct = acctOf(user)
+
+	// 既にブロック中ならフォロー関係は切れている。解除だけ行う
+	if (rel(user, "isBlocking")) {
+		if (!Mk:confirm(title, `{acct} は既にブロック中です (フォロー関係は解消済み)。ブロックを解除しますか?`)) return null
+		let res = Mk:api("blocking/delete", { userId: target.id })
+		if (failed(res)) {
+			Mk:dialog(title, "ブロック解除に失敗しました", "error")
+			return null
+		}
+		Mk:dialog(title, `{acct} のブロックを解除しました`, "success")
+		return null
+	}
+
+	var note = ""
+	if (user.host != null) {
+		note = `{Str:lf}(リモートユーザーのため、相手側サーバーへの反映は実装次第で遅れる・残ることがあります)`
+	}
+	if (!Mk:confirm(title, `{acct} を一瞬ブロックして即解除し、相互のフォローとフォロー申請を解消します。ブロックは残りません。{note}{Str:lf}実行しますか?`)) return null
+
+	let blocked = Mk:api("blocking/create", { userId: target.id })
+	if (failed(blocked)) {
+		Mk:dialog(title, "ブロックに失敗しました (アクセス許可が未付与の可能性)", "error")
+		return null
+	}
+
+	// 連合先へ Block が届く猶予を置いてから解除する
+	Core:sleep(1000)
+
+	let unblocked = Mk:api("blocking/delete", { userId: target.id })
+	if (failed(unblocked)) {
+		Mk:dialog(title, `フォロー関係は解消しましたが、ブロック解除に失敗しました。{acct} のブロックを手動で解除してください`, "warning")
+		return null
+	}
+
+	Mk:dialog(title, `{acct} とのフォロー関係を解消しました`, "success")
+})
+
+Plugin:register_user_action("ブロミュ (ブロック+ミュート)", @(target) {
+	let title = "ブロミュ"
+	let user = fetchUser(target, title)
+	if (user == null) return null
+	let acct = acctOf(user)
+
+	let blocking = rel(user, "isBlocking")
+	let muted = rel(user, "isMuted")
+
+	if (blocking && muted) {
+		Mk:dialog(title, `{acct} は既にブロックとミュートの両方が有効です`, "info")
+		return null
+	}
+
+	// 済んでいる操作はスキップし、実行する分だけ確認文言に載せる
+	var todo = []
+	if (!blocking) { todo.push("ブロック") }
+	if (!muted) { todo.push("ミュート") }
+	if (!Mk:confirm(title, `{acct} を{todo.join("と")}します。相互のフォローも解除されます。実行しますか?`)) return null
+
+	if (!blocking) {
+		let bres = Mk:api("blocking/create", { userId: target.id })
+		if (failed(bres)) {
+			Mk:dialog(title, "ブロックに失敗しました (アクセス許可が未付与の可能性)", "error")
+			return null
+		}
+	}
+
+	if (!muted) {
+		let mres = Mk:api("mute/create", { userId: target.id })
+		if (failed(mres)) {
+			// ブロックだけ通った中途半端な状態を隠さず伝える
+			let done = if (blocking) "" else "ブロックはしましたが、"
+			Mk:dialog(title, `{done}ミュートに失敗しました`, "warning")
+			return null
+		}
+	}
+
+	Mk:dialog(title, `{acct} を{todo.join("と")}しました`, "success")
+})

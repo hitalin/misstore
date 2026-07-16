@@ -16,6 +16,7 @@ const SIMPLE_DIR = resolve(ROOT, 'node_modules/simple-icons/icons')
 // pack: 'lucide' (ISC, generic UI/concept) or 'simple' (CC0, brand logos)
 const ICON_MAP = {
   'plugins/block-checker': { pack: 'lucide', name: 'user-x' },
+  'plugins/block-combo': { pack: 'lucide', name: 'heart-crack' },
   'plugins/federation-checker': { pack: 'lucide', name: 'satellite-dish' },
   'plugins/live-hashtag': { pack: 'lucide', name: 'hash' },
   'plugins/plugin-smith': { pack: 'lucide', name: 'hammer' },

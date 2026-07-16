@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-16T10:37:47.897Z",
+  "updatedAt": "2026-07-16T22:02:16.615Z",
   "themes": [
     {
       "id": "ame",
@@ -187,8 +187,8 @@
         "scrollbarHandleHover": "rgba(0, 0, 0, 0.4)",
         "deckBg": "#dce0e8"
       },
-      "createdAt": "2026-07-16T10:37:48.148Z",
-      "updatedAt": "2026-07-16T10:37:48.148Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/catppuccin/catppuccin"
     },
@@ -266,8 +266,8 @@
         "scrollbarHandleHover": "rgba(255, 255, 255, 0.4)",
         "deckBg": "#11111b"
       },
-      "createdAt": "2026-07-16T10:37:48.159Z",
-      "updatedAt": "2026-07-16T10:37:48.159Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/catppuccin/catppuccin"
     },
@@ -346,8 +346,8 @@
         "scrollbarHandleHover": "rgba(255, 255, 255, 0.4)",
         "deckBg": "#191a21"
       },
-      "createdAt": "2026-07-16T10:37:48.171Z",
-      "updatedAt": "2026-07-16T10:37:48.171Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/dracula/dracula-theme"
     },
@@ -1212,8 +1212,8 @@
         "scrollbarHandleHover": "rgba(255, 255, 255, 0.4)",
         "deckBg": "#272c36"
       },
-      "createdAt": "2026-07-16T10:37:48.364Z",
-      "updatedAt": "2026-07-16T10:37:48.364Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/nordtheme/nord"
     },
@@ -1291,8 +1291,8 @@
         "scrollbarHandleHover": "rgba(255, 255, 255, 0.4)",
         "deckBg": "#00212a"
       },
-      "createdAt": "2026-07-16T10:37:48.376Z",
-      "updatedAt": "2026-07-16T10:37:48.376Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/altercation/solarized"
     },
@@ -1370,8 +1370,8 @@
         "scrollbarHandleHover": "rgba(0, 0, 0, 0.4)",
         "deckBg": "#e4ddc8"
       },
-      "createdAt": "2026-07-16T10:37:48.386Z",
-      "updatedAt": "2026-07-16T10:37:48.386Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "license": "MIT",
       "repository": "https://github.com/altercation/solarized"
     },
@@ -1449,8 +1449,8 @@
         "scrollbarHandleHover": "rgba(134, 139, 196, 0.35)",
         "deckBg": "#101014"
       },
-      "createdAt": "2026-07-16T10:37:48.397Z",
-      "updatedAt": "2026-07-16T10:37:48.397Z",
+      "createdAt": "2026-07-16T19:38:56+09:00",
+      "updatedAt": "2026-07-16T19:38:56+09:00",
       "repository": "https://github.com/tokyo-night/tokyo-night-vscode-theme"
     },
     {

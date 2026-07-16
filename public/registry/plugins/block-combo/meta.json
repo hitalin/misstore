@@ -1,0 +1,14 @@
+{
+  "id": "block-combo",
+  "name": "ブロ解・ブロミュ",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "定番のブロック複合操作をユーザーメニューからワンクリックで。フォロー関係だけを解消する「ブロ解」(一瞬ブロック→即解除) と、ブロックとミュートを同時に行う「ブロミュ」。実行前に確認ダイアログあり",
+  "license": "MIT",
+  "category": "moderation",
+  "capabilities": ["misskey-api"],
+  "tags": ["block", "mute", "unfollow", "burokai", "moderation"],
+  "permissions": ["read:account", "write:blocks", "write:mutes"],
+  "minNoteDeckVersion": "1.8.0"
+}
