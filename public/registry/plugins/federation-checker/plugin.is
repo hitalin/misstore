@@ -27,12 +27,17 @@
 // フォールバックする。latestRequestSentAt / latestStatus は v13 で
 // 廃止されたので使わない。
 //
-// permissions の "read:account" は block-checker と同じ理由:
-// Misskey Web は permissions が空だとプラグイントークンを発行せず
-// 匿名 (i: null) で送る。本家の federation/show-instance は匿名可だが、
-// 認証必須に絞ったフォーク (yamisskey 系) があるため、トークンを
-// 発行させて認証付きで呼ぶ。NoteDeck は endpoint テーブルで
-// federation/show-instance = allow なので宣言しても無害。
+// permissions の "read:federation":
+// yamisskey 系フォークは show-instance を requireCredential: true +
+// kind: 'read:federation' に変更しており、Misskey Web のプラグイン
+// トークン (アクセストークン) は ApiCallService の kind チェックを
+// 受けるため、"read:account" では PERMISSION_DENIED になる
+// (NoteDeck はネイティブトークンで呼ぶので kind チェックが掛からず
+// 動いてしまい、差分に気づきにくい)。read:federation は本家
+// misskey-js の permissions 定数にある標準権限なので本家 Web でも
+// 宣言可能で、permissions が空だとトークンを発行せず匿名 (i: null)
+// で送る問題の回避も兼ねる。本家の show-instance / meta は kind なし
+// requireCredential: false なのでトークンの権限内容は問われない。
 //
 // 本家 Misskey Web (AiScript 1.2.0) 互換: 使用 API はすべて本家にも
 // 存在する (frontend/src/aiscript/api.ts の Mk:dialog 3引数・
@@ -47,10 +52,10 @@
 
 ### {
 	name: "疎通確認"
-	version: "1.1.2"
+	version: "1.1.3"
 	author: "@hitalin"
 	description: "ユーザーメニューから相手のサーバーとの連合疎通状況を確認します。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開けます"
-	permissions: ["read:account"]
+	permissions: ["read:federation"]
 }
 
 // フィールドはサーバーのバージョンで欠けることがあるので Obj:has で守る

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-16T00:02:52.550Z",
+  "updatedAt": "2026-07-16T00:12:33.971Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -126,7 +126,7 @@
       "apiUrl": "https://misstore.hital.in/registry/plugins/url-safety-check/api.json",
       "sha512": "9e7561efeb8441d3bf360d05c85156c205a99572b66eefd12767fb52c19c93a4175e3c3a81c22b79f7a60abcfeb6d81c62c656e3a81feb3f6ffcfe5f7437d46b",
       "createdAt": "2026-07-14T15:09:18+09:00",
-      "updatedAt": "2026-07-15T14:27:28+09:00",
+      "updatedAt": "2026-07-16T09:03:52+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
@@ -308,7 +308,7 @@
       "apiUrl": "https://misstore.hital.in/registry/plugins/block-checker/api.json",
       "sha512": "e4fe2a6260892a7eba7439aeb716d2d914e9dd84dfcfe7d1c91aca8646ce86608deccc65353d43bd1e3cb2b519d61b6b98eade937dc328f022595ed302191a36",
       "createdAt": "2026-07-16T07:08:20+09:00",
-      "updatedAt": "2026-07-16T07:26:38+09:00",
+      "updatedAt": "2026-07-16T09:03:52+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
@@ -438,7 +438,7 @@
     {
       "id": "federation-checker",
       "name": "疎通確認",
-      "version": "1.1.2",
+      "version": "1.1.3",
       "author": "hitalin",
       "description": "ユーザーメニューから相手のサーバーとの連合疎通状況を確認。自サーバー側のブロック・配信停止・サイレンス、配送の成否、最終受信時刻をまとめて表示し、misspace での双方向疎通チェックも開ける",
       "category": "moderation",
@@ -453,13 +453,13 @@
       ],
       "sourceUrl": "https://misstore.hital.in/registry/plugins/federation-checker/plugin.is",
       "apiUrl": "https://misstore.hital.in/registry/plugins/federation-checker/api.json",
-      "sha512": "1bf7b2a66f87cd55fa839db603ab655f760d1d34ea234768e79aac20eef54f20c37d6ab72ce755f157d03c47b7bbaf4965d768ebbed35c51f86c5e450be04e54",
+      "sha512": "66791625edc52f7bd27cf4b95654216e7643c525e156f5f550f5b92cb29084dca45213b511b16616879334d245f9194906ac0a6a22c81048e8a440bf512eb323",
       "createdAt": "2026-07-16T07:49:09+09:00",
-      "updatedAt": "2026-07-16T08:01:18+09:00",
+      "updatedAt": "2026-07-16T09:03:52+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
-        "read:account"
+        "read:federation"
       ],
       "iconUrl": "https://misstore.hital.in/registry/plugins/federation-checker/icon.svg"
     },
