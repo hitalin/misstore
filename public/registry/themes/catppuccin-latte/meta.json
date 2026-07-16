@@ -1,0 +1,17 @@
+{
+  "id": "catppuccin-latte",
+  "name": "Catppuccin Latte",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "Catppuccin 唯一のライトフレーバー Latte。やわらかなオフホワイトの背景に鮮やかなアクセント",
+  "base": "light",
+  "license": "MIT",
+  "repository": "https://github.com/catppuccin/catppuccin",
+  "tags": [
+    "catppuccin",
+    "editor",
+    "light",
+    "pastel",
+    "latte"
+  ]
+}

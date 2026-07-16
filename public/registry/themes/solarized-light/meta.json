@@ -1,0 +1,17 @@
+{
+  "id": "solarized-light",
+  "name": "Solarized Light",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "Solarized のライト版。クリーム色の紙のような背景に落ち着いたアクセント。ダーク版と対で設計された配色",
+  "base": "light",
+  "license": "MIT",
+  "repository": "https://github.com/altercation/solarized",
+  "tags": [
+    "solarized",
+    "editor",
+    "light",
+    "classic",
+    "cream"
+  ]
+}

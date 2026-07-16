@@ -1,0 +1,17 @@
+{
+  "id": "solarized-dark",
+  "name": "Solarized Dark",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "Ethan Schoonover による定番配色 Solarized のダーク版。CIELAB 色空間で設計された目にやさしい低コントラスト",
+  "base": "dark",
+  "license": "MIT",
+  "repository": "https://github.com/altercation/solarized",
+  "tags": [
+    "solarized",
+    "editor",
+    "dark",
+    "classic",
+    "teal"
+  ]
+}

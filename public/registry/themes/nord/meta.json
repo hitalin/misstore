@@ -1,0 +1,17 @@
+{
+  "id": "nord",
+  "name": "Nord",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "北極圏の雪と氷をイメージした Nord 配色。Polar Night の青灰色に Frost ブルーのアクセント",
+  "base": "dark",
+  "license": "MIT",
+  "repository": "https://github.com/nordtheme/nord",
+  "tags": [
+    "nord",
+    "editor",
+    "dark",
+    "blue",
+    "arctic"
+  ]
+}

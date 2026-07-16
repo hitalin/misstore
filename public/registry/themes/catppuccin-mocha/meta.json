@@ -1,0 +1,17 @@
+{
+  "id": "catppuccin-mocha",
+  "name": "Catppuccin Mocha",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "Catppuccin の最もダークなフレーバー Mocha。深い青紫の背景にやわらかなパステルカラーのアクセント",
+  "base": "dark",
+  "license": "MIT",
+  "repository": "https://github.com/catppuccin/catppuccin",
+  "tags": [
+    "catppuccin",
+    "editor",
+    "dark",
+    "pastel",
+    "mocha"
+  ]
+}

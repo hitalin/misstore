@@ -1,0 +1,16 @@
+{
+  "id": "tokyo-night",
+  "name": "Tokyo Night",
+  "version": "1.1.0",
+  "author": "@hitalin@yami.ski",
+  "description": "エディタ定番の Tokyo Night 配色。東京の夜をイメージした深い藍色の背景に、ネオンブルーとパープルのアクセント",
+  "base": "dark",
+  "repository": "https://github.com/tokyo-night/tokyo-night-vscode-theme",
+  "tags": [
+    "tokyo-night",
+    "editor",
+    "dark",
+    "blue",
+    "purple"
+  ]
+}
