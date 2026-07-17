@@ -11,7 +11,7 @@ let LF = Str:lf
 let CTX = 3        // 文脈長（この文字数の一致で次の1文字を選ぶ）
 let MAX_LEN = 120  // 1回の生成で継ぎ足す最大文字数
 let MAX_PAGES = 2  // users/notes の最大取得ページ数（100件/ページ）
-let STORE_URL = "https://misstore.hital.in/widgets/markov"  // 配布ページ（投稿に含める）
+let STORE_URL = "https://store.notedeck.io/widgets/markov"  // 配布ページ（投稿に含める）
 
 var corpus = ""
 var corpusLen = 0

@@ -17,8 +17,8 @@
         "code-gen",
         "ai"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/api.json",
       "sha512": "faf48d19db3e836a619702f3b5f49be6212bb1bc58ce956dc0cfdf560c7787b25d202eae4cf2fdb69d816d704b9b15c2114b9a820c0652358a8553871b76ea64",
       "createdAt": "2026-05-12T11:12:35+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -31,7 +31,7 @@
         "plugins.write",
         "notifications"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/plugin-smith/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/icon.svg"
     },
     {
       "id": "saucenao-search",
@@ -49,8 +49,8 @@
         "image-search",
         "reverse-search"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/saucenao-search/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/saucenao-search/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/saucenao-search/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/saucenao-search/api.json",
       "sha512": "bc82aac035f8d8103cbe094dd53806b33b78bb34815749da9a07d1249ce77f6174251d75cc666ec1e0b109ee88fe094057fc3216a0c9a0693859f2c594dd6dfb",
       "createdAt": "2026-07-14T14:36:48+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -59,7 +59,7 @@
       "permissions": [
         "vault.use"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/saucenao-search/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/saucenao-search/icon.svg"
     },
     {
       "id": "tracking-link-cleaner",
@@ -74,14 +74,14 @@
         "privacy",
         "cleanup"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/tracking-link-cleaner/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/tracking-link-cleaner/api.json",
       "sha512": "768fd22fd9d083c603d92020320e73c5ccf60b53c487af92f29c0fe32043c5b723dbc8c5258f08ab3d2c588a5fcaec4eadbc9a0e1bcc61a34eb85f5e56e23571",
       "createdAt": "2026-07-13T22:03:53+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/tracking-link-cleaner/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/tracking-link-cleaner/icon.svg"
     },
     {
       "id": "twitter-link-fixer",
@@ -97,14 +97,14 @@
         "fxtwitter",
         "embed"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/twitter-link-fixer/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/twitter-link-fixer/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/twitter-link-fixer/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/twitter-link-fixer/api.json",
       "sha512": "903e82fae81a5f7da1c920df28a5b488e4ff27ef7f1e236b127c102d0ae557e62a8c4deea987e8bbc38f6a521991bbfddc16f928a1e8364558bd4d9406430e83",
       "createdAt": "2026-07-15T06:44:02+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/twitter-link-fixer/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/twitter-link-fixer/icon.svg"
     },
     {
       "id": "url-safety-check",
@@ -122,8 +122,8 @@
         "malware",
         "url-check"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/url-safety-check/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/url-safety-check/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/url-safety-check/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/url-safety-check/api.json",
       "sha512": "9e7561efeb8441d3bf360d05c85156c205a99572b66eefd12767fb52c19c93a4175e3c3a81c22b79f7a60abcfeb6d81c62c656e3a81feb3f6ffcfe5f7437d46b",
       "createdAt": "2026-07-14T15:09:18+09:00",
       "updatedAt": "2026-07-16T09:03:52+09:00",
@@ -132,7 +132,7 @@
       "permissions": [
         "network.external"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/url-safety-check/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/url-safety-check/icon.svg"
     },
     {
       "id": "web-search",
@@ -147,14 +147,14 @@
         "egosearch",
         "classic"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/web-search/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/web-search/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/web-search/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/web-search/api.json",
       "sha512": "1031e2cadc7f74f1f9eaec402dd79f577bb7a8a0efce721a099587a7b7c5129c7e0f76165770dde7ef22345bb8ff00c3e9a355e82a1441bba6f4fafa498dd8e1",
       "createdAt": "2026-07-15T06:44:02+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/web-search/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/web-search/icon.svg"
     },
     {
       "id": "youtube-link-cleaner",
@@ -169,15 +169,15 @@
         "url",
         "cleanup"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/api.json",
       "sha512": "128cdc9b717019ddc4aec84cce788d7be84e480d78f5f5b6cfb70d0d43005195d138f16e20c640ac216466f772a43f49db5b3c6dfd4e2138d19585e404b54efd",
       "createdAt": "2026-04-11T21:20:52+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/jj1guj",
       "license": "MIT",
       "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/youtube-link-cleaner/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/icon.svg"
     },
     {
       "id": "dominator",
@@ -196,14 +196,14 @@
         "psycho-pass",
         "moderation"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/dominator/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/dominator/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/dominator/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/dominator/api.json",
       "sha512": "07395b6493e49e1979fac8fbba16224f00025b2fccf92ea30fa51af63a4c5b3768c775aeec24f541f4a573756f1b0f46487045868966fea59eafc0728084b3bb",
       "createdAt": "2026-07-14T13:43:33+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/dominator/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/dominator/icon.svg"
     },
     {
       "id": "note-to-memo",
@@ -220,8 +220,8 @@
         "pkm",
         "clip"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/note-to-memo/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/note-to-memo/api.json",
       "sha512": "b343cd8421290565984fe7c44450fca204782526091ab5e87fb95ec33a8dcfaf24cc22d0003e9a9ffea732dedf04c7770a2f60924b30ae060f4a914bdaeb9b27",
       "createdAt": "2026-07-13T22:03:54+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -230,7 +230,7 @@
       "permissions": [
         "memos.write"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/note-to-memo/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/note-to-memo/icon.svg"
     },
     {
       "id": "deepl-translate",
@@ -248,8 +248,8 @@
         "deepl",
         "i18n"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/deepl-translate/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/deepl-translate/api.json",
       "sha512": "83c4d2b7f43c3624164a991a9da381835ab3ef2bc7755f5dc53a84f2d9da677922e4e1d5c345b6de926afa05bed910b276c466995f92ded8fd55b811275fd9a6",
       "createdAt": "2026-07-13T22:03:54+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -258,7 +258,7 @@
       "permissions": [
         "vault.use"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/deepl-translate/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/deepl-translate/icon.svg"
     },
     {
       "id": "pakuru",
@@ -276,8 +276,8 @@
         "pakuru",
         "numberquote"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/pakuru/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/pakuru/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/pakuru/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/pakuru/api.json",
       "sha512": "407d729baecf2e31a03ffadef416841289ede1b8a2ec581c098c8eb24dfcbaad1b29a1abcd9a9b878612b649af102fda19606458535fcbc18c87ce4d60291b84",
       "createdAt": "2026-07-13T22:03:54+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -286,7 +286,7 @@
       "permissions": [
         "notes.write"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/pakuru/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/pakuru/icon.svg"
     },
     {
       "id": "block-checker",
@@ -304,8 +304,8 @@
         "relation",
         "moderation"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/block-checker/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/block-checker/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/block-checker/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/block-checker/api.json",
       "sha512": "e4fe2a6260892a7eba7439aeb716d2d914e9dd84dfcfe7d1c91aca8646ce86608deccc65353d43bd1e3cb2b519d61b6b98eade937dc328f022595ed302191a36",
       "createdAt": "2026-07-16T07:08:20+09:00",
       "updatedAt": "2026-07-16T09:03:52+09:00",
@@ -314,7 +314,7 @@
       "permissions": [
         "read:account"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/block-checker/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/block-checker/icon.svg"
     },
     {
       "id": "block-combo",
@@ -333,8 +333,8 @@
         "burokai",
         "moderation"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/block-combo/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/block-combo/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/block-combo/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/block-combo/api.json",
       "sha512": "2af88eca65cd26993f5326d8f1c279d0b5bc2eff083be24114b6d345a594e894f6c405d6fbff6dbd0930c7c8bcc21272354adff15de9107daaf12a28bf946c39",
       "createdAt": "2026-07-17T07:17:06+09:00",
       "updatedAt": "2026-07-17T07:17:06+09:00",
@@ -345,7 +345,7 @@
         "write:blocks",
         "write:mutes"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/block-combo/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/block-combo/icon.svg"
     },
     {
       "id": "snippet-palette",
@@ -360,14 +360,14 @@
         "template",
         "snippet"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/snippet-palette/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/snippet-palette/api.json",
       "sha512": "38366e77b381948c35e3a973d963e2499f528f8b221848824edee3ae95a76fbc724c13bb95f44f28de5e2127c6dd3e7a2f188b1ce7f995a318051a23c139ae37",
       "createdAt": "2026-07-13T22:03:53+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/snippet-palette/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/snippet-palette/icon.svg"
     },
     {
       "id": "live-hashtag",
@@ -382,14 +382,14 @@
         "live",
         "posting"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/live-hashtag/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/live-hashtag/api.json",
       "sha512": "52e333bbfca006603fb89ee419e1db9e84a2baba598b0aa82dbb32e74435ef687d0178f4f10995b2ea9ea45c24def4b4b11aa1a283378ab4ab71211ef599088d",
       "createdAt": "2026-07-16T07:01:29+09:00",
       "updatedAt": "2026-07-16T07:01:29+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/live-hashtag/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/live-hashtag/icon.svg"
     },
     {
       "id": "quote-copy",
@@ -408,8 +408,8 @@
         "clipboard",
         "biblatex"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/quote-copy/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/quote-copy/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/quote-copy/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/quote-copy/api.json",
       "sha512": "7fefe1ac4e90ad241f9fb306d8fe6d19cd8eea5a158b74834ff46a0f8105238b28c87adda66ce54304b9adce6b9b69e7a4e13bedfbcbaa375b8d7f89f9d75c71",
       "createdAt": "2026-07-14T14:36:57+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -418,7 +418,7 @@
       "permissions": [
         "clipboard"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/quote-copy/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/quote-copy/icon.svg"
     },
     {
       "id": "post-guard",
@@ -433,14 +433,14 @@
         "cw",
         "visibility"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/post-guard/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/post-guard/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/post-guard/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/post-guard/api.json",
       "sha512": "18d68bd7fd620e554b730aac6af527e5256d91e41f43950307124cbf86a4d2c4e2903b66c82555c238ec2d6bbf89bf12ea794d3d82f6e7239925a76c3b16adf3",
       "createdAt": "2026-07-13T22:03:53+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/post-guard/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/post-guard/icon.svg"
     },
     {
       "id": "open-in-web",
@@ -457,14 +457,14 @@
         "web",
         "escape-hatch"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/open-in-web/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/open-in-web/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/open-in-web/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/open-in-web/api.json",
       "sha512": "bf1e3116e5511c931d43efe28ba3cc1bc1031e18ac02653275c377a9afce5d2cd26877c6176c117c66b5da1f77e8cdbc8affe708b4d827eb897699f9f42c800f",
       "createdAt": "2026-07-15T06:43:52+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/plugins/open-in-web/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/open-in-web/icon.svg"
     },
     {
       "id": "federation-checker",
@@ -482,8 +482,8 @@
         "block",
         "moderation"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/federation-checker/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/federation-checker/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/federation-checker/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/federation-checker/api.json",
       "sha512": "66791625edc52f7bd27cf4b95654216e7643c525e156f5f550f5b92cb29084dca45213b511b16616879334d245f9194906ac0a6a22c81048e8a440bf512eb323",
       "createdAt": "2026-07-16T07:49:09+09:00",
       "updatedAt": "2026-07-16T09:14:24+09:00",
@@ -492,7 +492,7 @@
       "permissions": [
         "read:federation"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/federation-checker/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/federation-checker/icon.svg"
     },
     {
       "id": "emoji-converter",
@@ -510,8 +510,8 @@
         "custom-emoji",
         "converter"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/plugins/emoji-converter/plugin.is",
-      "apiUrl": "https://misstore.hital.in/registry/plugins/emoji-converter/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/emoji-converter/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/emoji-converter/api.json",
       "sha512": "17cdb739f0b4efe784e42c0c5716771182944a0b6216a163e8e422cdbed2645ccc24d84e31cb6c3d096acdff8b23005b02a7e8b78df119492fb4e5a47f5cfe6b",
       "createdAt": "2026-07-14T14:36:39+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
@@ -520,7 +520,7 @@
       "permissions": [
         "clipboard"
       ],
-      "iconUrl": "https://misstore.hital.in/registry/plugins/emoji-converter/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/plugins/emoji-converter/icon.svg"
     }
   ]
 }

@@ -8,7 +8,7 @@
 /// UI の様式 (色定数 / divider / ヒーロー数値 / 最終更新フッター) は mewk ウィジェットを踏襲。
 
 let LF = Str:lf
-let STORE_URL = "https://misstore.hital.in/widgets/misuhai-score"
+let STORE_URL = "https://store.notedeck.io/widgets/misuhai-score"
 let DAY_MS = 86400000
 
 let MUTED = "8a96a3"

@@ -14,14 +14,14 @@
         "accessibility",
         "motion"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/styles/no-animations/style.css",
-      "apiUrl": "https://misstore.hital.in/registry/styles/no-animations/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/styles/no-animations/style.css",
+      "apiUrl": "https://store.notedeck.io/registry/styles/no-animations/api.json",
       "sha512": "dfbcab493c38c7dd16ba3b1005568416870f3036afd31febc1cc6684b5964848a493e694adf9e6592886e3700d91c891fbddac8b51db09b1ca7cbcfaaf861164",
       "createdAt": "2026-07-16T08:29:02+09:00",
       "updatedAt": "2026-07-16T08:29:02+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/styles/no-animations/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/styles/no-animations/icon.svg"
     },
     {
       "id": "square-ui",
@@ -35,14 +35,14 @@
         "square",
         "layout"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/styles/square-ui/style.css",
-      "apiUrl": "https://misstore.hital.in/registry/styles/square-ui/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/styles/square-ui/style.css",
+      "apiUrl": "https://store.notedeck.io/registry/styles/square-ui/api.json",
       "sha512": "f089bdf7b32d656a78b652ff9a66a3d3fb794bc0ff61a1e6b0c97762ece46a4e8e853ec0083cc9431a4b3da48bb1221aa624eaa13f153e6f5a73008fe78a89c9",
       "createdAt": "2026-07-16T08:29:02+09:00",
       "updatedAt": "2026-07-16T08:29:02+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/styles/square-ui/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/styles/square-ui/icon.svg"
     },
     {
       "id": "rocket-cursor",
@@ -56,14 +56,14 @@
         "fun",
         "rocket"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/styles/rocket-cursor/style.css",
-      "apiUrl": "https://misstore.hital.in/registry/styles/rocket-cursor/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/styles/rocket-cursor/style.css",
+      "apiUrl": "https://store.notedeck.io/registry/styles/rocket-cursor/api.json",
       "sha512": "aee159a1fd1c463782e297fe8d2b41ff2e474042cf3f1f5c3e227c873aa96d1c2736f1822bbedfa7ef91a1ff20a32f6de5593aef95108c70d2c3beddf59286ae",
       "createdAt": "2026-07-16T08:29:02+09:00",
       "updatedAt": "2026-07-16T08:29:02+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
-      "iconUrl": "https://misstore.hital.in/registry/styles/rocket-cursor/icon.svg"
+      "iconUrl": "https://store.notedeck.io/registry/styles/rocket-cursor/icon.svg"
     }
   ]
 }

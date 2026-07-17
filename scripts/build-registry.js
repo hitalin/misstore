@@ -14,7 +14,7 @@ import JSON5 from 'json5'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REGISTRY_DIR = resolve(__dirname, '..', 'public', 'registry')
-const SITE_URL = process.env.SITE_URL ?? 'https://misstore.hital.in'
+const SITE_URL = process.env.SITE_URL ?? 'https://store.notedeck.io'
 
 const errors = []
 

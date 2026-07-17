@@ -35,7 +35,7 @@ const colorModeLabels: Record<string, string> = {
         </button>
         <a href="/" class="nav-brand" @click.prevent="switchTab('home')">
           <img
-            src="https://raw.githubusercontent.com/hitalin/notedeck/main/src-tauri/icons/32x32.png"
+            src="https://raw.githubusercontent.com/notedeck-dev/notedeck/main/src-tauri/icons/32x32.png"
             alt=""
           />
           <b>mis<span>store</span></b>
@@ -83,7 +83,7 @@ const colorModeLabels: Record<string, string> = {
           >
             Styles
           </a>
-          <a href="https://notedeck.hital.in" target="_blank" rel="noopener">NoteDeck</a>
+          <a href="https://notedeck.io" target="_blank" rel="noopener">NoteDeck</a>
         </div>
         <div class="nav-right">
           <div class="nav-search">
@@ -106,7 +106,7 @@ const colorModeLabels: Record<string, string> = {
             <svg class="icon-system" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </button>
           <a
-            href="https://github.com/hitalin/misstore"
+            href="https://github.com/notedeck-dev/misstore"
             class="nav-right-button"
             aria-label="GitHub"
             target="_blank"
@@ -162,7 +162,7 @@ const colorModeLabels: Record<string, string> = {
         Styles
       </button>
       <a
-        href="https://notedeck.hital.in"
+        href="https://notedeck.io"
         class="nav-mobile-item"
         target="_blank"
         rel="noopener"
@@ -186,7 +186,7 @@ const colorModeLabels: Record<string, string> = {
         {{ colorModeLabels[colorMode] }}
       </button>
       <a
-        href="https://github.com/hitalin/misstore"
+        href="https://github.com/notedeck-dev/misstore"
         class="nav-mobile-item"
         target="_blank"
         rel="noopener"

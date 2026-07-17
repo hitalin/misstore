@@ -15,8 +15,8 @@
         "pink",
         "dark"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/ame/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/ame/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/ame/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/ame/api.json",
       "sha512": "c8d44da796f5d3fb1a74592f0cb4e7977591d4fa95a5bc168207406d51c879a9c792300a0db2c3103c03493575b82d99f02956cfc7cb05f7175977239c016d83",
       "themeProps": {
         "X2": ":darken<1<@panel",
@@ -127,8 +127,8 @@
         "pastel",
         "latte"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/catppuccin-latte/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/catppuccin-latte/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/catppuccin-latte/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/catppuccin-latte/api.json",
       "sha512": "1c5c2b72d5905109d20a3fd04a285a371c548bc40b910493518c41457f8bf958511d8968dbf3670854d6a9f168d975674b05bece3a218ea657fc6e70b4392ac5",
       "themeProps": {
         "bg": "#e6e9ef",
@@ -206,8 +206,8 @@
         "pastel",
         "mocha"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/catppuccin-mocha/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/catppuccin-mocha/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/catppuccin-mocha/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/catppuccin-mocha/api.json",
       "sha512": "b0c4697346df7cc361033921473896171475380090aaa852590b1e78520bdc79f3f35f196827ac51f8c60075f4626cdb56178751d1727b37fb2f294e4f32d9e5",
       "themeProps": {
         "bg": "#181825",
@@ -285,8 +285,8 @@
         "purple",
         "pink"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/dracula/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/dracula/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/dracula/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/dracula/api.json",
       "sha512": "89e6460a6dc3b3ecb440aed45aef32586a74ade8fe3f385c893c5ee1c493f700fcdd53fd06712f7ae8a0218f62ab81b03a03e3f6ca12e5dabf542c76158659d2",
       "themeProps": {
         "bg": "#21222c",
@@ -366,8 +366,8 @@
         "orange",
         "warm"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-apricot-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-apricot-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-apricot-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-apricot-light/api.json",
       "sha512": "4541c2ed04166e968fef52529a7390ff5204a66b9d42f3059c593e04c5ce3e2a40032e76616f33996357e935c2a206c2efc7a270a36e288bf7771e376238fb6f",
       "themeProps": {
         "accent": "rgb(234, 154, 82)",
@@ -403,8 +403,8 @@
         "dark",
         "blue"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-astro-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-astro-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-astro-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-astro-dark/api.json",
       "sha512": "3c8908d07b76b6e1a7c8637df315b51260fdaba8ced8ee2133b3536c99be44037b9a091e68e1acdafc52efee030498dcc349f6076037507ff5384dcf9beb6f5f",
       "themeProps": {
         "bg": "#232125",
@@ -471,8 +471,8 @@
         "green",
         "botanical"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-botanical-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-botanical-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-botanical-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-botanical-dark/api.json",
       "sha512": "2f8d4637fe3f9ac21e64b6f6b5704b85e7c8b8d5619592455cdd4c53a8bcf820113ba08ef123e62f4c438333561edf08f35d8d467fdf960a5fa363568ad40e42",
       "themeProps": {
         "accent": "rgb(148, 179, 0)",
@@ -514,8 +514,8 @@
         "green",
         "botanical"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-botanical-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-botanical-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-botanical-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-botanical-light/api.json",
       "sha512": "a90ebb896eb3bf26a12b78bc0e896389a869ed245a425e86b8ca0da539382dda37f75dab29f3be0c96223052db740759c7dfc5cb89f6353b7dd0674e1bd6e23c",
       "themeProps": {
         "accent": "#77b58c",
@@ -558,8 +558,8 @@
         "pink",
         "cherry"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-cherry-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-cherry-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-cherry-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-cherry-dark/api.json",
       "sha512": "5d835cb691002dc2b4a93f90f11146b76eab215f9cf2a73ea6238e4854122b717dd757d38ca91b375fdb507022cfe00a45001104b9a835d2407ba2ea0e40694f",
       "themeProps": {
         "accent": "rgb(255, 89, 117)",
@@ -594,8 +594,8 @@
         "pink",
         "cherry"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-cherry-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-cherry-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-cherry-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-cherry-light/api.json",
       "sha512": "e5428a62b5c24c5c0d727e4f49d038cb253e725dde2dc4d6910b5e63e10a96fa919d0ad6fee5914a69a4e5b2c0304fdd540418884ac5e0373cf7c19986bdd71b",
       "themeProps": {
         "accent": "rgb(219, 96, 114)",
@@ -631,8 +631,8 @@
         "brown",
         "warm"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-coffee-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-coffee-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-coffee-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-coffee-light/api.json",
       "sha512": "352b56f45f07732e5a236c0e376125af8bb1d69d9801b7ebacced03725f94783b9bf843257a5d083a1f7eefe8339ba6d79ee3dc8bdfa99fc9d525ddea5ea4792",
       "themeProps": {
         "accent": "#9f8989",
@@ -670,8 +670,8 @@
         "dark",
         "neon"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-future-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-future-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-future-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-future-dark/api.json",
       "sha512": "0dcc206932d2185ef1a1869efb74c22b759708ccb2f51f60ed3f19ef1f83f1d287247bb8d2b608edbf3cccbe2ee28b17ddf82475ceafbbd7708d2776fb0524fa",
       "themeProps": {
         "accent": "#63e2b7",
@@ -711,8 +711,8 @@
         "green",
         "lime"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-greenlime-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-greenlime-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-greenlime-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-greenlime-dark/api.json",
       "sha512": "aed6ce2aeeb3c69e65db5c12dd9c9ec74a3e85d471fb2aa08efb79cc70e9c4c11f11bf8cc0a1b9e263e3536ab6ab9acab76679edd636adad45190cafe3ace0f5",
       "themeProps": {
         "accent": "#b4e900",
@@ -749,8 +749,8 @@
         "green",
         "orange"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-greenorange-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-greenorange-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-greenorange-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-greenorange-dark/api.json",
       "sha512": "7d3e8498db5c13c55febaabf960ac34f31e303e775da9cfe6c188ce4d86d50457233e0cc89d81e1355d9587b743e2ba96f31d49bc799da1719071f011575bf42",
       "themeProps": {
         "accent": "#e97f00",
@@ -787,8 +787,8 @@
         "blue",
         "cool"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-ice-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-ice-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-ice-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-ice-dark/api.json",
       "sha512": "88cb51f8acca529909258a35f3912633b5660e368fc7c3653c6f31f2a30bd20744e84f8edc405a1f913c57b266b6cfd562f1a0ee1f63c857e0a65f89ec8012d5",
       "themeProps": {
         "accent": "#47BFE8",
@@ -815,8 +815,8 @@
         "dark",
         "warm"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-persimmon-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-persimmon-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-persimmon-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-persimmon-dark/api.json",
       "sha512": "c3895795c4c99d8ece5130c250298d7b204409900f8dd95f065e3228687eb570c4c01771ac935a3f322679513313ef8bd32ee16529ee44f57c86221b81725ebd",
       "themeProps": {
         "accent": "rgb(206, 102, 65)",
@@ -859,8 +859,8 @@
         "blue",
         "rainy"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-rainy-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-rainy-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-rainy-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-rainy-light/api.json",
       "sha512": "851882bfaa80e9be84b3500435d44411d8189fbbae490d9bea44eb96cce53efa8c8d45b1f03ce7db8c03cb101c62140b0219ec06dca08fad9c09fb85e10e6511",
       "themeProps": {
         "accent": "#5db0da",
@@ -895,8 +895,8 @@
         "sushi",
         "japanese"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-sushi-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-sushi-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-sushi-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-sushi-light/api.json",
       "sha512": "d186404d95daf75c17b49768094506dce8332d2d30a1e17e88ea7cd4b1d96681c3f43b6805ed37c7bf9e957533f343a40df6b5916e2fb641ade3630dcf089110",
       "themeProps": {
         "accent": "#e36749",
@@ -928,8 +928,8 @@
         "dark",
         "u0"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-u0-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-u0-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-u0-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-u0-dark/api.json",
       "sha512": "6e53f0da266a1a3cf66946634805a816e30c2cf36f68982b3c54b5dddfe1a84c5e6b7dc5868577babcac8efe17420387ad6a082a459cc28bbf4aca089863cf68",
       "themeProps": {
         "bg": "#172426",
@@ -1007,8 +1007,8 @@
         "light",
         "u0"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-u0-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-u0-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-u0-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-u0-light/api.json",
       "sha512": "b105d9ed46c210d4b035d6e0f5920e969e41faa18249fbc3decfcab29357dc86cbdd7837e70a1a55e9ca70153648768fc1c0cf89d952cbdf8dffd8966eae68b9",
       "themeProps": {
         "bg": "#e7e7eb",
@@ -1087,8 +1087,8 @@
         "light",
         "vivid"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/mi-vivid-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/mi-vivid-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/mi-vivid-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/mi-vivid-light/api.json",
       "sha512": "24367a6996b98ec9fe964e1bd1ff205ff49fa251452689de332c319a69a888f39db0e096aa1636dc55d696a039e8183f354a7d1e85bf8d96379e4845f6232f66",
       "themeProps": {
         "bg": "#fafafa",
@@ -1152,8 +1152,8 @@
         "blue",
         "arctic"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/nord/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/nord/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/nord/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/nord/api.json",
       "sha512": "3beeaa2353a35cd05fddcffd891ed8d92a87b367c06ee2aa90101e3126538a3a859f715431f0c6ce752376646224b72e7eeb9f81d57650c06796d9d1318b714a",
       "themeProps": {
         "bg": "#2e3440",
@@ -1231,8 +1231,8 @@
         "classic",
         "teal"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/solarized-dark/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/solarized-dark/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/solarized-dark/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/solarized-dark/api.json",
       "sha512": "8fd83698ad85062e445d7868552b82671c58563b045b0d180a7051f304bb2510d7513319d4016d020124e306174f896bce90cb7b01ac8e78b12637910f551590",
       "themeProps": {
         "bg": "#002b36",
@@ -1310,8 +1310,8 @@
         "classic",
         "cream"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/solarized-light/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/solarized-light/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/solarized-light/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/solarized-light/api.json",
       "sha512": "a18d37c65ec504ff86761adbb64d6ccdf62f8dc037467f273f851ac699142384d8e2d88c043aa367992f7bd4953d9eff5c19f5b40b5ecf652a933b3d168cf294",
       "themeProps": {
         "bg": "#eee8d5",
@@ -1389,8 +1389,8 @@
         "blue",
         "purple"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/tokyo-night/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/tokyo-night/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/tokyo-night/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/tokyo-night/api.json",
       "sha512": "659d30c86d113260e1c7ac4505c0b52b27d9ca1bb7b9698fca1068e1d77c34aa4f4e8d14a1329ddd3588db2c394056553040d3e72798bc047f8235d8f656b7f9",
       "themeProps": {
         "bg": "#16161e",
@@ -1467,8 +1467,8 @@
         "dark",
         "atelier"
       ],
-      "sourceUrl": "https://misstore.hital.in/registry/themes/atelier-gray/theme.json5",
-      "apiUrl": "https://misstore.hital.in/registry/themes/atelier-gray/api.json",
+      "sourceUrl": "https://store.notedeck.io/registry/themes/atelier-gray/theme.json5",
+      "apiUrl": "https://store.notedeck.io/registry/themes/atelier-gray/api.json",
       "sha512": "2d880599a0254f7b94bb7e9acc72ff40d23b2d9529b7b95d5f44a24472b1a9f6dd25c8b9e9b26f6c9856f7c6059b3376bd101b94ffc4b25e5d1fc3d1a636c905",
       "themeProps": {
         "bg": "#1e1e1e",
