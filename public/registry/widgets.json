@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-16T22:59:07.657Z",
+  "updatedAt": "2026-07-19T23:36:48.374Z",
   "widgets": [
     {
       "id": "atcoder",
@@ -82,8 +82,8 @@
       "sourceUrl": "https://store.notedeck.io/registry/widgets/commafeed/widget.is",
       "apiUrl": "https://store.notedeck.io/registry/widgets/commafeed/api.json",
       "sha512": "79cacfeb4ea262ce64aad899695ef91713f0d7536a5687c2c4b2fa990e9d24d15d5052d80702a9eff727a96d0d3eb70fbb1b65fe1ba825a64cdb13406a859642",
-      "createdAt": "2026-07-16T22:59:09.220Z",
-      "updatedAt": "2026-07-16T22:59:09.220Z",
+      "createdAt": "2026-07-17T08:03:47+09:00",
+      "updatedAt": "2026-07-17T08:03:47+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "iconUrl": "https://store.notedeck.io/registry/widgets/commafeed/icon.svg"
@@ -339,6 +339,34 @@
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "iconUrl": "https://store.notedeck.io/registry/widgets/misskey-online/icon.svg"
+    },
+    {
+      "id": "okj-prices",
+      "name": "OKJ 円建て価格ボード",
+      "version": "1.0.0",
+      "author": "@hitalin",
+      "description": "OKCoinJapan の公開 API で ETH-JPY の板 (厚みバー付き)・スプレッド・歩み値・円建て価格を表示。API キー不要 (銘柄は FOCUS_PAIR で変更可)",
+      "icon": "ti-currency-yen",
+      "autoRun": true,
+      "category": "display",
+      "capabilities": [
+        "notedeck-api"
+      ],
+      "tags": [
+        "crypto",
+        "okcoinjapan",
+        "ethereum",
+        "jpy",
+        "okj",
+        "orderbook"
+      ],
+      "sourceUrl": "https://store.notedeck.io/registry/widgets/okj-prices/widget.is",
+      "apiUrl": "https://store.notedeck.io/registry/widgets/okj-prices/api.json",
+      "sha512": "ebc3cfacbf4c63f1872feb72f6011320a1faa029df9ed481b4627478b3c0eff5e752474bb8d1f1725badfa0bcef0ec6998cec8fbefa0e2187952dc5e4ba88a21",
+      "createdAt": "2026-07-19T23:36:50.152Z",
+      "updatedAt": "2026-07-19T23:36:50.152Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT"
     },
     {
       "id": "rss-reader",
@@ -755,9 +783,9 @@
       ],
       "sourceUrl": "https://store.notedeck.io/registry/widgets/markov/widget.is",
       "apiUrl": "https://store.notedeck.io/registry/widgets/markov/api.json",
-      "sha512": "6d624791e19bc76216d0d1839bf37470f975be0061a5fa8d43114604050bba0ddf603d3194a2a7a7d9cae504a3a0df5f73904f22f50a04b8b250cdc9f985e245",
+      "sha512": "2c1fb74a71d40a016c82787b34a0ff17c9259eaba9bf59075e9deb65ffa18c82d154ed348f9506e7b409680d04278219caf543562ec005eab94fdb00132566d6",
       "createdAt": "2026-07-07T10:52:04+09:00",
-      "updatedAt": "2026-07-07T10:52:04+09:00",
+      "updatedAt": "2026-07-17T09:51:44+09:00",
       "license": "MIT",
       "iconUrl": "https://store.notedeck.io/registry/widgets/markov/icon.svg"
     },
@@ -783,9 +811,9 @@
       ],
       "sourceUrl": "https://store.notedeck.io/registry/widgets/misuhai-score/widget.is",
       "apiUrl": "https://store.notedeck.io/registry/widgets/misuhai-score/api.json",
-      "sha512": "3fbeceae07426012a05309d92f5ed3b04a62c870c2f81f375d46b697a9ec1662024941626e1dbd99b7e7a914e5f947b120e31dba1ae358c43162c6438bcd8359",
+      "sha512": "4521b9d35b995eebce1d95e5c2aafd90a79ee10136f125a78b0454d4048d7b8330e5274ac903170a66d3fd32138c57ec9d071eb6b24ff7a716525056dd6e1d35",
       "createdAt": "2026-07-07T14:18:04+09:00",
-      "updatedAt": "2026-07-07T14:21:12+09:00",
+      "updatedAt": "2026-07-17T09:51:44+09:00",
       "license": "MIT",
       "iconUrl": "https://store.notedeck.io/registry/widgets/misuhai-score/icon.svg"
     },

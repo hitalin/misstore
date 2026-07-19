@@ -1,0 +1,370 @@
+/// OKJ 円建て価格ボードウィジェット (ハイブリッド型)
+/// OKCoinJapan (OKJ) の公開 API で国内取引所のリアルな売買データを表示。API キー不要。
+/// フォーカス銘柄 (既定 ETH) の板 3 段×2 + スプレッド + 歩み値を表示する。
+/// SUB_PAIRS に銘柄を足すと価格と 24 時間変化率のコンパクト行を下に追加できる。
+/// 板の厚みバーで買い圧/売り圧が一目で分かる、参考価格サイト (CoinGecko 等) には
+/// 出せない「実際に約定する価格」を見せる取引所ならではのレイアウト。
+/// 銘柄を変えるには下の FOCUS_PAIR / SUB_PAIRS を直接編集する (OKJ 取扱の JPY ペアのみ)。
+///   FOCUS_PAIR: 板・歩み値まで表示する基軸通貨コード (例: ETH)
+///   SUB_PAIRS : 価格のみ表示する基軸通貨コードのカンマ区切り (例: BTC,SOL,XRP)。空なら非表示
+
+let FOCUS_PAIR = "ETH"
+let SUB_PAIRS = ""
+let WIDTH = 24 // monospace 整列の桁幅 (半角換算)
+let BOOK_LEVELS = 3 // 板の表示段数 (片側)
+let BAR_CELLS = 6 // 板の厚みバーの最大幅 (文字数)
+
+var lastStatus = 0 // 直近の HTTP ステータス (エラー表示用)
+
+// CoinMarketCap 風カラー (crypto ウィジェットと同一)
+let COL_UP = "16c784"
+let COL_DOWN = "ea3943"
+let COL_FLAT = "8a919e"
+let COL_DIM = "5b6470"
+let COL_NAME = "eff2f5"
+let COL_PRICE = "d0d5dd"
+
+// ─────────────────────────────
+// ヘルパー
+// ─────────────────────────────
+@dflt(v, d) { if (Core:type(v) == "null") d else v }
+
+@get(o, k, d) {
+  if (Core:type(o) != "obj") { d }
+  elif (Obj:has(o, k)) { dflt(o[k], d) }
+  else { d }
+}
+
+/// OKJ API は数値を文字列で返すので数値化する。失敗時 null。
+@toNum(s) {
+  if (Core:type(s) == "num") { return s }
+  if (Core:type(s) != "str" || s == "") { return null }
+  let v = Json:parse(s)
+  if (Core:type(v) == "num") { v } else { null }
+}
+
+@round2(x) {
+  if (Core:type(x) == "null") { 0 }
+  else { Math:round(x * 100) / 100 }
+}
+
+@pad2(n) { if (n < 10) { `0{n}` } else { `{n}` } }
+
+/// 同じ文字を n 個並べた文字列
+@repeatStr(ch, n) {
+  var s = ""
+  if (n > 0) { for (let i, n) { s = `{s}{ch}` } }
+  s
+}
+
+/// 左セグメントと右セグメントを幅 w に揃える (間をスペース埋め)
+/// lPlain/rPlain は幅計算用の素テキスト、lShow/rShow は装飾込みの表示テキスト
+@justify(lPlain, lShow, rPlain, rShow, w) {
+  let gap = w - lPlain.len - rPlain.len
+  `{lShow}{repeatStr(" ", if (gap > 0) { gap } else { 1 })}{rShow}`
+}
+
+/// 非負整数に3桁区切りのカンマを挿入 (再帰)
+@addCommas(n) {
+  if (n < 1000) { `{n}` }
+  else {
+    let head = addCommas(Math:floor(n / 1000))
+    let tail = n % 1000
+    let t = if (tail < 10) { `00{tail}` } elif (tail < 100) { `0{tail}` } else { `{tail}` }
+    `{head},{t}`
+  }
+}
+
+/// 円建て価格を整形 (価格帯に応じて桁数を調整)
+@fmtPrice(p) {
+  if (Core:type(p) == "null") { "¥-" }
+  elif (p >= 100) { `¥{addCommas(Math:round(p))}` }
+  elif (p >= 1) { `¥{round2(p)}` }
+  else { `¥{Math:round(p * 10000) / 10000}` }
+}
+
+/// 歩み値用の短縮価格。100万以上は下 6 桁だけ見せて横幅を稼ぐ
+/// (板に全桁が出ているので上位桁は自明)。
+@tapePrice(p) {
+  if (Core:type(p) == "null") { "-" }
+  elif (p >= 1000000) { addCommas(Math:round(p) % 1000000) }
+  else { addCommas(Math:round(p)) }
+}
+
+/// 基軸通貨コード → 通貨を表す絵文字 (おおむねブランドカラー)。
+/// 登録のある銘柄だけ表示し、未登録は記号なし。
+@symbolFor(code) {
+  if (code == "BTC") { "🟠" }
+  elif (code == "ETH") { "🔷" }
+  elif (code == "SOL") { "🟣" }
+  elif (code == "XRP") { "⚫" }
+  elif (code == "DOGE") { "🐕" }
+  elif (code == "ADA") { "🔵" }
+  elif (code == "LTC") { "⚪" }
+  elif (code == "DOT") { "🔴" }
+  elif (code == "TRX") { "🔻" }
+  elif (code == "AVAX") { "🔺" }
+  else { "" }
+}
+
+@chgArrow(chg) {
+  if (Core:type(chg) == "null") { "■" }
+  elif (chg > 0) { "▲" }
+  elif (chg < 0) { "▼" }
+  else { "■" }
+}
+
+@chgColor(chg) {
+  if (Core:type(chg) == "null") { COL_FLAT }
+  elif (chg > 0) { COL_UP }
+  elif (chg < 0) { COL_DOWN }
+  else { COL_FLAT }
+}
+
+/// 数量を板の厚みバー (1/8 ブロック刻み) に変換。mx は表示中の最大数量。
+@depthBar(size, mx) {
+  if (Core:type(size) != "num" || Core:type(mx) != "num") { return "▏" }
+  if (mx <= 0 || size <= 0) { return "▏" }
+  var e = Math:round(size / mx * BAR_CELLS * 8)
+  if (e < 1) { e = 1 }
+  let full = Math:floor(e / 8)
+  let rem = e % 8
+  let partials = ["", "▏", "▎", "▍", "▌", "▋", "▊", "▉"]
+  `{repeatStr("█", full)}{partials[rem]}`
+}
+
+// ─────────────────────────────
+// データ取得
+// ─────────────────────────────
+/// 全 JPY ペアの ticker を 1 リクエストで取得
+@fetchTickers() {
+  let res = Nd:http("https://www.okcoin.jp/api/spot/v3/instruments/ticker", {
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+  lastStatus = res.status
+  if (res.status != 200) { return null }
+  Json:parse(res.body)
+}
+
+/// 板 (best からの BOOK_LEVELS 段×2)。失敗時 null。
+/// asks/bids とも best が先頭。各段は { price, size } に正規化する。
+@fetchBook(code) {
+  let res = Nd:http(`https://www.okcoin.jp/api/spot/v3/instruments/{code}-JPY/book?size={BOOK_LEVELS}`, {
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+  if (res.status != 200) { return null }
+  let body = Json:parse(res.body)
+  if (Core:type(body) != "obj") { return null }
+  @rows(side) {
+    let raw = get(body, side, [])
+    if (Core:type(raw) != "arr") { return [] }
+    var lst = []
+    for (let i, raw.len) {
+      let row = raw[i]
+      if (Core:type(row) == "arr" && row.len >= 2) {
+        let p = toNum(row[0])
+        let s = toNum(row[1])
+        if (Core:type(p) == "num" && Core:type(s) == "num") { lst.push({ price: p, size: s }) }
+      }
+    }
+    lst
+  }
+  { asks: rows("asks"), bids: rows("bids") }
+}
+
+/// 直近の歩み値 (新しい順に最大 3 件)。失敗時は空配列。
+@fetchTrades(code) {
+  let res = Nd:http(`https://www.okcoin.jp/api/spot/v3/instruments/{code}-JPY/trades?limit=3`, {
+    method: "GET"
+    headers: { "Accept": "application/json" }
+  })
+  if (res.status != 200) { return [] }
+  let rows = Json:parse(res.body)
+  if (Core:type(rows) != "arr") { return [] }
+  var lst = []
+  for (let i, rows.len) {
+    if (lst.len < 3) {
+      let p = toNum(get(rows[i], "price", null))
+      if (Core:type(p) == "num") { lst.push({ price: p, side: get(rows[i], "side", "") }) }
+    }
+  }
+  lst
+}
+
+/// ticker 配列から指定ペアを探す (見つからなければ null)
+@findTicker(arr, instId) {
+  if (Core:type(arr) != "arr") { return null }
+  var found = null
+  for (let i, arr.len) {
+    if (get(arr[i], "instrument_id", "") == instId) { found = arr[i] }
+  }
+  found
+}
+
+/// 24時間変化率 (%) を open_24h と last から算出。算出不能なら null。
+@chg24h(t) {
+  let last = toNum(get(t, "last", null))
+  let open = toNum(get(t, "open_24h", null))
+  if (Core:type(last) != "num" || Core:type(open) != "num") { return null }
+  if (open == 0) { return null }
+  (last - open) / open * 100
+}
+
+// ─────────────────────────────
+// UI 構築
+// ─────────────────────────────
+/// フォーカス銘柄のヘッダ 2 行 (ペア名+更新時刻 / 現在値+変化率)
+@focusHeader(code, ticker) {
+  let now = Date:now()
+  let chg = chg24h(ticker)
+  let col = chgColor(chg)
+  let chgV = if (Core:type(chg) == "null") { "-" } else { `{round2(chg)}` }
+  let price = toNum(get(ticker, "last", null))
+  [
+    Ui:C:mfm({ text: `<center>**OKJ {code}-JPY**　$[fg.color={COL_DIM} 更新 {pad2(Date:hour(now))}:{pad2(Date:minute(now))}]</center>` })
+    Ui:C:mfm({ text: `<center>$[fg.color={COL_NAME} **{fmtPrice(price)}**]　$[fg.color={col} {chgArrow(chg)}{chgV}%]</center>` })
+  ]
+}
+
+/// 板 1 段。side は "売"/"買"、col は段の色。
+@bookLine(label, col, lvl, mx) {
+  Ui:C:mfm({
+    text: ` $[fg.color={col} {label} {addCommas(Math:round(lvl.price))} {depthBar(lvl.size, mx)}]`
+    font: "monospace"
+  })
+}
+
+/// 板 (売り3段 → スプレッド → 買い3段) を組み立てる。book が null なら省略。
+@bookView(book) {
+  if (Core:type(book) != "obj") { return [] }
+  let asks = book.asks
+  let bids = book.bids
+  if (asks.len == 0 || bids.len == 0) { return [] }
+
+  // バーの正規化基準は表示中の全段の最大数量
+  var mx = 0
+  for (let i, asks.len) { if (asks[i].size > mx) { mx = asks[i].size } }
+  for (let i, bids.len) { if (bids[i].size > mx) { mx = bids[i].size } }
+
+  var body = []
+  // 売り板は遠い順に並べ、best ask がスプレッド行に隣接するようにする
+  for (let i, asks.len) {
+    body.push(bookLine("売", COL_DOWN, asks[asks.len - 1 - i], mx))
+  }
+
+  let spread = asks[0].price - bids[0].price
+  let mid = (asks[0].price + bids[0].price) / 2
+  let pct = if (mid == 0) { 0 } else { round2(spread / mid * 100) }
+  body.push(Ui:C:mfm({
+    text: ` $[fg.color={COL_DIM} ─ スプレッド ¥{addCommas(Math:round(spread))} {pct}% ─]`
+    font: "monospace"
+  }))
+
+  for (let i, bids.len) {
+    body.push(bookLine("買", COL_UP, bids[i], mx))
+  }
+  body
+}
+
+/// 歩み値 1 行 (新しい順 3 件、買い↑緑/売り↓赤)。空なら省略。
+@tapeView(trades) {
+  if (trades.len == 0) { return [] }
+  var parts = ""
+  for (let i, trades.len) {
+    let t = trades[i]
+    let up = t.side == "buy"
+    let mark = if (up) { "↑" } else { "↓" }
+    let col = if (up) { COL_UP } else { COL_DOWN }
+    parts = `{parts} $[fg.color={col} {mark}{tapePrice(t.price)}]`
+  }
+  [Ui:C:mfm({ text: ` $[fg.color={COL_DIM} 歩み]{parts}`, font: "monospace" })]
+}
+
+/// サブ銘柄のコンパクト行 (コード … 価格 変化率)
+@subLine(code, ticker) {
+  if (Core:type(ticker) == "null") {
+    return Ui:C:mfm({ text: ` $[fg.color={COL_FLAT} {code} — データなし]`, font: "monospace" })
+  }
+  let sym = symbolFor(code)
+  let name = if (sym != "") { `{sym} {code}` } else { code }
+  let price = toNum(get(ticker, "last", null))
+  let chg = chg24h(ticker)
+  let col = chgColor(chg)
+  let chgV = if (Core:type(chg) == "null") { "-" } else { `{round2(chg)}` }
+
+  let lPlain = ` {name}`
+  let lShow = ` $[fg.color={COL_NAME} **{name}**]`
+  let rPlain = `{fmtPrice(price)} {chgArrow(chg)}{chgV}%`
+  let rShow = `$[fg.color={COL_PRICE} {fmtPrice(price)}] $[fg.color={col} {chgArrow(chg)}{chgV}%]`
+  Ui:C:mfm({ text: justify(lPlain, lShow, rPlain, rShow, WIDTH), font: "monospace" })
+}
+
+@boardView(tickers) {
+  var body = []
+
+  let focusTicker = findTicker(tickers, `{FOCUS_PAIR}-JPY`)
+  if (Core:type(focusTicker) != "null") {
+    body = body.concat(focusHeader(FOCUS_PAIR, focusTicker))
+    body = body.concat(bookView(fetchBook(FOCUS_PAIR)))
+    body = body.concat(tapeView(fetchTrades(FOCUS_PAIR)))
+  } else {
+    body.push(Ui:C:mfm({ text: `<center>$[fg.color={COL_FLAT} {FOCUS_PAIR}-JPY — データなし]</center>` }))
+  }
+
+  let codeList = SUB_PAIRS.replace(" ", "").split(",")
+  var subs = []
+  for (let i, codeList.len) {
+    if (codeList[i] != "") { subs.push(codeList[i]) }
+  }
+  if (subs.len > 0) {
+    body.push(Ui:C:mfm({ text: ` $[fg.color={COL_DIM} {repeatStr("─", WIDTH - 2)}]`, font: "monospace" }))
+    for (let i, subs.len) {
+      body.push(subLine(subs[i], findTicker(tickers, `{subs[i]}-JPY`)))
+    }
+  }
+  body
+}
+
+var firstRun = true
+var hasData = false // 一度でも価格表示に成功したか
+
+@render() {
+  if (firstRun) {
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [Ui:C:text({ text: "価格を読み込み中…" })]
+      })
+    ])
+  }
+  firstRun = false
+
+  let tickers = fetchTickers()
+  if (Core:type(tickers) != "arr") {
+    // 取得失敗 (一時的な障害など)。既に表示があればそれを維持し、
+    // 画面のチラつきを防ぐ。初回失敗時のみエラーを表示する。
+    if (hasData) { return null }
+    Ui:render([
+      Ui:C:container({
+        align: "center"
+        children: [
+          Ui:C:mfm({ text: `<center>$[fg.color=ea3943 ⚠️ 価格データを取得できません (HTTP {lastStatus})]</center>` })
+          Ui:C:mfm({ text: `<center>$[fg.color={COL_FLAT} 通信エラー。しばらく待つと回復します]</center>` })
+        ]
+      })
+    ])
+    return null
+  }
+  hasData = true
+
+  let children = boardView(tickers)
+  Ui:render([Ui:C:container({ align: "center", children: children })])
+}
+
+// 認証不要の公開 API。1 更新 = ticker + book + trades の 3 リクエスト。
+// 板と歩み値は鮮度が命なので 60 秒間隔 (3 req/min) で回す。
+// 取得失敗時は前回表示を維持する (hasData によるチラ防止)。
+render()
+Async:interval(60000, render, false)

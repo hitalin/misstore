@@ -1,0 +1,14 @@
+{
+  "id": "okj-prices",
+  "name": "OKJ 円建て価格ボード",
+  "version": "1.0.0",
+  "author": "@hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "OKCoinJapan の公開 API で ETH-JPY の板 (厚みバー付き)・スプレッド・歩み値・円建て価格を表示。API キー不要 (銘柄は FOCUS_PAIR で変更可)",
+  "icon": "ti-currency-yen",
+  "autoRun": true,
+  "category": "display",
+  "capabilities": ["notedeck-api"],
+  "license": "MIT",
+  "tags": ["crypto", "okcoinjapan", "ethereum", "jpy", "okj", "orderbook"]
+}
