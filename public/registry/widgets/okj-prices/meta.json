@@ -5,7 +5,7 @@
   "author": "@hitalin",
   "authorUrl": "https://github.com/hitalin",
   "description": "OKCoinJapan の公開 API で ETH-JPY の板 (厚みバー付き)・スプレッド・歩み値・円建て価格を表示。API キー不要 (銘柄は FOCUS_PAIR で変更可)",
-  "icon": "ti-currency-yen",
+  "icon": "ti-chart-candle",
   "autoRun": true,
   "category": "display",
   "capabilities": ["notedeck-api"],

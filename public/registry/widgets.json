@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-19T23:36:48.374Z",
+  "updatedAt": "2026-07-19T23:46:44.368Z",
   "widgets": [
     {
       "id": "atcoder",
@@ -346,7 +346,7 @@
       "version": "1.0.0",
       "author": "@hitalin",
       "description": "OKCoinJapan の公開 API で ETH-JPY の板 (厚みバー付き)・スプレッド・歩み値・円建て価格を表示。API キー不要 (銘柄は FOCUS_PAIR で変更可)",
-      "icon": "ti-currency-yen",
+      "icon": "ti-chart-candle",
       "autoRun": true,
       "category": "display",
       "capabilities": [
@@ -363,10 +363,11 @@
       "sourceUrl": "https://store.notedeck.io/registry/widgets/okj-prices/widget.is",
       "apiUrl": "https://store.notedeck.io/registry/widgets/okj-prices/api.json",
       "sha512": "ebc3cfacbf4c63f1872feb72f6011320a1faa029df9ed481b4627478b3c0eff5e752474bb8d1f1725badfa0bcef0ec6998cec8fbefa0e2187952dc5e4ba88a21",
-      "createdAt": "2026-07-19T23:36:50.152Z",
-      "updatedAt": "2026-07-19T23:36:50.152Z",
+      "createdAt": "2026-07-20T08:37:27+09:00",
+      "updatedAt": "2026-07-20T08:37:27+09:00",
       "authorUrl": "https://github.com/hitalin",
-      "license": "MIT"
+      "license": "MIT",
+      "iconUrl": "https://store.notedeck.io/registry/widgets/okj-prices/icon.svg"
     },
     {
       "id": "rss-reader",
