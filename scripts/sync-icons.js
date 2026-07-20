@@ -20,6 +20,7 @@ const ICON_MAP = {
   'plugins/federation-checker': { pack: 'lucide', name: 'satellite-dish' },
   'plugins/live-hashtag': { pack: 'lucide', name: 'hash' },
   'plugins/plugin-smith': { pack: 'lucide', name: 'hammer' },
+  'plugins/smart-delete': { pack: 'lucide', name: 'trash-2' },
   'plugins/youtube-link-cleaner': { pack: 'simple', name: 'youtube' },
   'plugins/open-in-web': { pack: 'lucide', name: 'external-link' },
   'plugins/twitter-link-fixer': { pack: 'simple', name: 'x' },

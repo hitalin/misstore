@@ -1,0 +1,14 @@
+{
+  "id": "smart-delete",
+  "name": "スマート削除",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "ノートメニューに「スマート削除」を追加。ノート削除後に各添付ファイルの利用状況を自動判定し、どのノートからも使われなくなったファイルだけをドライブからも削除します。他のノートやアバター/バナーで使用中のファイルは保持",
+  "license": "MIT",
+  "category": "utility",
+  "capabilities": ["misskey-api"],
+  "tags": ["delete", "drive", "cleanup", "attachment", "privacy"],
+  "permissions": ["read:account", "read:drive", "write:notes", "write:drive"],
+  "minNoteDeckVersion": "1.8.0"
+}

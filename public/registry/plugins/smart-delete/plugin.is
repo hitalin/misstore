@@ -1,0 +1,124 @@
+/// @ 1.2.1
+
+// スマート削除 — ノート削除時に、孤児になった添付ファイルをドライブからも削除
+//
+// Misskey の notes/delete はノートを消すだけで、添付ファイルはドライブに
+// 残り続ける (ドライブのファイル URL は認証なしで誰でも閲覧できる)。
+// このプラグインはノート削除後に各添付の drive/files/attached-notes を照会し、
+// どのノートからも参照されなくなったファイルだけをドライブから削除する。
+// 「添付も消しますか?」と人間に聞く代わりに利用状況を機械で判定する設計。
+//
+// 残すもの:
+// - 他のノートに添付中のファイル
+// - アバター/バナーに設定中のファイル (attached-notes に現れないため明示チェック)
+// - 照会や削除に失敗したファイル (安全側に倒す)
+// ページ・ギャラリー・カスタム絵文字などノート以外からの参照は API で
+// 判定できない。過去の消し忘れの一括掃除には「ドライブ掃除」ウィジェットを。
+//
+// permissions はプラグイントークンの kind チェック用 (Misskey Web は
+// notes/delete = write:notes, drive/files/* = read:drive / write:drive を要求)。
+// NoteDeck では write 系 endpoint の実行にプラグインプロファイル full が必要。
+
+### {
+	name: "スマート削除"
+	version: "1.0.0"
+	author: "@hitalin"
+	description: "ノートメニューに「スマート削除」を追加します。ノート削除後に各添付ファイルの利用状況を自動判定し、どのノートからも使われなくなったファイルだけをドライブからも削除します。他のノートやアバター/バナーで使用中のファイルは保持します"
+	permissions: ["read:account", "read:drive", "write:notes", "write:drive"]
+}
+
+// Misskey Web の Mk:api は失敗時に throw せずエラー値を返す
+@failed(res) {
+	Core:type(res) == "error"
+}
+
+// fileIds はクライアントによって欠けることがあるので files からも復元する
+@fileIdsOf(note) {
+	if (Obj:has(note, "fileIds") && Core:type(note.fileIds) == "arr") return note.fileIds
+	if (Obj:has(note, "files") && Core:type(note.files) == "arr") {
+		return note.files.map(@(f) { f.id })
+	}
+	[]
+}
+
+@isProfileFile(me, fileId) {
+	if (Obj:has(me, "avatarId") && me.avatarId == fileId) return true
+	if (Obj:has(me, "bannerId") && me.bannerId == fileId) return true
+	false
+}
+
+Plugin:register_note_action("スマート削除 (添付も整理)", @(note) {
+	let title = "スマート削除"
+
+	let me = Mk:api("i", {})
+	if (Core:type(me) != "obj") {
+		Mk:dialog(title, "アカウント情報の取得に失敗しました (アクセス許可が未付与の可能性 — 再インストールで許可できます)", "error")
+		return null
+	}
+	if (note.userId != me.id) {
+		Mk:dialog(title, "自分のノートのみ削除できます", "info")
+		return null
+	}
+
+	let fileIds = fileIdsOf(note)
+
+	// 本文も添付もない純リノートはノート実体ではないので対象外
+	if (Obj:has(note, "renoteId") && note.renoteId != null && note.text == null && fileIds.len == 0 && note.cw == null) {
+		Mk:dialog(title, "リノートは対象外です。リノート解除を使ってください", "info")
+		return null
+	}
+
+	var msg = "このノートを削除します。"
+	if (fileIds.len > 0) {
+		msg = `このノートを削除し、添付ファイル {fileIds.len} 件のうち他のノートで使われていないものをドライブからも削除します。{Str:lf}(ページやギャラリーでの利用は判定できません)`
+	}
+	if (!Mk:confirm(title, `{msg}{Str:lf}この操作は取り消せません。実行しますか?`, "warning")) return null
+
+	let res = Mk:api("notes/delete", { noteId: note.id })
+	if (failed(res)) {
+		Mk:dialog(title, "ノートの削除に失敗しました (アクセス許可が未付与の可能性)", "error")
+		return null
+	}
+
+	if (fileIds.len == 0) {
+		Mk:dialog(title, "ノートを削除しました", "success")
+		return null
+	}
+
+	// ノート削除がファイルの参照状況に反映されるのを待ってから照会する
+	Core:sleep(1000)
+
+	var deleted = 0
+	var kept = 0
+	var errored = 0
+	each (let fileId, fileIds) {
+		if (isProfileFile(me, fileId)) {
+			kept += 1
+		} else {
+			// 空かどうかだけ知りたいので limit: 1 で十分
+			let attached = Mk:api("drive/files/attached-notes", { fileId: fileId, limit: 1 })
+			if (Core:type(attached) != "arr") {
+				// 照会に失敗したファイルは安全側に倒して残す
+				errored += 1
+			} elif (attached.len > 0) {
+				kept += 1
+			} else {
+				let del = Mk:api("drive/files/delete", { fileId: fileId })
+				if (failed(del)) {
+					errored += 1
+				} else {
+					deleted += 1
+				}
+				// 連続削除によるレート制限を避ける
+				Core:sleep(250)
+			}
+		}
+	}
+
+	var parts = []
+	if (deleted > 0) { parts.push(`{deleted} 件をドライブから削除`) }
+	if (kept > 0) { parts.push(`{kept} 件は他のノートやプロフィールで使用中のため保持`) }
+	if (errored > 0) { parts.push(`{errored} 件は確認または削除に失敗 (ドライブに残っています)`) }
+	let level = if (errored > 0) "warning" else "success"
+	Mk:dialog(title, `ノートを削除しました。添付ファイル: {parts.join("、")}`, level)
+})

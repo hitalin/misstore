@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-19T23:46:44.368Z",
+  "updatedAt": "2026-07-20T00:12:28.391Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -178,6 +178,38 @@
       "license": "MIT",
       "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",
       "iconUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/icon.svg"
+    },
+    {
+      "id": "smart-delete",
+      "name": "スマート削除",
+      "version": "1.0.0",
+      "author": "hitalin",
+      "description": "ノートメニューに「スマート削除」を追加。ノート削除後に各添付ファイルの利用状況を自動判定し、どのノートからも使われなくなったファイルだけをドライブからも削除します。他のノートやアバター/バナーで使用中のファイルは保持",
+      "category": "utility",
+      "capabilities": [
+        "misskey-api"
+      ],
+      "tags": [
+        "delete",
+        "drive",
+        "cleanup",
+        "attachment",
+        "privacy"
+      ],
+      "sourceUrl": "https://store.notedeck.io/registry/plugins/smart-delete/plugin.is",
+      "apiUrl": "https://store.notedeck.io/registry/plugins/smart-delete/api.json",
+      "sha512": "bba0644c86ac0c45dbaf9349e029a698c7344e5a4c86f3bf10eb857b5455ece86c0d6b5eb1f0b7dfd38d3ab1175b71d10935fb756617838aa5673bfa65374504",
+      "createdAt": "2026-07-20T00:12:28.554Z",
+      "updatedAt": "2026-07-20T00:12:28.554Z",
+      "authorUrl": "https://github.com/hitalin",
+      "license": "MIT",
+      "permissions": [
+        "read:account",
+        "read:drive",
+        "write:notes",
+        "write:drive"
+      ],
+      "iconUrl": "https://store.notedeck.io/registry/plugins/smart-delete/icon.svg"
     },
     {
       "id": "dominator",
