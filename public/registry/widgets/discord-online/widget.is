@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// Discord オンライン状態ウィジェット
 /// Lanyard API (https://api.lanyard.rest/) で Discord ユーザーの
 /// オンライン状態・利用デバイス・アクティビティ (Spotify 等) を表示。API キー不要。

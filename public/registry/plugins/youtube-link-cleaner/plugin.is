@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// YouTube Link Cleaner
 /// 投稿時に YouTube URL の追跡クエリ (?si など) を自動削除します。
 /// Original: jj1guj (MIT License)

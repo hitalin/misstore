@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// リリースウィジェット
 /// GitHub Releases API から任意リポジトリの最新リリースと履歴を表示。API キー不要。
 /// デフォルトは misskey-dev/misskey。設定で任意の "owner/repo" に変更できる。

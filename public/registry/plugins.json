@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-20T00:12:28.391Z",
+  "updatedAt": "2026-07-20T14:41:37.265Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -19,7 +19,7 @@
       ],
       "sourceUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/plugin.is",
       "apiUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/api.json",
-      "sha512": "faf48d19db3e836a619702f3b5f49be6212bb1bc58ce956dc0cfdf560c7787b25d202eae4cf2fdb69d816d704b9b15c2114b9a820c0652358a8553871b76ea64",
+      "sha512": "b3d84b8a725d291b00335daeceebdb52aef71b0c2739b45a540fa760af110a61de8b90db097fb863c638e8d82af429d4d3d75bc7920e5681e77d700cbfef84de",
       "createdAt": "2026-05-12T11:12:35+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/hitalin",
@@ -171,7 +171,7 @@
       ],
       "sourceUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/plugin.is",
       "apiUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/api.json",
-      "sha512": "128cdc9b717019ddc4aec84cce788d7be84e480d78f5f5b6cfb70d0d43005195d138f16e20c640ac216466f772a43f49db5b3c6dfd4e2138d19585e404b54efd",
+      "sha512": "aad7b46faaf8041ee2d0a5764076906991daddfd071741f7d1225e9fc139f1f85949c319e59b980dde11d39abafef23f4b68150ff93de6ce90ff39d685cbcba4",
       "createdAt": "2026-04-11T21:20:52+09:00",
       "updatedAt": "2026-07-15T14:27:28+09:00",
       "authorUrl": "https://github.com/jj1guj",
@@ -199,8 +199,8 @@
       "sourceUrl": "https://store.notedeck.io/registry/plugins/smart-delete/plugin.is",
       "apiUrl": "https://store.notedeck.io/registry/plugins/smart-delete/api.json",
       "sha512": "bba0644c86ac0c45dbaf9349e029a698c7344e5a4c86f3bf10eb857b5455ece86c0d6b5eb1f0b7dfd38d3ab1175b71d10935fb756617838aa5673bfa65374504",
-      "createdAt": "2026-07-20T00:12:28.554Z",
-      "updatedAt": "2026-07-20T00:12:28.554Z",
+      "createdAt": "2026-07-20T09:16:14+09:00",
+      "updatedAt": "2026-07-20T09:16:14+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [

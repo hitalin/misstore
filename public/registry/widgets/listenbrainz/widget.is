@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// ListenBrainz Now Playing ウィジェット
 /// ListenBrainz で今聴いている曲を表示し、ワンタップで #nowplaying 投稿。
 /// userId は ListenBrainz のユーザー名 (Misskey アカウントとは無関係)。

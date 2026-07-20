@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// CVE 脆弱性ウィジェット
 /// NVD (NIST National Vulnerability Database) から直近の重大な脆弱性 (CVE) を
 /// CVSS スコア・重大度付きで一覧表示する。API キー不要 (公開 API を直接叩く)。

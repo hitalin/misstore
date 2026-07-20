@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// 連合統計ウィジェット
 /// joinmisskey (instanceapp.misskey.page) のサーバー一覧データで
 /// Misskey 連合全体の統計・サーバーランキング・自サーバーの状態を表示。

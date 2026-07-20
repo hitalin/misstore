@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// 天気予報ウィジェット
 /// Open-Meteo (https://open-meteo.com/) で現在の天気と数日分の予報を表示。
 /// 都市名から geocoding で座標を引くため API キーは不要。

@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// Minecraft サーバーウィジェット
 /// api.mcstatus.io でマイクラ Java サーバーの稼働状況・接続人数・MOTD を表示。API キー不要。
 /// API は NoteDeck サーバーサイド (Nd:http) で叩くため CORS/UA 制約を受けない。

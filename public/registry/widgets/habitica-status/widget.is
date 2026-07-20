@@ -1,3 +1,4 @@
+/// @ 1.2.1
 /// Habitica キャラクターステータス ウィジェット
 /// Habitica の HP/MP/XP/ゴールド/レベルを表示する。
 /// API トークン必須サービスを NoteDeck の Secret Vault 経由で叩くデモ。
