@@ -200,7 +200,7 @@ watch(activeTab, () => {
 
 // Leave home tab automatically when the user starts searching
 watch(query, (v) => {
-  if (v.trim() && activeTab.value === 'home') activeTab.value = 'plugins'
+  if (v.trim() && activeTab.value === 'home') activeTab.value = 'themes'
 })
 
 function findPlugin(id: string) {

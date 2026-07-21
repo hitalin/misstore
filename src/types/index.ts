@@ -189,8 +189,8 @@ export const SKILL_SCOPE_LABELS: Record<SkillScope, string> = {
 export interface RegistryIndex<T> {
   version: number
   updatedAt: string
-  plugins?: T[]
   themes?: T[]
+  plugins?: T[]
   widgets?: T[]
   queries?: T[]
   skills?: T[]
@@ -198,8 +198,8 @@ export interface RegistryIndex<T> {
 
 export type StoreTab =
   | 'home'
-  | 'plugins'
   | 'themes'
+  | 'plugins'
   | 'widgets'
   | 'queries'
   | 'skills'

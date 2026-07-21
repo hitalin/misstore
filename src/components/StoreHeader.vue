@@ -49,18 +49,18 @@ const colorModeLabels: Record<string, string> = {
             Home
           </a>
           <a
-            href="#plugins"
-            :class="{ active: activeTab === 'plugins' }"
-            @click.prevent="switchTab('plugins')"
-          >
-            Plugins
-          </a>
-          <a
             href="#themes"
             :class="{ active: activeTab === 'themes' }"
             @click.prevent="switchTab('themes')"
           >
             Themes
+          </a>
+          <a
+            href="#plugins"
+            :class="{ active: activeTab === 'plugins' }"
+            @click.prevent="switchTab('plugins')"
+          >
+            Plugins
           </a>
           <a
             href="#widgets"
@@ -128,17 +128,17 @@ const colorModeLabels: Record<string, string> = {
       </button>
       <button
         class="nav-mobile-item"
-        :class="{ active: activeTab === 'plugins' }"
-        @click="switchTab('plugins')"
-      >
-        Plugins
-      </button>
-      <button
-        class="nav-mobile-item"
         :class="{ active: activeTab === 'themes' }"
         @click="switchTab('themes')"
       >
         Themes
+      </button>
+      <button
+        class="nav-mobile-item"
+        :class="{ active: activeTab === 'plugins' }"
+        @click="switchTab('plugins')"
+      >
+        Plugins
       </button>
       <button
         class="nav-mobile-item"

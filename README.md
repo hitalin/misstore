@@ -1,13 +1,13 @@
 # misstore
 
-Misskey / NoteDeck 向けのプラグイン・テーマ・ウィジェット・クエリ・スキルストア。
+Misskey / NoteDeck 向けのテーマ・プラグイン・ウィジェット・クエリ・スキルストア。
 
-AiScript プラグインや Misskey 互換テーマ、NoteDeck ウィジェットテンプレート、カラムフィルタクエリ、AI 用スキル (システムプロンプト) をブラウザから検索・プレビュー・ワンクリックでインストールできます。
+Misskey 互換テーマや AiScript プラグイン、NoteDeck ウィジェットテンプレート、カラムフィルタクエリ、AI 用スキル (システムプロンプト) をブラウザから検索・プレビュー・ワンクリックでインストールできます。
 
 ## 機能
 
-- **プラグインストア** - AiScript プラグインの検索・カテゴリフィルタ・ソースコピー
 - **テーマストア** - ダーク / ライトテーマの検索・カラープレビュー・ソースコピー
+- **プラグインストア** - AiScript プラグインの検索・カテゴリフィルタ・ソースコピー
 - **ウィジェットストア** - NoteDeck の AiScript App ウィジェットテンプレートの検索・カテゴリフィルタ・ソースコピー
 - **クエリストア** - NoteDeck のカラムフィルタクエリ ([notedeck#783](https://github.com/notedeck-dev/notedeck/issues/783)) の検索・カテゴリフィルタ・ソースコピー
 - **スキルストア** - NoteDeck の AI に持たせるシステムプロンプト (`.md` + frontmatter) の検索・カテゴリフィルタ・ソースコピー
@@ -37,18 +37,18 @@ pnpm run dev
 
 ## レジストリ構造
 
-プラグイン・テーマ・ウィジェット・クエリ・スキルは `public/registry/` 以下にディレクトリ単位で管理されます。
+テーマ・プラグイン・ウィジェット・クエリ・スキルは `public/registry/` 以下にディレクトリ単位で管理されます。
 
 ```
 public/registry/
-  plugins/
-    <plugin-id>/
-      meta.json      # メタデータ
-      plugin.is      # AiScript ソースコード
   themes/
     <theme-id>/
       meta.json      # メタデータ
       theme.json5    # テーマ定義
+  plugins/
+    <plugin-id>/
+      meta.json      # メタデータ
+      plugin.is      # AiScript ソースコード
   widgets/
     <widget-id>/
       meta.json      # メタデータ
@@ -60,41 +60,19 @@ public/registry/
   skills/
     <skill-id>/
       skill.md       # YAML frontmatter + システムプロンプト本文
-  plugins.json       # 自動生成されるプラグインインデックス
   themes.json        # 自動生成されるテーマインデックス
+  plugins.json       # 自動生成されるプラグインインデックス
   widgets.json       # 自動生成されるウィジェットインデックス
   queries.json       # 自動生成されるクエリインデックス
   skills.json        # 自動生成されるスキルインデックス
 ```
 
-`plugins.json` / `themes.json` / `widgets.json` / `queries.json` / `skills.json` は `pnpm run registry:build` で各ディレクトリの `meta.json` または `skill.md` の frontmatter から自動生成されます。
+`themes.json` / `plugins.json` / `widgets.json` / `queries.json` / `skills.json` は `pnpm run registry:build` で各ディレクトリの `meta.json` または `skill.md` の frontmatter から自動生成されます。
 
 ### エントリの URL フィールド
 
 - `sourceUrl` — 生ソース（`plugin.is` / `theme.json5` / `widget.is` / `skill.md` / `query.is`）。クライアントが実体を取得する際はこちらを使う
 - `apiUrl` — `{ type: "plugin" | "theme" | "widget" | "skill" | "query", data: <source> }` を返す Misskey 互換エンドポイント（`api.json`）。`plugin` / `theme` は Misskey 本家の `install-extensions?url=...` で利用される。`widget` / `skill` / `query` は現時点で Misskey 本家には消費者がいないが、NoteDeck からの取得用および将来本家や他クライアントが対応した時のために同じ流儀で予約されている
-
-## プラグインの追加方法
-
-1. `public/registry/plugins/<id>/` ディレクトリを作成
-2. `meta.json` を追加:
-
-```json
-{
-  "id": "my-plugin",
-  "name": "My Plugin",
-  "version": "1.0.0",
-  "author": "@you",
-  "description": "プラグインの説明",
-  "category": "utility",
-  "tags": ["tag1", "tag2"]
-}
-```
-
-3. `plugin.is` に AiScript ソースコードを配置
-4. `pnpm run registry:build` でインデックスを再生成
-
-**プラグインカテゴリ:** `post-form` / `note-action` / `user-action` / `note-filter` / `post-filter` / `utility`
 
 ## テーマの追加方法
 
@@ -121,6 +99,28 @@ public/registry/
 
 3. `theme.json5`（または `theme.json`）にテーマ定義を配置
 4. `pnpm run registry:build` でインデックスを再生成
+
+## プラグインの追加方法
+
+1. `public/registry/plugins/<id>/` ディレクトリを作成
+2. `meta.json` を追加:
+
+```json
+{
+  "id": "my-plugin",
+  "name": "My Plugin",
+  "version": "1.0.0",
+  "author": "@you",
+  "description": "プラグインの説明",
+  "category": "utility",
+  "tags": ["tag1", "tag2"]
+}
+```
+
+3. `plugin.is` に AiScript ソースコードを配置
+4. `pnpm run registry:build` でインデックスを再生成
+
+**プラグインカテゴリ:** `post-form` / `note-action` / `user-action` / `note-filter` / `post-filter` / `utility`
 
 ## ウィジェットの追加方法
 
