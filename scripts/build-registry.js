@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
-// Scans public/registry/{plugins,themes,widgets,skills,styles}/*/<source> and generates:
+// Scans public/registry/{plugins,themes,widgets,skills,queries}/*/<source> and generates:
 // - api.json per item (Misskey-compatible distribution endpoint)
-// - plugins.json / themes.json / widgets.json / skills.json / styles.json (registry indexes)
+// - plugins.json / themes.json / widgets.json / skills.json / queries.json (registry indexes)
 // - index.json (master index)
 
 import { execFileSync } from 'node:child_process'
@@ -372,36 +372,30 @@ function buildSkills() {
   })
 }
 
-// --- Styles (custom CSS) ---
+// --- Queries (AiScript column filters, notedeck#783) ---
 
-function buildStyles() {
-  const dir = join(REGISTRY_DIR, 'styles')
+function buildQueries() {
+  const dir = join(REGISTRY_DIR, 'queries')
   return scanDirs(dir).flatMap((id) => {
     const metaPath = join(dir, id, 'meta.json')
-    const srcPath = join(dir, id, 'style.css')
+    const srcPath = join(dir, id, 'query.is')
 
     if (!existsSync(metaPath)) {
       errors.push(`[${id}] missing meta.json`)
       return []
     }
     if (!existsSync(srcPath)) {
-      errors.push(`[${id}] missing style.css`)
+      errors.push(`[${id}] missing query.is`)
       return []
     }
 
     const meta = readJson(metaPath)
-    validateRequired(meta, id, [
-      'name',
-      'version',
-      'author',
-      'description',
-      'target',
-    ])
+    validateRequired(meta, id, ['name', 'version', 'author', 'description'])
 
-    const validTargets = ['misskey', 'notedeck']
-    if (meta.target && !validTargets.includes(meta.target)) {
+    const validCategories = ['mute', 'focus', 'other']
+    if (meta.category && !validCategories.includes(meta.category)) {
       errors.push(
-        `[${id}] invalid target: ${meta.target} (expected one of ${validTargets.join(', ')})`,
+        `[${id}] invalid category: ${meta.category} (expected one of ${validCategories.join(', ')})`,
       )
     }
 
@@ -409,7 +403,8 @@ function buildStyles() {
     const normalized = normalizeLF(source)
     const sha512 = computeSha512(source)
 
-    const apiJson = { type: 'style', data: normalized }
+    // 配布はソースのみ (pre-compiled QIR は配らない — クライアント側で必ず再コンパイル)
+    const apiJson = { type: 'query', data: normalized }
     writeFileSync(
       join(dir, id, 'api.json'),
       JSON.stringify(apiJson) + '\n',
@@ -417,7 +412,7 @@ function buildStyles() {
 
     const now = new Date().toISOString()
     const git = gitDates(join(dir, id))
-    const iconUrl = resolveIconUrl(join(dir, id), 'styles', id)
+    const iconUrl = resolveIconUrl(join(dir, id), 'queries', id)
 
     return [
       {
@@ -426,10 +421,10 @@ function buildStyles() {
         version: meta.version,
         author: meta.author,
         description: meta.description,
-        target: meta.target,
+        category: meta.category || 'other',
         tags: meta.tags || [],
-        sourceUrl: `${SITE_URL}/registry/styles/${id}/style.css`,
-        apiUrl: `${SITE_URL}/registry/styles/${id}/api.json`,
+        sourceUrl: `${SITE_URL}/registry/queries/${id}/query.is`,
+        apiUrl: `${SITE_URL}/registry/queries/${id}/api.json`,
         sha512,
         createdAt: meta.createdAt || git.createdAt || now,
         updatedAt: meta.updatedAt || git.updatedAt || meta.createdAt || now,
@@ -449,7 +444,7 @@ const plugins = buildPlugins().sort((a, b) => a.name.localeCompare(b.name))
 const themes = buildThemes().sort((a, b) => a.name.localeCompare(b.name))
 const widgets = buildWidgets().sort((a, b) => a.name.localeCompare(b.name))
 const skills = buildSkills().sort((a, b) => a.name.localeCompare(b.name))
-const styles = buildStyles().sort((a, b) => a.name.localeCompare(b.name))
+const queries = buildQueries().sort((a, b) => a.name.localeCompare(b.name))
 
 // Write indexes
 writeFileSync(
@@ -473,8 +468,8 @@ writeFileSync(
 )
 
 writeFileSync(
-  join(REGISTRY_DIR, 'styles.json'),
-  JSON.stringify({ version: 1, updatedAt: now, styles }, null, 2) + '\n',
+  join(REGISTRY_DIR, 'queries.json'),
+  JSON.stringify({ version: 1, updatedAt: now, queries }, null, 2) + '\n',
 )
 
 // Write master index
@@ -488,7 +483,7 @@ writeFileSync(
       themes: { count: themes.length, updatedAt: now },
       widgets: { count: widgets.length, updatedAt: now },
       skills: { count: skills.length, updatedAt: now },
-      styles: { count: styles.length, updatedAt: now },
+      queries: { count: queries.length, updatedAt: now },
     },
     null,
     2,
@@ -497,7 +492,7 @@ writeFileSync(
 
 // Report
 console.log(
-  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s), skills.json: ${skills.length} skill(s), styles.json: ${styles.length} style(s)`,
+  `plugins.json: ${plugins.length} plugin(s), themes.json: ${themes.length} theme(s), widgets.json: ${widgets.length} widget(s), skills.json: ${skills.length} skill(s), queries.json: ${queries.length} query(ies)`,
 )
 
 if (errors.length > 0) {

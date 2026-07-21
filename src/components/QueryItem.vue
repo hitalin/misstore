@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { StyleEntry } from '@/types'
-import { STYLE_TARGET_LABELS } from '@/types'
+import type { QueryEntry } from '@/types'
+import { QUERY_CATEGORY_LABELS } from '@/types'
 import CopyButton from '@/components/CopyButton.vue'
 
-// prop 名 style は Vue のスタイルバインディングと衝突するため entry
-defineProps<{ entry: StyleEntry }>()
+// prop 名 query は useStore の検索クエリと紛らわしいため entry
+defineProps<{ entry: QueryEntry }>()
 </script>
 
 <template>
-  <router-link :to="`/styles/${entry.id}`" class="vsx-card vsx-card-link">
+  <router-link :to="`/queries/${entry.id}`" class="vsx-card vsx-card-link">
     <div class="vsx-body">
       <div class="vsx-icon-plain" style="color: var(--accent)">
         <span
@@ -18,7 +18,7 @@ defineProps<{ entry: StyleEntry }>()
           role="img"
           :aria-label="entry.name"
         ></span>
-        <svg v-else width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9.06 11.9 8.07-8.06a2.85 2.85 0 1 1 4.03 4.03l-8.06 8.08"/><path d="M7.07 14.94c-1.66 0-3 1.35-3 3.02 0 1.33-2.5 1.52-2 2.02 1.08 1.1 2.49 2.02 4 2.02 2.2 0 4-1.8 4-4.04a3.01 3.01 0 0 0-3-3.02z"/></svg>
+        <svg v-else width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
       </div>
       <div class="vsx-details">
         <div class="vsx-name">{{ entry.name }}</div>
@@ -30,7 +30,7 @@ defineProps<{ entry: StyleEntry }>()
       </div>
     </div>
     <div class="vsx-footer">
-      <span class="vsx-category">{{ STYLE_TARGET_LABELS[entry.target] || entry.target }}</span>
+      <span class="vsx-category">{{ QUERY_CATEGORY_LABELS[entry.category] || entry.category }}</span>
       <div class="vsx-actions">
         <CopyButton :source-url="entry.sourceUrl" :id="entry.id" />
       </div>

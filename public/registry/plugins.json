@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-07-20T14:41:37.265Z",
+  "updatedAt": "2026-07-21T00:47:56.781Z",
   "plugins": [
     {
       "id": "plugin-smith",
@@ -21,7 +21,7 @@
       "apiUrl": "https://store.notedeck.io/registry/plugins/plugin-smith/api.json",
       "sha512": "b3d84b8a725d291b00335daeceebdb52aef71b0c2739b45a540fa760af110a61de8b90db097fb863c638e8d82af429d4d3d75bc7920e5681e77d700cbfef84de",
       "createdAt": "2026-05-12T11:12:35+09:00",
-      "updatedAt": "2026-07-15T14:27:28+09:00",
+      "updatedAt": "2026-07-20T23:42:10+09:00",
       "authorUrl": "https://github.com/hitalin",
       "license": "MIT",
       "permissions": [
@@ -173,7 +173,7 @@
       "apiUrl": "https://store.notedeck.io/registry/plugins/youtube-link-cleaner/api.json",
       "sha512": "aad7b46faaf8041ee2d0a5764076906991daddfd071741f7d1225e9fc139f1f85949c319e59b980dde11d39abafef23f4b68150ff93de6ce90ff39d685cbcba4",
       "createdAt": "2026-04-11T21:20:52+09:00",
-      "updatedAt": "2026-07-15T14:27:28+09:00",
+      "updatedAt": "2026-07-20T23:42:10+09:00",
       "authorUrl": "https://github.com/jj1guj",
       "license": "MIT",
       "repository": "https://github.com/jj1guj/misskey_youtube_link_cleaner",

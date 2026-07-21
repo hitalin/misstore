@@ -4,22 +4,22 @@ import PluginItem from '@/components/PluginItem.vue'
 import ThemeItem from '@/components/ThemeItem.vue'
 import WidgetItem from '@/components/WidgetItem.vue'
 import SkillItem from '@/components/SkillItem.vue'
-import StyleItem from '@/components/StyleItem.vue'
+import QueryItem from '@/components/QueryItem.vue'
 import StoreEmpty from '@/components/StoreEmpty.vue'
 import StoreSkeleton from '@/components/StoreSkeleton.vue'
 import HomeEntrance from '@/components/HomeEntrance.vue'
 import {
   PLUGIN_CATEGORY_LABELS,
+  QUERY_CATEGORY_LABELS,
   SKILL_CATEGORY_LABELS,
-  STYLE_TARGET_LABELS,
   WIDGET_CATEGORY_LABELS,
 } from '@/types'
 import { useStore } from '@/composables/useStore'
 
 const {
   activeTab, category, sort, misskeyHost,
-  filteredPlugins, filteredThemes, filteredWidgets, filteredSkills, filteredStyles,
-  loaded, pluginCategories, widgetCategories, skillCategories, styleTargets, resultCount,
+  filteredPlugins, filteredThemes, filteredWidgets, filteredSkills, filteredQueries,
+  loaded, pluginCategories, widgetCategories, skillCategories, queryCategories, resultCount,
 } = useStore()
 </script>
 
@@ -72,15 +72,15 @@ const {
             {{ SKILL_CATEGORY_LABELS[c] || c }}
           </button>
         </template>
-        <template v-else-if="activeTab === 'styles'">
+        <template v-else-if="activeTab === 'queries'">
           <button
-            v-for="c in styleTargets"
+            v-for="c in queryCategories"
             :key="c"
             class="pill"
             :class="{ active: category === c }"
             @click="category = c"
           >
-            {{ STYLE_TARGET_LABELS[c] || c }}
+            {{ QUERY_CATEGORY_LABELS[c] || c }}
           </button>
         </template>
         <template v-else>
@@ -124,9 +124,9 @@ const {
           </div>
           <StoreEmpty v-else />
         </template>
-        <template v-else-if="activeTab === 'styles'">
-          <div v-if="filteredStyles.length" class="store-grid">
-            <StyleItem v-for="s in filteredStyles" :key="s.id" :entry="s" />
+        <template v-else-if="activeTab === 'queries'">
+          <div v-if="filteredQueries.length" class="store-grid">
+            <QueryItem v-for="s in filteredQueries" :key="s.id" :entry="s" />
           </div>
           <StoreEmpty v-else />
         </template>

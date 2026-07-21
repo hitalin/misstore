@@ -101,13 +101,15 @@ export const CAPABILITY_LABELS: Record<StoreCapability, string> = {
   'secret-vault': 'Secret Vault',
 }
 
-export interface StyleEntry {
+// NoteDeck のカラムフィルタクエリ (notedeck#783)。
+// AiScript 式で「true = 表示」。配布はソースのみで、適用側が必ず再コンパイルする。
+export interface QueryEntry {
   id: string
   name: string
   version: string
   author: string
   description: string
-  target: StyleTarget
+  category: QueryCategory
   tags: string[]
   sourceUrl: string
   apiUrl: string
@@ -120,12 +122,13 @@ export interface StyleEntry {
   iconUrl?: string
 }
 
-// カスタム CSS は適用先の DOM 構造に依存するため target で対象クライアントを明示する
-export type StyleTarget = 'misskey' | 'notedeck'
+// mute = ノイズを減らす系 / focus = 特定のノートに絞る系
+export type QueryCategory = 'mute' | 'focus' | 'other'
 
-export const STYLE_TARGET_LABELS: Record<StyleTarget, string> = {
-  misskey: 'Misskey Web',
-  notedeck: 'NoteDeck',
+export const QUERY_CATEGORY_LABELS: Record<QueryCategory, string> = {
+  mute: 'Mute',
+  focus: 'Focus',
+  other: 'Other',
 }
 
 export interface SkillEntry {
@@ -190,7 +193,7 @@ export interface RegistryIndex<T> {
   themes?: T[]
   widgets?: T[]
   skills?: T[]
-  styles?: T[]
+  queries?: T[]
 }
 
 export type StoreTab =
@@ -199,4 +202,4 @@ export type StoreTab =
   | 'themes'
   | 'widgets'
   | 'skills'
-  | 'styles'
+  | 'queries'

@@ -1,0 +1,11 @@
+{
+  "id": "local-only",
+  "name": "ローカルのみ",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "リモートユーザーのノートを隠し、自サーバーのユーザーだけに絞り込む",
+  "license": "MIT",
+  "category": "focus",
+  "tags": ["local", "server"]
+}

@@ -22,8 +22,8 @@ const router = createRouter({
       component: () => import('@/pages/SkillDetail.vue'),
     },
     {
-      path: '/styles/:id',
-      component: () => import('@/pages/StyleDetail.vue'),
+      path: '/queries/:id',
+      component: () => import('@/pages/QueryDetail.vue'),
     },
   ],
 })

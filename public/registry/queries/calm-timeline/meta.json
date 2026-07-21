@@ -1,0 +1,11 @@
+{
+  "id": "calm-timeline",
+  "name": "しずかなタイムライン",
+  "version": "1.0.0",
+  "author": "hitalin",
+  "authorUrl": "https://github.com/hitalin",
+  "description": "純リノート・リプライ・ダイレクト投稿をまとめて隠し、本人の言葉のノートだけを流す",
+  "license": "MIT",
+  "category": "mute",
+  "tags": ["noise", "renote", "reply"]
+}

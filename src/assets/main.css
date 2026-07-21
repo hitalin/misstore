@@ -726,7 +726,7 @@ html[style*="color-scheme: dark"] .vsx-footer { background: rgba(0, 0, 0, 0.18);
   margin-left: 0;
 }
 
-/* フッター左端のターゲットラベル (StyleItem)。ボタンと高さを揃えたセグメントにする */
+/* フッター左端のカテゴリラベル (QueryItem)。ボタンと高さを揃えたセグメントにする */
 .vsx-footer .vsx-category {
   display: flex;
   align-items: center;

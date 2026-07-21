@@ -1,0 +1,1 @@
+{"type":"query","data":"/// @ 1.2.1\n// しずかなタイムラインクエリ — true = 表示\n//\n// 純リノート・リプライ・ダイレクト投稿をまとめて隠し、\n// フォロイーが自分の言葉で書いたノートだけを流す。\nlet is_pure_renote = note.renoteId != null && note.text == null\nlet is_reply = note.replyId != null\nlet is_direct = note.visibility == \"specified\"\n\n!is_pure_renote && !is_reply && !is_direct\n"}

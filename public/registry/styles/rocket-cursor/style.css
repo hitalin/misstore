@@ -1,6 +1,0 @@
-/* NoteDeck プリセット (nd-cursor: rocket) と同一の CSS */
-*,
-*::before,
-*::after {
-  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20'><text y='16' font-size='16'>%F0%9F%9A%80</text></svg>") 2 18, auto;
-}

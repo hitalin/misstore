@@ -1,0 +1,10 @@
+/// @ 1.2.1
+// しずかなタイムラインクエリ — true = 表示
+//
+// 純リノート・リプライ・ダイレクト投稿をまとめて隠し、
+// フォロイーが自分の言葉で書いたノートだけを流す。
+let is_pure_renote = note.renoteId != null && note.text == null
+let is_reply = note.replyId != null
+let is_direct = note.visibility == "specified"
+
+!is_pure_renote && !is_reply && !is_direct
